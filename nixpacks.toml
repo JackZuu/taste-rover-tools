@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = [
+  "python310Full",
+  "nodejs-18_x",
+  "stdenv.cc.cc",
+  "gcc.cc.lib",
+  "zlib",
+  "openssl"
+]
+
+[phases.install]
+cmds = [
+  "python -m venv /opt/venv",
+  "/opt/venv/bin/python -m pip install -U pip",
+  "/opt/venv/bin/python -m pip install --only-binary=:all: -r backend/requirements.txt",
+  "cd frontend && npm install && npm run build && cd .."
+]

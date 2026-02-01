@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+requests
+openai
+python-dotenv
+numpy==1.26.4
+pandas==2.2.2
+openpyxl
