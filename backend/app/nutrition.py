@@ -100,6 +100,10 @@ Remember: Return ONLY the JSON object, no other text.
             "error": f"Failed to parse nutrition data: {str(e)}"
         }
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"OpenAI Error: {str(e)}")
+        print(f"Full traceback: {error_details}")
         return {
             "error": f"Error calculating nutrition: {str(e)}"
         }
