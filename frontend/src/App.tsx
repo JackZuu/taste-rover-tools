@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import FlowScreen from "./FlowScreen";
 
 type WeatherResponse = {
   postcode: string;
@@ -45,7 +46,7 @@ type McDonaldsProduct = {
   allergens: string;
 };
 
-type Screen = "home" | "weather" | "nutrition" | "mcdonalds" | "mcdonalds-detail";
+type Screen = "home" | "weather" | "nutrition" | "mcdonalds" | "mcdonalds-detail" | "flow";
 
 const getWeatherIcon = (condition: string) => {
   if (condition === "mainly sun") return "☀️";
@@ -363,6 +364,39 @@ export default function App() {
               Menu & nutrition
             </div>
           </button>
+
+          <button
+            onClick={() => setScreen("flow")}
+            style={{
+              background: "#1a5f3f",
+              border: "none",
+              borderRadius: "16px",
+              padding: "clamp(24px, 6vw, 32px) clamp(20px, 5vw, 24px)",
+              cursor: "pointer",
+              transition: "all 0.3s",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+              textAlign: "center",
+              WebkitTapHighlightColor: "transparent"
+            }}
+          >
+            <div style={{ fontSize: "clamp(36px, 10vw, 42px)", marginBottom: "12px" }}>⚡</div>
+            <div style={{
+              fontSize: "clamp(16px, 4.5vw, 20px)",
+              fontWeight: "bold",
+              color: "#f5f1e8",
+              marginBottom: "6px",
+              letterSpacing: "0.5px"
+            }}>
+              Meal Flow
+            </div>
+            <div style={{
+              fontSize: "clamp(11px, 2.8vw, 13px)",
+              color: "rgba(245,241,232,0.75)",
+              lineHeight: "1.4"
+            }}>
+              End-to-end pipeline
+            </div>
+          </button>
         </div>
 
         <div style={{
@@ -377,6 +411,11 @@ export default function App() {
         </div>
       </div>
     );
+  }
+
+  // FLOW SCREEN
+  if (screen === "flow") {
+    return <FlowScreen onBack={() => setScreen("home")} />;
   }
 
   // MCDONALDS MENU SCREEN

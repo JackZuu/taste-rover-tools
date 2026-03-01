@@ -6,6 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core import run_task
 from app.nutrition import calculate_nutrition
 from app.mcdonalds import get_mcdonalds_menu
+from app.supply import get_ingredient_supply
+from app.equipment import get_equipment
+from app.flow import run_flow
 from dotenv import load_dotenv
 import os
 from pathlib import Path
@@ -37,6 +40,13 @@ class WeatherRequest(BaseModel):
 class NutritionRequest(BaseModel):
     ingredients: list[str]
 
+class MealRequest(BaseModel):
+    meal: str
+
+class FlowRequest(BaseModel):
+    postcode: str
+    date: str  # YYYY-MM-DD
+
 @app.get("/api/health")
 def health():
     return {"ok": True}
@@ -52,6 +62,32 @@ def get_nutrition(req: NutritionRequest):
 @app.get("/api/mcdonalds/menu")
 def get_menu():
     return get_mcdonalds_menu()
+
+@app.post("/api/supply")
+def get_supply(req: MealRequest):
+    result = get_ingredient_supply(req.meal)
+    return {
+        "ingredients": [
+            {"name": i.name, "quantity": i.quantity, "available": i.available}
+            for i in result.ingredients
+        ],
+        "all_available": result.all_available,
+    }
+
+@app.post("/api/equipment")
+def get_equipment_endpoint(req: MealRequest):
+    result = get_equipment(req.meal)
+    return {
+        "equipment": [
+            {"name": e.name, "available": e.available}
+            for e in result.equipment
+        ],
+        "all_ready": result.all_ready,
+    }
+
+@app.post("/api/flow")
+def run_flow_endpoint(req: FlowRequest):
+    return run_flow(req.postcode, req.date)
 
 # Serve static files (frontend)
 static_dir = Path(__file__).parent.parent / "static"

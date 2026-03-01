@@ -1,6 +1,7 @@
 import requests
 from collections import Counter
 from datetime import datetime
+from typing import Optional
 from zoneinfo import ZoneInfo
 import os
 from dotenv import load_dotenv
@@ -137,6 +138,41 @@ def get_daily_forecast_by_postcode(postcode, api_key, days=5):
     except Exception as e:
         print(f"Daily forecast error: {e}")
         return []
+
+
+def get_weather_for_day(postcode: str, date: str) -> Optional["WeatherResult"]:
+    """
+    Get weather for a specific date (YYYY-MM-DD) at the given postcode.
+    Filters the 5-day forecast; falls back to current weather if the date is today
+    and not found in the forecast.
+    Returns a WeatherResult or None on error.
+    """
+    from app.models import WeatherResult
+
+    forecast = get_daily_forecast_by_postcode(postcode, API_KEY)
+    for day in forecast:
+        if day["date"] == date:
+            condition = day["mainly"]
+            return WeatherResult(
+                date=date,
+                avg_temp=round(day["avg_temp"], 1),
+                condition=condition,
+                is_rainy=(condition == "mainly rain"),
+            )
+
+    # Fallback: current weather for today
+    today = datetime.now(LOCAL_TZ).date().isoformat()
+    if date == today:
+        temp, label = get_current_weather_by_postcode(postcode, API_KEY)
+        if temp is not None:
+            return WeatherResult(
+                date=date,
+                avg_temp=round(temp, 1),
+                condition=label,
+                is_rainy=(label == "mainly rain"),
+            )
+
+    return None
 
 
 def run_task(postcode: str) -> dict:
