@@ -1,78 +1,130 @@
 """
-Full pipeline orchestrator.
+Full pipeline orchestrator — 11-step flow.
 
-Run each module in sequence and return a combined result dict.
-This is used by POST /api/flow for single-call pipeline execution
-(e.g. CLI or scripting use).
+Run order:
+  1. Equipment availability   (hardcoded)
+  2. Supply chain             (mock data)
+  3. High-level trends        (hardcoded)
+  4. Tasterover historic data (no data)
+  5. In-season foods          (hardcoded)
+  6. Celebrations             (hardcoded)
+  7. Regional demand          (hardcoded)
+  8. Weather                  (live API)
+  9. Decision + options       (rules-based)
+ 10. Nutrition                (OpenAI)
+ 11. Menu proposal            (hardcoded logic)
 
-The frontend drives the same modules individually via separate API calls
-to achieve progressive display.
+Steps 1–7 are independent and could run concurrently.
+Steps 8–11 are sequential (each depends on the previous).
+
+Used by POST /api/flow for single-call server-side execution.
+The frontend uses individual endpoints for progressive display.
 """
+from dataclasses import asdict
+
 from app.core import get_weather_for_day
-from app.decision import make_decision
+from app.equipment import get_van_equipment
+from app.supply import get_supply_chain
+from app.trends import get_trends
+from app.historic import get_historic
+from app.seasonal import get_seasonal
+from app.celebrations import get_celebrations
+from app.regional import get_regional_demand
+from app.decision import get_decision_and_options
 from app.nutrition import calculate_nutrition
-from app.supply import get_ingredient_supply
-from app.equipment import get_equipment
+from app.menu_generator import generate_menu
 
 
-def run_flow(postcode: str, date: str) -> dict:
+def run_flow(postcode: str, date: str, van_id: str = "van_alpha", region: str = "London") -> dict:
     """
-    Run the full pipeline for the given postcode and date.
+    Run the full 11-step pipeline.
     Returns a serialisable dict or {"error": "..."} on failure.
     """
-    # 1. Weather
+    # ── Steps 1–7: independent modules ───────────────────────────────────────
+    equipment_result = get_van_equipment(van_id)
+    supply_result    = get_supply_chain()
+    trends_result    = get_trends()
+    historic_result  = get_historic()
+    seasonal_result  = get_seasonal()
+    celebrations_result = get_celebrations()
+    regional_result  = get_regional_demand(region)
+
+    # ── Step 8: Weather ───────────────────────────────────────────────────────
     weather = get_weather_for_day(postcode, date)
     if weather is None:
         return {"error": f"Could not fetch weather for postcode '{postcode}' on {date}."}
 
-    # 2. Decision
-    decision = make_decision(weather)
+    # ── Step 9: Decision + options ────────────────────────────────────────────
+    decision_result = get_decision_and_options(weather)
 
-    # 3. Nutrition — call with a single descriptive ingredient string
-    nutrition = calculate_nutrition([f"1 standard serving of {decision.meal}"])
+    # ── Step 10: Nutrition ────────────────────────────────────────────────────
+    nutrition = calculate_nutrition([f"1 standard serving of {decision_result.primary_meal}"])
 
-    # 4. Ingredient supply
-    supply = get_ingredient_supply(decision.meal)
+    # ── Step 11: Menu proposal ────────────────────────────────────────────────
+    active_trend_labels = [t.label for t in trends_result.trends if t.direction == "up"]
+    seasonal_names      = [i.name for i in seasonal_result.items]
+    next_celebration    = celebrations_result.upcoming[0].name if celebrations_result.upcoming else None
 
-    # 5. Equipment
-    equipment = get_equipment(decision.meal)
+    menu = generate_menu(
+        weather=weather,
+        primary_meal=decision_result.primary_meal,
+        region=region,
+        active_trends=active_trend_labels,
+        seasonal_items=seasonal_names,
+        upcoming_celebration=next_celebration,
+    )
 
+    # ── Serialise and return ──────────────────────────────────────────────────
     return {
         "postcode": postcode,
         "date": date,
+        "van_id": van_id,
+        "region": region,
+
+        "equipment": {
+            "van": asdict(equipment_result.van),
+            "equipment": [asdict(e) for e in equipment_result.equipment],
+            "available_count": equipment_result.available_count,
+            "total_count": equipment_result.total_count,
+        },
+        "supply": {
+            "suppliers": [asdict(s) for s in supply_result.suppliers],
+            "inventory": [asdict(i) for i in supply_result.inventory],
+        },
+        "trends": {"trends": [asdict(t) for t in trends_result.trends]},
+        "historic": {"message": historic_result.message},
+        "seasonal": {
+            "month": seasonal_result.month,
+            "items": [asdict(i) for i in seasonal_result.items],
+        },
+        "celebrations": {"upcoming": [asdict(e) for e in celebrations_result.upcoming]},
+        "regional": {
+            "region": regional_result.region,
+            "insights": [asdict(i) for i in regional_result.insights],
+        },
         "weather": {
             "avg_temp": weather.avg_temp,
             "condition": weather.condition,
             "is_rainy": weather.is_rainy,
         },
         "decision": {
-            "meal": decision.meal,
-            "reason": decision.reason,
+            "primary_meal": decision_result.primary_meal,
+            "primary_reason": decision_result.primary_reason,
+            "menu_options": [asdict(o) for o in decision_result.menu_options],
         },
         "nutrition": nutrition,
-        "supply": {
-            "ingredients": [
-                {"name": i.name, "quantity": i.quantity, "available": i.available}
-                for i in supply.ingredients
-            ],
-            "all_available": supply.all_available,
-        },
-        "equipment": {
-            "equipment": [
-                {"name": e.name, "available": e.available}
-                for e in equipment.equipment
-            ],
-            "all_ready": equipment.all_ready,
-        },
+        "menu": asdict(menu),
     }
 
 
 if __name__ == "__main__":
     import json
-    from datetime import date
+    from datetime import date as date_cls
 
-    postcode = input("UK postcode: ").strip() or "SW1A 1AA"
-    target_date = input(f"Date (YYYY-MM-DD) [today={date.today()}]: ").strip() or date.today().isoformat()
+    postcode   = input("UK postcode [SW1A 1AA]: ").strip() or "SW1A 1AA"
+    target_date = input(f"Date (YYYY-MM-DD) [today]: ").strip() or date_cls.today().isoformat()
+    van_id     = input("Van ID [van_alpha]: ").strip() or "van_alpha"
+    region     = input("Region [London]: ").strip() or "London"
 
-    result = run_flow(postcode, target_date)
+    result = run_flow(postcode, target_date, van_id, region)
     print(json.dumps(result, indent=2))
