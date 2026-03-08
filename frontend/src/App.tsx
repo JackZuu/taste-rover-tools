@@ -231,6 +231,7 @@ export default function App() {
       <FlowScreen
         onOpenWeather={() => setScreen("weather")}
         onOpenMcDonalds={openMcDonalds}
+        onOpenNutrition={() => setScreen("nutrition")}
       />
     );
   }

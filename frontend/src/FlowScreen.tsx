@@ -61,6 +61,70 @@ const ITEM_EMOJIS: Record<string,string> = {
   "Chicken Tikka Wrap":"🌯",
 };
 
+// ─── Item nutrition data (hardcoded per serving) ────────────────────────────
+
+const ITEM_NUTRITION: Record<string,{cal:number;protein:number;carbs:number;fat:number;fibre:number}> = {
+  "Smash Burger":              {cal:620,protein:35,carbs:42,fat:32,fibre:2},
+  "BBQ Pulled Pork Bun":       {cal:580,protein:38,carbs:48,fat:21,fibre:3},
+  "Halloumi Skewers":          {cal:310,protein:18,carbs:8, fat:24,fibre:1},
+  "Halloumi Skewer":           {cal:310,protein:18,carbs:8, fat:24,fibre:1},
+  "Hot Dog with Onions":       {cal:380,protein:14,carbs:38,fat:20,fibre:2},
+  "Hot Dog":                   {cal:340,protein:13,carbs:34,fat:18,fibre:2},
+  "Grilled Chicken Wrap":      {cal:440,protein:36,carbs:38,fat:14,fibre:3},
+  "Chicken Tikka Wrap":        {cal:490,protein:32,carbs:44,fat:18,fibre:3},
+  "Grilled Chicken":           {cal:290,protein:36,carbs:0, fat:14,fibre:0},
+  "Plant-Based Burger":        {cal:520,protein:28,carbs:48,fat:22,fibre:5},
+  "Birria-Style Wrap":         {cal:550,protein:34,carbs:46,fat:22,fibre:3},
+  "Nachos":                    {cal:480,protein:12,carbs:56,fat:24,fibre:5},
+  "Chicken Strips":            {cal:370,protein:28,carbs:28,fat:16,fibre:1},
+  "Corn on the Cob":           {cal:190,protein:5, carbs:38,fat:3, fibre:4},
+  "Falafel Bites":             {cal:290,protein:10,carbs:34,fat:14,fibre:6},
+  "Arancini Balls":            {cal:320,protein:10,carbs:42,fat:12,fibre:2},
+  "Samosas":                   {cal:280,protein:7, carbs:38,fat:12,fibre:3},
+  "Spring Rolls":              {cal:240,protein:6, carbs:32,fat:10,fibre:2},
+  "Mac Bites":                 {cal:360,protein:12,carbs:42,fat:16,fibre:1},
+  "Sweet Potato Fries":        {cal:280,protein:3, carbs:48,fat:10,fibre:5},
+  "Coleslaw":                  {cal:140,protein:1, carbs:14,fat:9, fibre:2},
+  "Side Salad":                {cal:80, protein:3, carbs:8, fat:4, fibre:3},
+  "Fresh Green Salad":         {cal:80, protein:3, carbs:8, fat:4, fibre:3},
+  "Loaded Fries":              {cal:420,protein:8, carbs:55,fat:22,fibre:4},
+  "Cheesy Chips":              {cal:380,protein:10,carbs:50,fat:18,fibre:3},
+  "Onion Rings":               {cal:260,protein:4, carbs:34,fat:12,fibre:2},
+  "Garlic Bread":              {cal:220,protein:5, carbs:30,fat:9, fibre:2},
+  "Corn Ribs":                 {cal:220,protein:5, carbs:36,fat:8, fibre:4},
+  "Korean Fried Cauliflower":  {cal:310,protein:8, carbs:38,fat:14,fibre:5},
+  "Strawberry Ice Cream":      {cal:210,protein:3, carbs:28,fat:10,fibre:0},
+  "Mango Sorbet":              {cal:150,protein:1, carbs:36,fat:0, fibre:2},
+  "Churros":                   {cal:320,protein:5, carbs:44,fat:14,fibre:2},
+  "Warm Brownie & Cream":      {cal:380,protein:5, carbs:48,fat:19,fibre:2},
+  "Warm Brownie":              {cal:320,protein:5, carbs:42,fat:16,fibre:2},
+  "Sticky Toffee Pudding":     {cal:420,protein:4, carbs:64,fat:16,fibre:2},
+  "Crumble Pot":               {cal:360,protein:4, carbs:58,fat:12,fibre:3},
+  "Hot Waffle":                {cal:340,protein:6, carbs:52,fat:12,fibre:2},
+  "Fruit Skewer":              {cal:80, protein:1, carbs:18,fat:0, fibre:2},
+  "Lemonade":                  {cal:90, protein:0, carbs:22,fat:0, fibre:0},
+  "Mango Slush":               {cal:140,protein:0, carbs:34,fat:0, fibre:1},
+  "Watermelon Slush":          {cal:120,protein:1, carbs:30,fat:0, fibre:1},
+  "Watermelon Juice":          {cal:100,protein:1, carbs:24,fat:0, fibre:1},
+  "Iced Coffee":               {cal:140,protein:4, carbs:18,fat:5, fibre:0},
+  "Flat White":                {cal:120,protein:7, carbs:10,fat:6, fibre:0},
+  "Chai Latte":                {cal:180,protein:6, carbs:28,fat:5, fibre:0},
+  "Hot Chocolate":             {cal:220,protein:8, carbs:28,fat:9, fibre:0},
+  "Matcha Latte":              {cal:160,protein:5, carbs:22,fat:5, fibre:0},
+  "English Breakfast Tea":     {cal:10, protein:0, carbs:1, fat:0, fibre:0},
+  "Tomato Soup & Bread":       {cal:280,protein:8, carbs:44,fat:7, fibre:4},
+  "Tomato Soup":               {cal:180,protein:5, carbs:28,fat:5, fibre:4},
+  "Mac & Cheese Bowl":         {cal:510,protein:16,carbs:62,fat:22,fibre:2},
+  "Chilli Con Carne":          {cal:420,protein:28,carbs:36,fat:16,fibre:8},
+  "Spiced Lentil Soup":        {cal:240,protein:14,carbs:38,fat:4, fibre:10},
+  "Margherita Pizza":          {cal:580,protein:24,carbs:76,fat:18,fibre:4},
+  "Pepperoni Pizza":           {cal:720,protein:32,carbs:78,fat:28,fibre:4},
+  "Margherita Pizza Slice":    {cal:290,protein:12,carbs:38,fat:9, fibre:2},
+  "Pepperoni Pizza Slice":     {cal:360,protein:16,carbs:39,fat:14,fibre:2},
+  "Sausage Sandwich":          {cal:450,protein:18,carbs:38,fat:24,fibre:2},
+  "Bacon & Egg Roll":          {cal:420,protein:22,carbs:34,fat:22,fibre:2},
+};
+
 function getItemEmoji(name: string): string {
   if (ITEM_EMOJIS[name]) return ITEM_EMOJIS[name];
   const lower = name.toLowerCase();
@@ -252,14 +316,20 @@ const MENU_TABS = [
   {key:"hot_drinks",  label:"Hot Drinks"},
 ];
 
-function ItemCard({name, featured}:{name:string; featured?:boolean}) {
+function ItemCard({name, featured, onClick, selected}:{name:string; featured?:boolean; onClick?:()=>void; selected?:boolean}) {
   const emoji = getItemEmoji(name);
   return (
-    <div style={{
-      background:"#fff", borderRadius:"12px", overflow:"hidden",
-      boxShadow:"0 2px 8px rgba(0,0,0,0.08)",
-      border: featured ? `2px solid ${G.green}` : "1.5px solid #ececec",
-    }}>
+    <div
+      onClick={onClick}
+      style={{
+        background:"#fff", borderRadius:"12px", overflow:"hidden",
+        boxShadow: selected ? `0 0 0 2px ${G.green}, 0 4px 12px rgba(26,95,63,0.18)` : "0 2px 8px rgba(0,0,0,0.08)",
+        border: featured ? `2px solid ${G.green}` : selected ? `2px solid ${G.green}` : "1.5px solid #ececec",
+        cursor:"pointer", transition:"transform 0.1s, box-shadow 0.1s",
+      }}
+      onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.transform="scale(1.04)";}}
+      onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.transform="scale(1)";}}
+    >
       <div style={{
         background:"#f0ede6", height:"80px",
         display:"flex", alignItems:"center", justifyContent:"center",
@@ -280,7 +350,7 @@ function ItemCard({name, featured}:{name:string; featured?:boolean}) {
           background:G.green, color:"#fff",
           display:"flex", alignItems:"center", justifyContent:"center",
           fontSize:"17px", fontWeight:"300", border:"2px solid #fff", lineHeight:"1",
-        }}>+</div>
+        }}>ℹ</div>
       </div>
       <div style={{padding:"8px 9px"}}>
         <div style={{
@@ -294,9 +364,12 @@ function ItemCard({name, featured}:{name:string; featured?:boolean}) {
 
 function TRMenuDisplay({menuResult, primaryMeal}:{menuResult:any; primaryMeal:string}) {
   const [activeTab, setActiveTab] = useState("grill");
+  const [selectedItem, setSelectedItem] = useState<string|null>(null);
   const activeItems: string[] = menuResult[activeTab] ?? [];
   const activeLabel = MENU_TABS.find(t=>t.key===activeTab)?.label ?? "";
   const primaryWord = primaryMeal.split(" ")[0].toLowerCase();
+
+  const handleTabChange = (key: string) => { setActiveTab(key); setSelectedItem(null); };
 
   const tabStyle = (active:boolean): React.CSSProperties => ({
     padding:"7px 2px", border:`1.5px solid ${active?"transparent":"rgba(255,255,255,0.55)"}`,
@@ -305,6 +378,8 @@ function TRMenuDisplay({menuResult, primaryMeal}:{menuResult:any; primaryMeal:st
     cursor:"pointer", fontFamily:"'Georgia',serif",
     transition:"all 0.15s", WebkitTapHighlightColor:"transparent",
   });
+
+  const nutr = selectedItem ? ITEM_NUTRITION[selectedItem] : null;
 
   return (
     <div style={{borderRadius:"14px", overflow:"hidden", boxShadow:"0 4px 20px rgba(0,0,0,0.12)"}}>
@@ -318,14 +393,14 @@ function TRMenuDisplay({menuResult, primaryMeal}:{menuResult:any; primaryMeal:st
         </div>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"5px", marginBottom:"5px"}}>
           {MENU_TABS.slice(0,3).map(tab=>(
-            <button key={tab.key} style={tabStyle(activeTab===tab.key)} onClick={()=>setActiveTab(tab.key)}>
+            <button key={tab.key} style={tabStyle(activeTab===tab.key)} onClick={()=>handleTabChange(tab.key)}>
               {tab.label}
             </button>
           ))}
         </div>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"5px"}}>
           {MENU_TABS.slice(3).map(tab=>(
-            <button key={tab.key} style={tabStyle(activeTab===tab.key)} onClick={()=>setActiveTab(tab.key)}>
+            <button key={tab.key} style={tabStyle(activeTab===tab.key)} onClick={()=>handleTabChange(tab.key)}>
               {tab.label}
             </button>
           ))}
@@ -349,8 +424,56 @@ function TRMenuDisplay({menuResult, primaryMeal}:{menuResult:any; primaryMeal:st
               <ItemCard
                 key={i} name={item}
                 featured={i===0 && item.toLowerCase().includes(primaryWord)}
+                selected={selectedItem === item}
+                onClick={()=>setSelectedItem(selectedItem===item ? null : item)}
               />
             ))}
+          </div>
+        )}
+
+        {/* Nutrition panel */}
+        {selectedItem && (
+          <div style={{
+            marginTop:"12px", padding:"12px 14px",
+            background:"#fff", borderRadius:"10px",
+            border:`1.5px solid ${G.green}`,
+            animation:"fadeIn 0.15s ease",
+          }}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"10px"}}>
+              <div style={{fontSize:"13px",fontWeight:"700",color:G.green}}>
+                {getItemEmoji(selectedItem)} {selectedItem}
+              </div>
+              <button
+                onClick={()=>setSelectedItem(null)}
+                style={{background:"none",border:"none",cursor:"pointer",fontSize:"16px",color:"#aaa",lineHeight:"1",padding:"2px 4px"}}
+              >✕</button>
+            </div>
+            {nutr ? (
+              <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"6px"}}>
+                {[
+                  {label:"Calories", val:`${nutr.cal} kcal`},
+                  {label:"Protein",  val:`${nutr.protein}g`},
+                  {label:"Carbs",    val:`${nutr.carbs}g`},
+                  {label:"Fat",      val:`${nutr.fat}g`},
+                  {label:"Fibre",    val:`${nutr.fibre}g`},
+                ].map(c=>(
+                  <div key={c.label} style={{padding:"6px 4px",background:"#f5f3ef",borderRadius:"8px",textAlign:"center"}}>
+                    <div style={{fontSize:"9px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:"3px"}}>{c.label}</div>
+                    <div style={{fontSize:"12px",fontWeight:"700",color:G.green}}>{c.val}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{color:"#aaa",fontStyle:"italic",fontSize:"12px"}}>
+                Nutrition data not yet available for this item.
+              </div>
+            )}
+          </div>
+        )}
+
+        {!selectedItem && activeItems.length > 0 && (
+          <div style={{marginTop:"8px",fontSize:"10px",color:"#bbb",fontStyle:"italic",textAlign:"center"}}>
+            Tap any item to see nutrition info
           </div>
         )}
 
@@ -392,9 +515,11 @@ function TRMenuDisplay({menuResult, primaryMeal}:{menuResult:any; primaryMeal:st
 export default function FlowScreen({
   onOpenWeather,
   onOpenMcDonalds,
+  onOpenNutrition,
 }: {
   onOpenWeather: () => void;
   onOpenMcDonalds: () => void;
+  onOpenNutrition: () => void;
 }) {
   const [vans, setVans] = useState<Van[]>([]);
   const [selectedVan, setSelectedVan] = useState<string>("van_alpha");
@@ -851,44 +976,42 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ⑧ Competitor Menus */}
-          <SectionCard step={8} title="Competitor Menus" status={competitorStatus} dataLabel="reference">
-            {competitorStatus==="done"&&(
-              <div>
-                <div style={{fontSize:"12px",color:"#888",marginBottom:"10px"}}>
-                  Browse competitor menus for context and positioning.
-                </div>
-                <button
-                  onClick={onOpenMcDonalds}
-                  style={{
-                    display:"flex", alignItems:"center", gap:"12px",
-                    width:"100%", padding:"12px 14px",
-                    background:"#fff7f0", border:"1.5px solid #ffd6a0",
-                    borderRadius:"10px", cursor:"pointer",
-                    fontFamily:"'Georgia',serif", textAlign:"left",
-                    transition:"background 0.15s", WebkitTapHighlightColor:"transparent",
-                  }}
-                  onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background="#fff0e0";}}
-                  onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="#fff7f0";}}
-                >
-                  <span style={{fontSize:"28px"}}>🍔</span>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:"14px",fontWeight:"700",color:"#c8600a"}}>McDonald's Menu</div>
-                    <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>Browse full menu & nutrition data →</div>
-                  </div>
-                </button>
+          <SectionCard step={8} title="Competitor Menus" status={competitorStatus==="idle"?"done":competitorStatus} dataLabel="reference">
+            <div>
+              <div style={{fontSize:"12px",color:"#888",marginBottom:"10px"}}>
+                Browse competitor menus for context and positioning.
               </div>
-            )}
+              <button
+                onClick={onOpenMcDonalds}
+                style={{
+                  display:"flex", alignItems:"center", gap:"12px",
+                  width:"100%", padding:"12px 14px",
+                  background:"#fff7f0", border:"1.5px solid #ffd6a0",
+                  borderRadius:"10px", cursor:"pointer",
+                  fontFamily:"'Georgia',serif", textAlign:"left",
+                  transition:"background 0.15s", WebkitTapHighlightColor:"transparent",
+                }}
+                onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background="#fff0e0";}}
+                onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="#fff7f0";}}
+              >
+                <span style={{fontSize:"28px"}}>🍔</span>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:"14px",fontWeight:"700",color:"#c8600a"}}>McDonald's Menu</div>
+                  <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>Browse full menu & nutrition data →</div>
+                </div>
+              </button>
+            </div>
           </SectionCard>
 
           {/* ⑨ Weather */}
           <SectionCard
-            step={9} title="Weather" status={weatherStatus}
+            step={9} title="Weather" status={weatherStatus==="idle"?"done":weatherStatus}
             titleAction={
               <button onClick={onOpenWeather}
                 style={{
                   marginLeft:"auto", padding:"4px 10px",
-                  border:`1.5px solid rgba(255,255,255,0.6)`, borderRadius:"20px",
-                  background:"transparent", color:"#fff",
+                  border:`1.5px solid ${weatherStatus==="idle"?G.green:"rgba(255,255,255,0.6)"}`, borderRadius:"20px",
+                  background:"transparent", color:weatherStatus==="idle"?G.green:"#fff",
                   fontSize:"11px", fontWeight:"600", cursor:"pointer",
                   fontFamily:"'Georgia',serif", WebkitTapHighlightColor:"transparent",
                   flexShrink:0,
@@ -897,51 +1020,90 @@ export default function FlowScreen({
               </button>
             }
           >
+            {weatherStatus==="idle"&&(
+              <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
+                Click <strong style={{color:G.green}}>Open tool →</strong> to check weather independently, or run the full flow above.
+              </div>
+            )}
             {weatherStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{weatherErr}</div>}
             {weatherResult&&(
-              <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
-                <div style={{fontSize:"48px"}}>{condIcon(weatherResult.condition)}</div>
-                <div>
-                  <div style={{fontSize:"36px",fontWeight:"bold",color:G.green,lineHeight:"1"}}>{weatherResult.avg_temp.toFixed(1)}°C</div>
-                  <div style={{fontSize:"13px",color:"#555",marginTop:"4px",textTransform:"capitalize"}}>{weatherResult.condition}</div>
+              <div>
+                <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap",marginBottom:decisionResult?"12px":"0"}}>
+                  <div style={{fontSize:"48px"}}>{condIcon(weatherResult.condition)}</div>
+                  <div>
+                    <div style={{fontSize:"36px",fontWeight:"bold",color:G.green,lineHeight:"1"}}>{weatherResult.avg_temp.toFixed(1)}°C</div>
+                    <div style={{fontSize:"13px",color:"#555",marginTop:"4px",textTransform:"capitalize"}}>{weatherResult.condition}</div>
+                  </div>
+                  <div style={{marginLeft:"auto"}}>
+                    <StatusBadge ok={!weatherResult.is_rainy} labelOk="Not rainy" labelNo="Rainy"/>
+                  </div>
                 </div>
-                <div style={{marginLeft:"auto"}}>
-                  <StatusBadge ok={!weatherResult.is_rainy} labelOk="Not rainy" labelNo="Rainy"/>
-                </div>
+                {decisionResult&&(
+                  <div style={{padding:"10px 12px",background:"#e6f4ee",borderRadius:"8px",display:"flex",alignItems:"center",gap:"10px"}}>
+                    <span style={{fontSize:"22px"}}>{decisionResult.primary_meal==="strawberry ice cream"?"🍓":"🍅"}</span>
+                    <div>
+                      <div style={{fontSize:"11px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>Recommended</div>
+                      <div style={{fontSize:"13px",fontWeight:"700",color:G.green,textTransform:"capitalize"}}>{decisionResult.primary_meal}</div>
+                      <div style={{fontSize:"11px",color:"#555",fontStyle:"italic"}}>{decisionResult.primary_reason}</div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </SectionCard>
 
-          {/* ⑩ Decision */}
-          <SectionCard step={10} title="Decision & Menu Options" status={decisionStatus} dataLabel="hardcoded rules">
-            {decisionResult&&(
-              <div>
-                <div style={{padding:"12px 14px",background:"#e6f4ee",borderRadius:"10px",marginBottom:"14px"}}>
-                  <div style={{fontSize:"11px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:"6px"}}>Primary Recommendation</div>
-                  <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"6px"}}>
-                    <span style={{fontSize:"32px"}}>{decisionResult.primary_meal==="strawberry ice cream"?"🍓":"🍅"}</span>
-                    <span style={{fontSize:"clamp(16px,4vw,20px)",fontWeight:"bold",color:G.green,textTransform:"capitalize"}}>{decisionResult.primary_meal}</span>
-                  </div>
-                  <div style={{fontSize:"12px",color:"#555",fontStyle:"italic",lineHeight:"1.5"}}>{decisionResult.primary_reason}</div>
-                </div>
-                <div style={{fontSize:"12px",color:"#888",marginBottom:"8px"}}>Weather-informed menu concepts:</div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:"6px"}}>
-                  {decisionResult.menu_options.map((opt,i)=>(
-                    <div key={i} style={{padding:"7px 10px",background:"#f9f9f9",borderRadius:"8px",border:"1px solid #eee",display:"flex",alignItems:"center",gap:"7px"}}>
-                      <span style={{fontSize:"18px"}}>{opt.emoji}</span>
-                      <div>
-                        <div style={{fontSize:"12px",fontWeight:"600",color:"#333"}}>{opt.name}</div>
-                        <div style={{fontSize:"10px",color:"#aaa",textTransform:"capitalize"}}>{opt.category}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {/* ⑩ Menu Framework */}
+          <SectionCard step={10} title="Menu Framework & Configuration" status={decisionStatus==="idle"?"done":decisionStatus} dataLabel="hardcoded">
+            <div>
+              <div style={{fontSize:"12px",color:"#888",marginBottom:"12px"}}>
+                Parameters that shape the final menu proposal.
               </div>
-            )}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"10px"}}>
+                {[
+                  {label:"Dietary Mix",    detail:"30% Veggie · 15% Vegan · 20% GF"},
+                  {label:"Mains",          detail:"450–750 kcal per portion"},
+                  {label:"Sides",          detail:"150–350 kcal per portion"},
+                  {label:"Desserts",       detail:"200–400 kcal per portion"},
+                  {label:"Drinks",         detail:"£2–£5 · hot & cold options"},
+                  {label:"Allergens",      detail:"Nuts excluded · Dairy labelled"},
+                  {label:"Price bands",    detail:"Mains £8–£14 · Sides £3–£6"},
+                  {label:"Items per tab",  detail:"6–12 items per category"},
+                ].map(row=>(
+                  <div key={row.label} style={{padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px",border:"1px solid #eee"}}>
+                    <div style={{fontSize:"10px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:"3px"}}>{row.label}</div>
+                    <div style={{fontSize:"12px",fontWeight:"600",color:"#333"}}>{row.detail}</div>
+                  </div>
+                ))}
+              </div>
+              {decisionResult&&(
+                <div style={{padding:"8px 12px",background:"#f0f0f0",borderRadius:"8px",fontSize:"11px",color:"#777",fontStyle:"italic"}}>
+                  Menu options pool: {decisionResult.menu_options.length} weather-matched items ready for selection
+                </div>
+              )}
+            </div>
           </SectionCard>
 
           {/* ⑪ Nutrition — burger sample only */}
-          <SectionCard step={11} title="Nutrition Sample" status={nutritionStatus} dataLabel={nutritionResult?"OpenAI":undefined}>
+          <SectionCard step={11} title="Nutrition Sample" status={nutritionStatus==="idle"?"done":nutritionStatus} dataLabel={nutritionResult?"OpenAI":undefined}
+            titleAction={
+              <button onClick={onOpenNutrition}
+                style={{
+                  marginLeft:"auto", padding:"4px 10px",
+                  border:`1.5px solid ${nutritionStatus==="idle"?G.green:"rgba(255,255,255,0.6)"}`, borderRadius:"20px",
+                  background:"transparent", color:nutritionStatus==="idle"?G.green:"#fff",
+                  fontSize:"11px", fontWeight:"600", cursor:"pointer",
+                  fontFamily:"'Georgia',serif", WebkitTapHighlightColor:"transparent",
+                  flexShrink:0,
+                }}>
+                Open tool →
+              </button>
+            }
+          >
+            {nutritionStatus==="idle"&&(
+              <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
+                Click <strong style={{color:G.green}}>Open tool →</strong> to calculate nutrition for custom ingredients, or run the full flow for a Smash Burger sample.
+              </div>
+            )}
             {nutritionStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{nutritionErr}</div>}
             {nutritionResult&&(
               <div>
@@ -972,25 +1134,6 @@ export default function FlowScreen({
               <TRMenuDisplay menuResult={menuResult} primaryMeal={decisionResult?.primary_meal ?? ""} />
             )}
           </SectionCard>
-
-          {/* Final summary banner */}
-          {allDone && decisionResult && weatherResult && (
-            <div style={{background:G.green,borderRadius:"16px",padding:"22px",marginBottom:"14px",boxShadow:"0 8px 24px rgba(26,95,63,0.35)",color:"#fff"}}>
-              <div style={{textAlign:"center",marginBottom:"16px"}}>
-                <div style={{fontSize:"52px",marginBottom:"6px"}}>{decisionResult.primary_meal==="strawberry ice cream"?"🍓":"🍅"}</div>
-                <div style={{fontSize:"clamp(18px,4.5vw,24px)",fontWeight:"bold",textTransform:"capitalize"}}>{decisionResult.primary_meal}</div>
-                <div style={{fontSize:"13px",opacity:0.8,fontStyle:"italic",marginTop:"4px"}}>{decisionResult.primary_reason}</div>
-              </div>
-              <div style={{background:"rgba(255,255,255,0.15)",borderRadius:"10px",padding:"12px 16px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",fontSize:"12px"}}>
-                <span style={{opacity:0.75}}>Location</span>    <span style={{textAlign:"right",fontWeight:"600"}}>{activePostcode}</span>
-                <span style={{opacity:0.75}}>Date</span>        <span style={{textAlign:"right",fontWeight:"600"}}>{fmtDate(selectedDate)}</span>
-                <span style={{opacity:0.75}}>Temperature</span> <span style={{textAlign:"right",fontWeight:"600"}}>{weatherResult.avg_temp.toFixed(1)}°C</span>
-                <span style={{opacity:0.75}}>Conditions</span>  <span style={{textAlign:"right",fontWeight:"600",textTransform:"capitalize"}}>{weatherResult.condition}</span>
-                {nutritionResult&&<><span style={{opacity:0.75}}>Burger kcal</span><span style={{textAlign:"right",fontWeight:"600"}}>{nutritionResult.total_calories_kcal} kcal</span></>}
-                {menuResult&&<><span style={{opacity:0.75}}>Veggie %</span><span style={{textAlign:"right",fontWeight:"600"}}>{menuResult.pct_veggie}%</span></>}
-              </div>
-            </div>
-          )}
 
         </div>
       </div>
