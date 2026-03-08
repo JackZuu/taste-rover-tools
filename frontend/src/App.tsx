@@ -46,7 +46,7 @@ type McDonaldsProduct = {
   allergens: string;
 };
 
-type Screen = "home" | "weather" | "nutrition" | "mcdonalds" | "mcdonalds-detail" | "flow";
+type Screen = "flow" | "weather" | "nutrition" | "mcdonalds" | "mcdonalds-detail";
 
 const getWeatherIcon = (condition: string) => {
   if (condition === "mainly sun") return "☀️";
@@ -83,7 +83,7 @@ const checkForCreditsError = (errorMessage: string): boolean => {
 };
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("home");
+  const [screen, setScreen] = useState<Screen>("flow");
   
   // Weather state
   const [postcode, setPostcode] = useState("");
@@ -214,208 +214,25 @@ export default function App() {
     }
   }, [screen]);
 
+  function openMcDonalds() {
+    if (mcProducts.length === 0) loadMcDonaldsMenu();
+    setScreen("mcdonalds");
+  }
+
   const handleWeatherKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !weatherLoading && postcode.trim()) {
       getWeather();
     }
   };
 
-  // HOME SCREEN
-  if (screen === "home") {
-    return (
-      <div style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #1a5f3f 0%, #2d8659 100%)",
-        fontFamily: "'Georgia', serif",
-        padding: "16px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center"
-      }}>
-        <div style={{
-          textAlign: "center",
-          padding: "clamp(20px, 5vw, 30px) 16px",
-          color: "#f5f1e8",
-          marginBottom: "clamp(24px, 6vw, 40px)"
-        }}>
-          <div style={{
-            fontSize: "clamp(32px, 8vw, 56px)",
-            fontWeight: "bold",
-            letterSpacing: "clamp(2px, 0.5vw, 4px)",
-            marginBottom: "8px",
-            textTransform: "uppercase"
-          }}>
-            TASTE ROVER
-          </div>
-          <div style={{
-            fontSize: "clamp(14px, 4vw, 20px)",
-            fontStyle: "italic",
-            opacity: 0.9,
-            letterSpacing: "1px"
-          }}>
-            Welcome hungry friend
-          </div>
-        </div>
-
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
-          gap: "16px",
-          maxWidth: "900px",
-          width: "100%",
-          padding: "0 16px"
-        }}>
-          <button
-            onClick={() => setScreen("weather")}
-            style={{
-              background: "rgba(255, 255, 255, 0.95)",
-              border: "none",
-              borderRadius: "16px",
-              padding: "clamp(24px, 6vw, 32px) clamp(20px, 5vw, 24px)",
-              cursor: "pointer",
-              transition: "all 0.3s",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-              textAlign: "center",
-              WebkitTapHighlightColor: "transparent"
-            }}
-          >
-            <div style={{ fontSize: "clamp(36px, 10vw, 42px)", marginBottom: "12px" }}>🌤️</div>
-            <div style={{
-              fontSize: "clamp(16px, 4.5vw, 20px)",
-              fontWeight: "bold",
-              color: "#1a5f3f",
-              marginBottom: "6px",
-              letterSpacing: "0.5px"
-            }}>
-              Weather
-            </div>
-            <div style={{
-              fontSize: "clamp(11px, 2.8vw, 13px)",
-              color: "#666",
-              lineHeight: "1.4"
-            }}>
-              UK forecast
-            </div>
-          </button>
-
-          <button
-            onClick={() => setScreen("nutrition")}
-            style={{
-              background: "rgba(255, 255, 255, 0.95)",
-              border: "none",
-              borderRadius: "16px",
-              padding: "clamp(24px, 6vw, 32px) clamp(20px, 5vw, 24px)",
-              cursor: "pointer",
-              transition: "all 0.3s",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-              textAlign: "center",
-              WebkitTapHighlightColor: "transparent"
-            }}
-          >
-            <div style={{ fontSize: "clamp(36px, 10vw, 42px)", marginBottom: "12px" }}>🥗</div>
-            <div style={{
-              fontSize: "clamp(16px, 4.5vw, 20px)",
-              fontWeight: "bold",
-              color: "#1a5f3f",
-              marginBottom: "6px",
-              letterSpacing: "0.5px"
-            }}>
-              Nutrition
-            </div>
-            <div style={{
-              fontSize: "clamp(11px, 2.8vw, 13px)",
-              color: "#666",
-              lineHeight: "1.4"
-            }}>
-              Calorie calculator
-            </div>
-          </button>
-
-          <button
-            onClick={() => setScreen("mcdonalds")}
-            style={{
-              background: "rgba(255, 255, 255, 0.95)",
-              border: "none",
-              borderRadius: "16px",
-              padding: "clamp(24px, 6vw, 32px) clamp(20px, 5vw, 24px)",
-              cursor: "pointer",
-              transition: "all 0.3s",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-              textAlign: "center",
-              WebkitTapHighlightColor: "transparent"
-            }}
-          >
-            <div style={{ fontSize: "clamp(36px, 10vw, 42px)", marginBottom: "12px" }}>🍔</div>
-            <div style={{
-              fontSize: "clamp(16px, 4.5vw, 20px)",
-              fontWeight: "bold",
-              color: "#1a5f3f",
-              marginBottom: "6px",
-              letterSpacing: "0.5px"
-            }}>
-              McDonald's
-            </div>
-            <div style={{
-              fontSize: "clamp(11px, 2.8vw, 13px)",
-              color: "#666",
-              lineHeight: "1.4"
-            }}>
-              Menu & nutrition
-            </div>
-          </button>
-
-          <button
-            onClick={() => setScreen("flow")}
-            style={{
-              background: "#1a5f3f",
-              border: "none",
-              borderRadius: "16px",
-              padding: "clamp(24px, 6vw, 32px) clamp(20px, 5vw, 24px)",
-              cursor: "pointer",
-              transition: "all 0.3s",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
-              textAlign: "center",
-              WebkitTapHighlightColor: "transparent"
-            }}
-          >
-            <div style={{ fontSize: "clamp(36px, 10vw, 42px)", marginBottom: "12px" }}>⚡</div>
-            <div style={{
-              fontSize: "clamp(16px, 4.5vw, 20px)",
-              fontWeight: "bold",
-              color: "#f5f1e8",
-              marginBottom: "6px",
-              letterSpacing: "0.5px"
-            }}>
-              Meal Flow
-            </div>
-            <div style={{
-              fontSize: "clamp(11px, 2.8vw, 13px)",
-              color: "rgba(245,241,232,0.75)",
-              lineHeight: "1.4"
-            }}>
-              End-to-end pipeline
-            </div>
-          </button>
-        </div>
-
-        <div style={{
-          textAlign: "center",
-          marginTop: "clamp(40px, 8vw, 60px)",
-          color: "#f5f1e8",
-          fontSize: "clamp(12px, 3vw, 14px)",
-          opacity: 0.8,
-          padding: "0 16px"
-        }}>
-          🍔 Taste Rover Tools • Making food decisions easier
-        </div>
-      </div>
-    );
-  }
-
-  // FLOW SCREEN
+  // SMARTR FOOD (default / home)
   if (screen === "flow") {
-    return <FlowScreen onBack={() => setScreen("home")} />;
+    return (
+      <FlowScreen
+        onOpenWeather={() => setScreen("weather")}
+        onOpenMcDonalds={openMcDonalds}
+      />
+    );
   }
 
   // MCDONALDS MENU SCREEN
@@ -428,7 +245,7 @@ export default function App() {
         padding: "16px"
       }}>
         <button
-          onClick={() => setScreen("home")}
+          onClick={() => setScreen("flow")}
           style={{
             background: "rgba(255, 255, 255, 0.2)",
             border: "none",
@@ -442,7 +259,7 @@ export default function App() {
             WebkitTapHighlightColor: "transparent"
           }}
         >
-          ← Back to Home
+          ← Back to SmarTR Food
         </button>
 
         <div style={{
@@ -795,7 +612,7 @@ export default function App() {
       }}>
         <button
           onClick={() => {
-            setScreen("home");
+            setScreen("flow");
             setWeather(null);
             setWeatherError(null);
             setPostcode("");
@@ -814,7 +631,7 @@ export default function App() {
             WebkitTapHighlightColor: "transparent"
           }}
         >
-          ← Back to Home
+          ← Back to SmarTR Food
         </button>
 
         <div style={{
@@ -1033,7 +850,7 @@ export default function App() {
     }}>
       <button
         onClick={() => {
-          setScreen("home");
+          setScreen("flow");
           setNutrition(null);
           setNutritionError(null);
           setIngredientsText("");
@@ -1052,7 +869,7 @@ export default function App() {
           WebkitTapHighlightColor: "transparent"
         }}
       >
-        ← Back to Home
+        ← Back to SmarTR Food
       </button>
 
       <div style={{

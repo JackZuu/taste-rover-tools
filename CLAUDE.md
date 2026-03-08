@@ -44,21 +44,33 @@ docker run -p 8000:8000 -e OPENAI_API_KEY=sk-... -e OPENWEATHER_API_KEY=... tast
 
 Each module is independently callable as a plain Python function and exposed via its own API endpoint.
 
-| File | Function | API endpoint |
-|------|----------|-------------|
+| File | Key function(s) | API endpoint |
+|------|-----------------|-------------|
 | `core.py` | `run_task(postcode)`, `get_weather_for_day(postcode, date)` | `POST /api/weather` |
 | `nutrition.py` | `calculate_nutrition(ingredients_list)` | `POST /api/nutrition` |
 | `mcdonalds.py` | `get_mcdonalds_menu()` | `GET /api/mcdonalds/menu` |
-| `decision.py` | `make_decision(WeatherResult)` | _(logic only, no own endpoint)_ |
-| `supply.py` | `get_ingredient_supply(meal)` | `POST /api/supply` |
-| `equipment.py` | `get_equipment(meal)` | `POST /api/equipment` |
-| `flow.py` | `run_flow(postcode, date)` | `POST /api/flow` |
+| `decision.py` | `get_decision_and_options(WeatherResult)` | `POST /api/decision` |
+| `menu_generator.py` | `generate_menu(weather, primary_meal, region, …)` | `POST /api/menu` |
+| `supply.py` | `get_supply_chain()`, `get_ingredient_supply(meal)` | `GET /api/supply/chain`, `POST /api/supply` |
+| `equipment.py` | `list_vans()`, `get_van_equipment(van_id)`, `get_equipment(meal)` | `GET /api/vans`, `POST /api/equipment/van`, `POST /api/equipment` |
+| `trends.py` | `get_trends()` | `GET /api/trends` |
+| `historic.py` | `get_historic()` | `GET /api/historic` |
+| `seasonal.py` | `get_seasonal()` | `GET /api/seasonal` |
+| `celebrations.py` | `get_celebrations()` | `GET /api/celebrations` |
+| `regional.py` | `get_regional_demand(region)` | `POST /api/regional` |
+| `flow.py` | `run_flow(postcode, date, van_id, region)` | `POST /api/flow` |
 
-**`models.py`** holds shared dataclasses (`WeatherResult`, `DecisionResult`, `SupplyResult`, `EquipmentResult`, etc.) that are the typed interfaces between modules.
+**`models.py`** holds all shared dataclasses (`WeatherResult`, `DecisionAndOptionsResult`, `MenuProposal`, `VanEquipmentResult`, `SupplyChainResult`, `TrendsResult`, `SeasonalResult`, `CelebrationsResult`, `RegionalResult`, etc.) that are the typed interfaces between modules.
+
+Most data modules (`trends`, `historic`, `seasonal`, `celebrations`, `equipment`, `supply`, `regional`) return hardcoded/mock data. Only `core.py` (weather) and `nutrition.py` (OpenAI) make live API calls.
 
 ### Flow pipeline
 
-`POST /api/flow` runs all modules server-side in sequence: weather → decision → nutrition → supply → equipment.
+`POST /api/flow` (`flow.py`) runs an 11-step pipeline server-side:
+1–7. Independent (parallel-capable): equipment → supply → trends → historic → seasonal → celebrations → regional
+8–11. Sequential: weather → decision+options → nutrition → menu proposal
+
+`FlowRequest` requires `postcode`, `date` (YYYY-MM-DD), and optionally `van_id` (default `"van_alpha"`) and `region` (default `"London"`).
 
 The **Meal Flow** UI screen (`frontend/src/FlowScreen.tsx`) drives the same modules via individual fetch calls to achieve progressive display. Decision logic is duplicated as a pure TypeScript function in `FlowScreen.tsx` (no round-trip needed for a simple rule).
 

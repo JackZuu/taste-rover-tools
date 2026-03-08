@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 
-// ─── Colours & helpers ────────────────────────────────────────────────────────
-
 const G = {
   green:      "#1a5f3f",
   greenLight: "#2d8659",
@@ -33,22 +31,73 @@ function next5Dates(): string[] {
   });
 }
 
+// ─── Item emoji map ────────────────────────────────────────────────────────────
+
+const ITEM_EMOJIS: Record<string,string> = {
+  "Smash Burger":"🍔","BBQ Pulled Pork Bun":"🥩","Halloumi Skewer":"🍢",
+  "Halloumi Skewers":"🍢","Hot Dog":"🌭","Hot Dog with Onions":"🌭",
+  "Bacon & Egg Roll":"🥚","Sausage Sandwich":"🥪","Chicken Thigh Wrap":"🌯",
+  "Grilled Chicken":"🍗","Grilled Chicken Wrap":"🌯","Plant-Based Burger":"🌱",
+  "Birria-Style Wrap":"🌮","Nachos":"🧆","Chicken Strips":"🍗",
+  "Corn on the Cob":"🌽","Falafel Bites":"🧆","Arancini Balls":"🧆",
+  "Samosas":"🥟","Spring Rolls":"🥟","Mac Bites":"🧀",
+  "Korean Fried Cauliflower":"🥦","Sweet Potato Fries":"🍠","Coleslaw":"🥗",
+  "Side Salad":"🥗","Corn Ribs":"🌽","Loaded Fries":"🍟","Cheesy Chips":"🍟",
+  "Onion Rings":"🧅","Garlic Bread":"🍞","Fresh Green Salad":"🥗",
+  "Strawberry Ice Cream":"🍓","Mango Sorbet":"🥭","Churros":"🍩",
+  "Fruit Skewer":"🍡","Warm Brownie":"🍫","Warm Brownie & Cream":"🍫",
+  "Sticky Toffee Pudding":"🍮","Crumble Pot":"🥧","Hot Waffle":"🧇",
+  "Lemonade":"🍋","Mango Slush":"🥭","Iced Coffee":"☕",
+  "Watermelon Juice":"🍉","Sparkling Water":"💧","Watermelon Slush":"🍉",
+  "Flat White":"☕","Chai Latte":"🍵","Hot Chocolate":"☕",
+  "English Breakfast Tea":"🫖","Matcha Latte":"🍵",
+  "Pumpkin Spice Cupcake":"🎃","Mince Pie":"🥧","Chocolate Fondant":"🍫",
+  "Hot Cross Bun":"🍞","Toffee Apple":"🍎","Haggis Roll":"🥙",
+  "Welsh Lamb Wrap":"🌯","Ulster Fry Wrap":"🍳","Cornish Pasty":"🥐",
+  "Stottie Sandwich":"🥪","Chip Butty":"🍟","Tomato Soup":"🍅",
+  "Tomato Soup & Bread":"🍅","Mac & Cheese Bowl":"🧀","Chilli Con Carne":"🌶️",
+  "Spiced Lentil Soup":"🫘","Margherita Pizza":"🍕","Pepperoni Pizza":"🍕",
+  "Margherita Pizza Slice":"🍕","Pepperoni Pizza Slice":"🍕",
+  "Chicken Tikka Wrap":"🌯",
+};
+
+function getItemEmoji(name: string): string {
+  if (ITEM_EMOJIS[name]) return ITEM_EMOJIS[name];
+  const lower = name.toLowerCase();
+  for (const [k,v] of Object.entries(ITEM_EMOJIS)) {
+    if (lower.includes(k.toLowerCase())) return v;
+  }
+  if (lower.includes("burger")||lower.includes("bun")) return "🍔";
+  if (lower.includes("wrap")||lower.includes("taco")) return "🌯";
+  if (lower.includes("pizza")) return "🍕";
+  if (lower.includes("soup")) return "🍲";
+  if (lower.includes("salad")) return "🥗";
+  if (lower.includes("fries")||lower.includes("chips")) return "🍟";
+  if (lower.includes("ice cream")||lower.includes("sorbet")) return "🍦";
+  if (lower.includes("cake")||lower.includes("brownie")||lower.includes("pudding")) return "🍰";
+  if (lower.includes("coffee")||lower.includes("latte")||lower.includes("cappuccino")) return "☕";
+  if (lower.includes("tea")||lower.includes("matcha")) return "🍵";
+  if (lower.includes("juice")||lower.includes("slush")||lower.includes("lemonade")) return "🥤";
+  if (lower.includes("chicken")) return "🍗";
+  if (lower.includes("seasonal")) return "🌿";
+  return "🍽️";
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Van       = {id:string; name:string; base_location:string; postcode:string};
-type EqItem    = {name:string; available:boolean};
-type Supplier  = {name:string; distance_miles:number; lead_time_hours:number; categories:string[]; reliability_pct:number};
-type InvItem   = {name:string; category:string; status:"in_stock"|"low"|"out"};
-type TrendItem = {label:string; direction:"up"|"down"|"stable"; category:string};
-type SeasonalItem = {name:string; category:string};
-type Celebration = {name:string; date:string; days_away:number; food_opportunity:string};
-type RegionalInsight = {insight:string; category:string};
-type MenuOption = {name:string; category:string; weather_fit:string; emoji:string};
-type NutritionItem = {ingredient:string; assumed_amount:string; calories_kcal:number; notes:string};
+type Van            = {id:string; name:string; base_location:string; postcode:string};
+type EqItem         = {name:string; available:boolean};
+type Supplier       = {name:string; distance_miles:number; lead_time_hours:number; categories:string[]; reliability_pct:number};
+type InvItem        = {name:string; category:string; status:"in_stock"|"low"|"out"};
+type TrendItem      = {label:string; direction:"up"|"down"|"stable"; category:string};
+type SeasonalItem   = {name:string; category:string};
+type Celebration    = {name:string; date:string; days_away:number; food_opportunity:string};
+type RegionalInsight= {insight:string; category:string};
+type MenuOption     = {name:string; category:string; weather_fit:string; emoji:string};
+type NutritionItem  = {ingredient:string; assumed_amount:string; calories_kcal:number; notes:string};
+type StepStatus     = "idle"|"loading"|"done"|"error";
 
-type StepStatus = "idle"|"loading"|"done"|"error";
-
-// ─── UK Region → postcode ─────────────────────────────────────────────────────
+// ─── UK regions ───────────────────────────────────────────────────────────────
 
 const UK_REGIONS = [
   {label:"London",          postcode:"SW1A 1AA"},
@@ -65,7 +114,27 @@ const UK_REGIONS = [
   {label:"N. Ireland",      postcode:"BT1 2LA"},
 ];
 
-// ─── Decision logic (mirrors decision.py) ─────────────────────────────────────
+// ─── Van auto-selection ───────────────────────────────────────────────────────
+
+function autoSelectVan(vans: Van[], postcode: string, region: string): string {
+  if (!vans.length) return "van_alpha";
+  if (region) {
+    const words = region.toLowerCase().split(/[\s,&]+/).filter(w=>w.length>2);
+    for (const v of vans) {
+      const base = v.base_location.toLowerCase();
+      if (words.some(w => base.includes(w))) return v.id;
+    }
+  }
+  if (postcode) {
+    const prefix = postcode.trim().toUpperCase().match(/^[A-Z]{1,2}/)?.[0] ?? "";
+    for (const v of vans) {
+      if (v.postcode.startsWith(prefix)) return v.id;
+    }
+  }
+  return vans[0].id;
+}
+
+// ─── Decision logic ───────────────────────────────────────────────────────────
 
 function decideAndOptions(avgTemp:number, isRainy:boolean, condition:string): {
   primary_meal:string; primary_reason:string; menu_options:MenuOption[];
@@ -75,7 +144,6 @@ function decideAndOptions(avgTemp:number, isRainy:boolean, condition:string): {
   const primary_reason = warm
     ? `${avgTemp.toFixed(1)}°C and ${condition} — warm and dry, perfect for something cold!`
     : `${avgTemp.toFixed(1)}°C${isRainy?" and "+condition:""} — chilly or wet, time for something warming!`;
-
   const warm_opts:MenuOption[] = [
     {name:"Smash Burger",         category:"burger",  weather_fit:"warm", emoji:"🍔"},
     {name:"Grilled Chicken Wrap", category:"wrap",    weather_fit:"warm", emoji:"🌯"},
@@ -108,43 +176,30 @@ function decideAndOptions(avgTemp:number, isRainy:boolean, condition:string): {
 function MockLabel({label}:{label:string}) {
   return (
     <div style={{
-      display:"inline-block",
-      fontSize:"10px", fontWeight:"600",
-      color:"#888",
-      background:"#f0f0f0",
-      border:"1px solid #ddd",
-      borderRadius:"4px",
-      padding:"1px 6px",
-      marginBottom:"10px",
-      letterSpacing:"0.5px",
-      textTransform:"uppercase",
-      fontFamily:"monospace",
+      display:"inline-block", fontSize:"10px", fontWeight:"600", color:"#888",
+      background:"#f0f0f0", border:"1px solid #ddd", borderRadius:"4px",
+      padding:"1px 6px", marginBottom:"10px", letterSpacing:"0.5px",
+      textTransform:"uppercase", fontFamily:"monospace",
     }}>{label}</div>
   );
 }
 
-function StatusBadge({ok, labelOk="Ready", labelNo="Missing"}:{ok:boolean;labelOk?:string;labelNo?:string}) {
+function StatusBadge({ok,labelOk="Ready",labelNo="Missing"}:{ok:boolean;labelOk?:string;labelNo?:string}) {
   return (
     <span style={{
-      display:"inline-block",
-      padding:"2px 10px",
-      borderRadius:"12px",
+      display:"inline-block", padding:"2px 10px", borderRadius:"12px",
       fontSize:"12px", fontWeight:"600",
-      background: ok?"#e6f4ee":"#fdecea",
-      color: ok?G.green:G.red,
+      background:ok?"#e6f4ee":"#fdecea", color:ok?G.green:G.red,
       border:`1px solid ${ok?"#b2d8c5":"#f5c6c2"}`,
     }}>{ok?`✓ ${labelOk}`:`✗ ${labelNo}`}</span>
   );
 }
 
-function Dot({status}:{status:"in_stock"|"low"|"out"|string}) {
+function Dot({status}:{status:string}) {
   const color = status==="in_stock"?G.green : status==="low"?G.amber : G.red;
   const label = status==="in_stock"?"In stock" : status==="low"?"Low" : "Out";
   return (
-    <span style={{
-      display:"inline-flex", alignItems:"center", gap:"4px",
-      fontSize:"11px", fontWeight:"600", color,
-    }}>
+    <span style={{display:"inline-flex",alignItems:"center",gap:"4px",fontSize:"11px",fontWeight:"600",color}}>
       <span style={{width:7,height:7,borderRadius:"50%",background:color,display:"inline-block"}}/>
       {label}
     </span>
@@ -153,37 +208,32 @@ function Dot({status}:{status:"in_stock"|"low"|"out"|string}) {
 
 type SectionCardProps = {
   step:number; title:string; status:StepStatus;
-  dataLabel?:string; children?:React.ReactNode;
+  dataLabel?:string; children?:React.ReactNode; titleAction?:React.ReactNode;
 };
-function SectionCard({step,title,status,dataLabel,children}:SectionCardProps) {
-  const borderColor =
-    status==="done"?"#b2d8c5": status==="error"?G.red: status==="loading"?"#ccc":"#e8e8e8";
+function SectionCard({step,title,status,dataLabel,children,titleAction}:SectionCardProps) {
+  const borderColor = status==="done"?"#b2d8c5":status==="error"?G.red:status==="loading"?"#ccc":"#e8e8e8";
   return (
     <div style={{
-      background:G.card, borderRadius:"16px",
-      border:`2px solid ${borderColor}`,
+      background:G.card, borderRadius:"16px", border:`2px solid ${borderColor}`,
       padding:"18px 22px", marginBottom:"14px",
-      boxShadow: status==="done"?"0 4px 14px rgba(26,95,63,0.09)":"0 2px 6px rgba(0,0,0,0.05)",
-      transition:"border-color 0.3s, box-shadow 0.3s",
+      boxShadow:status==="done"?"0 4px 14px rgba(26,95,63,0.09)":"0 2px 6px rgba(0,0,0,0.05)",
+      transition:"border-color 0.3s,box-shadow 0.3s",
     }}>
-      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom: children?12:0}}>
+      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:children?12:0}}>
         <div style={{
-          width:26, height:26, borderRadius:"50%", flexShrink:0,
-          background: status==="done"?G.green: status==="error"?G.red:"#ddd",
-          color:"#fff", display:"flex", alignItems:"center",
-          justifyContent:"center", fontSize:"12px", fontWeight:"700",
+          width:26,height:26,borderRadius:"50%",flexShrink:0,
+          background:status==="done"?G.green:status==="error"?G.red:"#ddd",
+          color:"#fff",display:"flex",alignItems:"center",
+          justifyContent:"center",fontSize:"12px",fontWeight:"700",
           transition:"background 0.3s",
-        }}>
-          {status==="loading"?"…":step}
-        </div>
+        }}>{status==="loading"?"…":step}</div>
         <div style={{
-          fontSize:"clamp(14px,3.2vw,16px)", fontWeight:"700",
-          color: status==="done"?G.green: status==="error"?G.red:"#bbb",
-          letterSpacing:"0.4px", transition:"color 0.3s",
+          fontSize:"clamp(14px,3.2vw,16px)",fontWeight:"700",flex:1,
+          color:status==="done"?G.green:status==="error"?G.red:"#bbb",
+          letterSpacing:"0.4px",transition:"color 0.3s",
         }}>{title}</div>
-        {status==="loading"&&(
-          <span style={{marginLeft:"auto",fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>Loading…</span>
-        )}
+        {status==="loading"&&<span style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>Loading…</span>}
+        {titleAction}
       </div>
       {children && dataLabel && <MockLabel label={dataLabel}/>}
       {children}
@@ -191,11 +241,161 @@ function SectionCard({step,title,status,dataLabel,children}:SectionCardProps) {
   );
 }
 
+// ─── TR App-style menu display ────────────────────────────────────────────────
+
+const MENU_TABS = [
+  {key:"grill",       label:"Grill"},
+  {key:"snacks",      label:"Snacks"},
+  {key:"cold_drinks", label:"Cold Drinks"},
+  {key:"sides",       label:"Sides"},
+  {key:"desserts",    label:"Desserts"},
+  {key:"hot_drinks",  label:"Hot Drinks"},
+];
+
+function ItemCard({name, featured}:{name:string; featured?:boolean}) {
+  const emoji = getItemEmoji(name);
+  return (
+    <div style={{
+      background:"#fff", borderRadius:"12px", overflow:"hidden",
+      boxShadow:"0 2px 8px rgba(0,0,0,0.08)",
+      border: featured ? `2px solid ${G.green}` : "1.5px solid #ececec",
+    }}>
+      <div style={{
+        background:"#f0ede6", height:"80px",
+        display:"flex", alignItems:"center", justifyContent:"center",
+        fontSize:"34px", position:"relative",
+      }}>
+        {emoji}
+        {featured && (
+          <div style={{
+            position:"absolute", top:"5px", left:"5px",
+            background:G.green, color:"#fff",
+            fontSize:"8px", fontWeight:"700",
+            padding:"2px 5px", borderRadius:"4px", letterSpacing:"0.5px",
+          }}>FEATURED</div>
+        )}
+        <div style={{
+          position:"absolute", bottom:"5px", right:"5px",
+          width:"22px", height:"22px", borderRadius:"50%",
+          background:G.green, color:"#fff",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:"17px", fontWeight:"300", border:"2px solid #fff", lineHeight:"1",
+        }}>+</div>
+      </div>
+      <div style={{padding:"8px 9px"}}>
+        <div style={{
+          fontSize:"11px", fontWeight:"600", color:"#1a1a1a",
+          fontFamily:"'Georgia',serif", lineHeight:"1.3",
+        }}>{name}</div>
+      </div>
+    </div>
+  );
+}
+
+function TRMenuDisplay({menuResult, primaryMeal}:{menuResult:any; primaryMeal:string}) {
+  const [activeTab, setActiveTab] = useState("grill");
+  const activeItems: string[] = menuResult[activeTab] ?? [];
+  const activeLabel = MENU_TABS.find(t=>t.key===activeTab)?.label ?? "";
+  const primaryWord = primaryMeal.split(" ")[0].toLowerCase();
+
+  const tabStyle = (active:boolean): React.CSSProperties => ({
+    padding:"7px 2px", border:`1.5px solid ${active?"transparent":"rgba(255,255,255,0.55)"}`,
+    borderRadius:"8px", background:active?"#fff":"transparent",
+    color:active?G.green:"#fff", fontWeight:"600", fontSize:"11px",
+    cursor:"pointer", fontFamily:"'Georgia',serif",
+    transition:"all 0.15s", WebkitTapHighlightColor:"transparent",
+  });
+
+  return (
+    <div style={{borderRadius:"14px", overflow:"hidden", boxShadow:"0 4px 20px rgba(0,0,0,0.12)"}}>
+      {/* Green header */}
+      <div style={{background:G.green, padding:"14px 16px 10px"}}>
+        <div style={{
+          fontSize:"28px", fontStyle:"italic", fontWeight:"bold",
+          color:"#fff", fontFamily:"'Georgia',serif", marginBottom:"10px", lineHeight:"1",
+        }}>
+          <em>TR</em>
+        </div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"5px", marginBottom:"5px"}}>
+          {MENU_TABS.slice(0,3).map(tab=>(
+            <button key={tab.key} style={tabStyle(activeTab===tab.key)} onClick={()=>setActiveTab(tab.key)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"5px"}}>
+          {MENU_TABS.slice(3).map(tab=>(
+            <button key={tab.key} style={tabStyle(activeTab===tab.key)} onClick={()=>setActiveTab(tab.key)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{background:"#f5f3ef", padding:"16px"}}>
+        <div style={{
+          fontSize:"22px", fontWeight:"700", color:"#1a1a1a",
+          fontFamily:"'Georgia',serif", marginBottom:"14px",
+        }}>{activeLabel}</div>
+
+        {activeItems.length === 0 ? (
+          <div style={{color:"#aaa", fontStyle:"italic", fontSize:"13px", padding:"8px 0"}}>
+            No items for this category
+          </div>
+        ) : (
+          <div style={{display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"9px"}}>
+            {activeItems.map((item,i) => (
+              <ItemCard
+                key={i} name={item}
+                featured={i===0 && item.toLowerCase().includes(primaryWord)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Influences */}
+        {(menuResult.influences as string[])?.length > 0 && (
+          <div style={{
+            marginTop:"14px", padding:"8px 12px",
+            background:"#e6f4ee", borderRadius:"8px",
+            fontSize:"11px", color:G.green, fontStyle:"italic",
+          }}>
+            Tailored by: {(menuResult.influences as string[]).join(" · ")}
+          </div>
+        )}
+
+        {/* Diet %s */}
+        <div style={{display:"flex", gap:"8px", flexWrap:"wrap", marginTop:"10px"}}>
+          {[
+            {label:"Veggie", val:menuResult.pct_veggie, color:"#22c55e"},
+            {label:"Vegan",  val:menuResult.pct_vegan,  color:"#16a34a"},
+            {label:"GF",     val:menuResult.pct_gluten_free, color:"#f59e0b"},
+          ].map(p=>(
+            <div key={p.label} style={{
+              padding:"4px 10px", borderRadius:"20px", background:"#fff",
+              display:"flex", gap:"4px", alignItems:"center",
+              fontSize:"11px", border:"1px solid #e0e0e0",
+            }}>
+              <span style={{fontWeight:"700", color:p.color}}>{p.val}%</span>
+              <span style={{color:"#666"}}>{p.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function FlowScreen({onBack}:{onBack:()=>void}) {
-
-  // ── Sidebar inputs ──────────────────────────────────────────────────────
+export default function FlowScreen({
+  onOpenWeather,
+  onOpenMcDonalds,
+}: {
+  onOpenWeather: () => void;
+  onOpenMcDonalds: () => void;
+}) {
   const [vans, setVans] = useState<Van[]>([]);
   const [selectedVan, setSelectedVan] = useState<string>("van_alpha");
   const [inputMode, setInputMode] = useState<"postcode"|"region">("postcode");
@@ -208,93 +408,106 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
     : UK_REGIONS.find(r=>r.label===selectedRegion)?.postcode ?? "";
   const activeRegion = selectedRegion ?? "London";
 
-  // Load vans on mount
   useEffect(()=>{
     fetch("/api/vans").then(r=>r.json()).then(d=>{ if(d.vans) setVans(d.vans); });
   },[]);
 
-  // ── Pipeline state ──────────────────────────────────────────────────────
+  // Auto-select van whenever location or vans list changes
+  useEffect(()=>{
+    if (vans.length > 0) {
+      const id = autoSelectVan(
+        vans,
+        inputMode==="postcode" ? postcodeInput : "",
+        inputMode==="region"   ? (selectedRegion ?? "") : "",
+      );
+      setSelectedVan(id);
+    }
+  },[vans, postcodeInput, selectedRegion, inputMode]);
+
+  const selectedVanData = vans.find(v=>v.id===selectedVan);
+
+  // ── Pipeline state ────────────────────────────────────────────────────────
   type PS = StepStatus;
-  const [equipStatus,   setEquipStatus]   = useState<PS>("idle");
-  const [equipResult,   setEquipResult]   = useState<{van:Van;equipment:EqItem[];available_count:number;total_count:number}|null>(null);
-  const [equipErr,      setEquipErr]      = useState<string|null>(null);
+  const [equipStatus,      setEquipStatus]      = useState<PS>("idle");
+  const [equipResult,      setEquipResult]      = useState<{van:Van;equipment:EqItem[];available_count:number;total_count:number}|null>(null);
+  const [equipErr,         setEquipErr]         = useState<string|null>(null);
 
-  const [supplyStatus,  setSupplyStatus]  = useState<PS>("idle");
-  const [supplyResult,  setSupplyResult]  = useState<{suppliers:Supplier[];inventory:InvItem[]}|null>(null);
-  const [supplyErr,     setSupplyErr]     = useState<string|null>(null);
+  const [supplyStatus,     setSupplyStatus]     = useState<PS>("idle");
+  const [supplyResult,     setSupplyResult]     = useState<{suppliers:Supplier[];inventory:InvItem[]}|null>(null);
+  const [supplyErr,        setSupplyErr]        = useState<string|null>(null);
 
-  const [trendsStatus,  setTrendsStatus]  = useState<PS>("idle");
-  const [trendsResult,  setTrendsResult]  = useState<{trends:TrendItem[]}|null>(null);
+  const [trendsStatus,     setTrendsStatus]     = useState<PS>("idle");
+  const [trendsResult,     setTrendsResult]     = useState<{trends:TrendItem[]}|null>(null);
 
-  const [historicStatus,setHistoricStatus]= useState<PS>("idle");
-  const [historicMsg,   setHistoricMsg]   = useState<string|null>(null);
+  const [historicStatus,   setHistoricStatus]   = useState<PS>("idle");
+  const [historicMsg,      setHistoricMsg]      = useState<string|null>(null);
 
-  const [seasonStatus,  setSeasonStatus]  = useState<PS>("idle");
-  const [seasonResult,  setSeasonResult]  = useState<{month:string;items:SeasonalItem[]}|null>(null);
+  const [seasonStatus,     setSeasonStatus]     = useState<PS>("idle");
+  const [seasonResult,     setSeasonResult]     = useState<{month:string;items:SeasonalItem[]}|null>(null);
 
-  const [celebStatus,   setCelebStatus]   = useState<PS>("idle");
-  const [celebResult,   setCelebResult]   = useState<{upcoming:Celebration[]}|null>(null);
+  const [celebStatus,      setCelebStatus]      = useState<PS>("idle");
+  const [celebResult,      setCelebResult]      = useState<{upcoming:Celebration[]}|null>(null);
 
-  const [regionStatus,  setRegionStatus]  = useState<PS>("idle");
-  const [regionResult,  setRegionResult]  = useState<{region:string;insights:RegionalInsight[]}|null>(null);
+  const [regionStatus,     setRegionStatus]     = useState<PS>("idle");
+  const [regionResult,     setRegionResult]     = useState<{region:string;insights:RegionalInsight[]}|null>(null);
 
-  const [weatherStatus, setWeatherStatus] = useState<PS>("idle");
-  const [weatherResult, setWeatherResult] = useState<{avg_temp:number;condition:string;is_rainy:boolean}|null>(null);
-  const [weatherErr,    setWeatherErr]    = useState<string|null>(null);
+  const [competitorStatus, setCompetitorStatus] = useState<PS>("idle");
 
-  const [decisionStatus,setDecisionStatus]= useState<PS>("idle");
-  const [decisionResult,setDecisionResult]= useState<{primary_meal:string;primary_reason:string;menu_options:MenuOption[]}|null>(null);
+  const [weatherStatus,    setWeatherStatus]    = useState<PS>("idle");
+  const [weatherResult,    setWeatherResult]    = useState<{avg_temp:number;condition:string;is_rainy:boolean}|null>(null);
+  const [weatherErr,       setWeatherErr]       = useState<string|null>(null);
 
-  const [nutritionStatus,setNutritionStatus]= useState<PS>("idle");
-  const [nutritionResult,setNutritionResult]= useState<{items:NutritionItem[];total_calories_kcal:number}|null>(null);
-  const [nutritionErr,  setNutritionErr]  = useState<string|null>(null);
+  const [decisionStatus,   setDecisionStatus]   = useState<PS>("idle");
+  const [decisionResult,   setDecisionResult]   = useState<{primary_meal:string;primary_reason:string;menu_options:MenuOption[]}|null>(null);
 
-  const [menuStatus,    setMenuStatus]    = useState<PS>("idle");
-  const [menuResult,    setMenuResult]    = useState<any|null>(null);
-  const [menuErr,       setMenuErr]       = useState<string|null>(null);
+  const [nutritionStatus,  setNutritionStatus]  = useState<PS>("idle");
+  const [nutritionResult,  setNutritionResult]  = useState<{items:NutritionItem[];total_calories_kcal:number}|null>(null);
+  const [nutritionErr,     setNutritionErr]     = useState<string|null>(null);
+
+  const [menuStatus,       setMenuStatus]       = useState<PS>("idle");
+  const [menuResult,       setMenuResult]       = useState<any|null>(null);
+  const [menuErr,          setMenuErr]          = useState<string|null>(null);
 
   const [running, setRunning] = useState(false);
 
   function resetAll() {
-    setEquipStatus("idle");   setEquipResult(null);   setEquipErr(null);
-    setSupplyStatus("idle");  setSupplyResult(null);  setSupplyErr(null);
-    setTrendsStatus("idle");  setTrendsResult(null);
-    setHistoricStatus("idle");setHistoricMsg(null);
-    setSeasonStatus("idle");  setSeasonResult(null);
-    setCelebStatus("idle");   setCelebResult(null);
-    setRegionStatus("idle");  setRegionResult(null);
-    setWeatherStatus("idle"); setWeatherResult(null); setWeatherErr(null);
-    setDecisionStatus("idle");setDecisionResult(null);
-    setNutritionStatus("idle");setNutritionResult(null);setNutritionErr(null);
-    setMenuStatus("idle");    setMenuResult(null);    setMenuErr(null);
+    setEquipStatus("idle");      setEquipResult(null);   setEquipErr(null);
+    setSupplyStatus("idle");     setSupplyResult(null);  setSupplyErr(null);
+    setTrendsStatus("idle");     setTrendsResult(null);
+    setHistoricStatus("idle");   setHistoricMsg(null);
+    setSeasonStatus("idle");     setSeasonResult(null);
+    setCelebStatus("idle");      setCelebResult(null);
+    setRegionStatus("idle");     setRegionResult(null);
+    setCompetitorStatus("idle");
+    setWeatherStatus("idle");    setWeatherResult(null); setWeatherErr(null);
+    setDecisionStatus("idle");   setDecisionResult(null);
+    setNutritionStatus("idle");  setNutritionResult(null); setNutritionErr(null);
+    setMenuStatus("idle");       setMenuResult(null);    setMenuErr(null);
   }
 
-  // ── Run flow ────────────────────────────────────────────────────────────
   async function runFlow() {
     if (!activePostcode) return;
     resetAll();
     setRunning(true);
 
-    // Helper
     async function fetchJson(url:string, opts?:RequestInit) {
       const r = await fetch(url, opts);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.json();
     }
-
-    // ── Steps 1–7 concurrently ─────────────────────────────────────────
-    setEquipStatus("loading"); setSupplyStatus("loading");
-    setTrendsStatus("loading"); setHistoricStatus("loading");
-    setSeasonStatus("loading"); setCelebStatus("loading");
-    setRegionStatus("loading");
-
-    const post = (url:string,body:object) => fetchJson(url,{
+    const post = (url:string, body:object) => fetchJson(url,{
       method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify(body),
     });
 
+    // ── Steps 1–7 concurrently + step 8 (competitor, static) ──────────────
+    setEquipStatus("loading"); setSupplyStatus("loading");
+    setTrendsStatus("loading"); setHistoricStatus("loading");
+    setSeasonStatus("loading"); setCelebStatus("loading");
+    setRegionStatus("loading"); setCompetitorStatus("loading");
+
     const [eq, sup, tr, hi, sea, cel, reg] = await Promise.allSettled([
-      post("/api/equipment/van",  {van_id: selectedVan}),
+      post("/api/equipment/van", {van_id: selectedVan}),
       fetchJson("/api/supply/chain"),
       fetchJson("/api/trends"),
       fetchJson("/api/historic"),
@@ -303,35 +516,38 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
       post("/api/regional", {region: activeRegion}),
     ]);
 
-    if (eq.status==="fulfilled")  { setEquipResult(eq.value);    setEquipStatus("done"); }
+    // Competitor menus is static — always completes
+    setCompetitorStatus("done");
+
+    if (eq.status==="fulfilled")  { setEquipResult(eq.value);   setEquipStatus("done"); }
     else                          { setEquipErr(String(eq.reason)); setEquipStatus("error"); }
 
-    if (sup.status==="fulfilled") { setSupplyResult(sup.value);  setSupplyStatus("done"); }
+    if (sup.status==="fulfilled") { setSupplyResult(sup.value); setSupplyStatus("done"); }
     else                          { setSupplyErr(String(sup.reason)); setSupplyStatus("error"); }
 
-    if (tr.status==="fulfilled")  { setTrendsResult(tr.value);   setTrendsStatus("done"); }
-    else                          setTrendsStatus("error");
+    if (tr.status==="fulfilled")  { setTrendsResult(tr.value);  setTrendsStatus("done"); }
+    else                           setTrendsStatus("error");
 
     if (hi.status==="fulfilled")  { setHistoricMsg(hi.value.message); setHistoricStatus("done"); }
-    else                          setHistoricStatus("error");
+    else                           setHistoricStatus("error");
 
-    if (sea.status==="fulfilled") { setSeasonResult(sea.value);  setSeasonStatus("done"); }
-    else                          setSeasonStatus("error");
+    if (sea.status==="fulfilled") { setSeasonResult(sea.value); setSeasonStatus("done"); }
+    else                           setSeasonStatus("error");
 
-    if (cel.status==="fulfilled") { setCelebResult(cel.value);   setCelebStatus("done"); }
-    else                          setCelebStatus("error");
+    if (cel.status==="fulfilled") { setCelebResult(cel.value);  setCelebStatus("done"); }
+    else                           setCelebStatus("error");
 
-    if (reg.status==="fulfilled") { setRegionResult(reg.value);  setRegionStatus("done"); }
-    else                          setRegionStatus("error");
+    if (reg.status==="fulfilled") { setRegionResult(reg.value); setRegionStatus("done"); }
+    else                           setRegionStatus("error");
 
-    // ── Step 8: Weather ────────────────────────────────────────────────
+    // ── Step 9: Weather ────────────────────────────────────────────────────
     setWeatherStatus("loading");
-    let wr:{avg_temp:number;condition:string;is_rainy:boolean}|null = null;
+    let wr: {avg_temp:number; condition:string; is_rainy:boolean} | null = null;
     try {
       const data = await post("/api/weather", {postcode: activePostcode});
       if (data.error) throw new Error(data.error);
       const dayEntry = (data.forecast??[]).find((d:any)=>d.date===selectedDate);
-      if (!dayEntry) throw new Error(`No forecast data for ${selectedDate}`);
+      if (!dayEntry) throw new Error(`No forecast for ${selectedDate}`);
       wr = {avg_temp:dayEntry.avg_temp, condition:dayEntry.mainly, is_rainy:dayEntry.mainly==="mainly rain"};
       setWeatherResult(wr); setWeatherStatus("done");
     } catch(e:any) {
@@ -339,15 +555,15 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
       setWeatherStatus("error"); setRunning(false); return;
     }
 
-    // ── Step 9: Decision (client-side) ────────────────────────────────
+    // ── Step 10: Decision (client-side) ───────────────────────────────────
     setDecisionStatus("loading");
     const dec = decideAndOptions(wr.avg_temp, wr.is_rainy, wr.condition);
     setDecisionResult(dec); setDecisionStatus("done");
 
-    // ── Step 10: Nutrition ────────────────────────────────────────────
+    // ── Step 11: Nutrition — always smash burger ───────────────────────────
     setNutritionStatus("loading");
     try {
-      const data = await post("/api/nutrition",{ingredients:[`1 standard serving of ${dec.primary_meal}`]});
+      const data = await post("/api/nutrition", {ingredients:["1 smash burger"]});
       if (data.error) throw new Error(data.error);
       setNutritionResult(data); setNutritionStatus("done");
     } catch(e:any) {
@@ -355,18 +571,23 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
       setNutritionStatus("error");
     }
 
-    // ── Step 11: Menu proposal ────────────────────────────────────────
+    // ── Step 12: Menu proposal ─────────────────────────────────────────────
     setMenuStatus("loading");
     try {
-      const activeTrends = trendsResult?.trends.filter(t=>t.direction==="up").map(t=>t.label) ?? [];
-      const seasonalNames = seasonResult?.items.map(i=>i.name) ?? [];
-      const nextCeleb = celebResult?.upcoming?.[0]?.name ?? "";
+      // Read from settled results directly to avoid stale-closure issues
+      const activeTrends = tr.status==="fulfilled"
+        ? tr.value.trends.filter((t:any)=>t.direction==="up").map((t:any)=>t.label)
+        : [];
+      const seasonalNames = sea.status==="fulfilled"
+        ? sea.value.items.map((i:any)=>i.name)
+        : [];
+      const nextCeleb = cel.status==="fulfilled"
+        ? (cel.value.upcoming?.[0]?.name ?? "")
+        : "";
       const data = await post("/api/menu",{
         avg_temp:wr.avg_temp, is_rainy:wr.is_rainy, condition:wr.condition,
-        primary_meal:dec.primary_meal,
-        region:activeRegion,
-        active_trends:activeTrends,
-        seasonal_items:seasonalNames,
+        primary_meal:dec.primary_meal, region:activeRegion,
+        active_trends:activeTrends, seasonal_items:seasonalNames,
         upcoming_celebration:nextCeleb,
       });
       setMenuResult(data); setMenuStatus("done");
@@ -378,77 +599,61 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
     setRunning(false);
   }
 
-  const dates = next5Dates();
-  const canRun = !running && (
-    inputMode==="postcode" ? postcodeInput.trim().length>0 : selectedRegion!==null
-  );
-  const allDone = [equipStatus,supplyStatus,trendsStatus,historicStatus,
-    seasonStatus,celebStatus,regionStatus,weatherStatus,
-    decisionStatus,nutritionStatus,menuStatus].every(s=>s==="done"||s==="error");
+  const dates   = next5Dates();
+  const canRun  = !running && (inputMode==="postcode" ? postcodeInput.trim().length>0 : selectedRegion!==null);
+  const allDone = [
+    equipStatus,supplyStatus,trendsStatus,historicStatus,
+    seasonStatus,celebStatus,regionStatus,competitorStatus,
+    weatherStatus,decisionStatus,nutritionStatus,menuStatus,
+  ].every(s=>s==="done"||s==="error");
 
-  // ─── Sidebar button style ───────────────────────────────────────────────
-  const tabBtn = (active:boolean):React.CSSProperties => ({
+  const tabBtn = (active:boolean): React.CSSProperties => ({
     flex:1, padding:"7px 4px", border:"none", fontFamily:"'Georgia',serif",
-    background: active?G.green:"transparent",
-    color: active?"#fff":G.green,
+    background:active?G.green:"transparent", color:active?"#fff":G.green,
     fontWeight:"600", fontSize:"13px", cursor:"pointer",
     transition:"all 0.2s", WebkitTapHighlightColor:"transparent",
   });
 
-  const dateBtn = (active:boolean):React.CSSProperties => ({
+  const dateBtn = (active:boolean): React.CSSProperties => ({
     padding:"7px 10px", borderRadius:"8px", border:`2px solid ${active?G.green:"#ddd"}`,
-    background: active?"#e6f4ee":"#fafafa", color: active?G.green:"#444",
-    fontSize:"12px", fontWeight: active?"700":"500", cursor:"pointer",
+    background:active?"#e6f4ee":"#fafafa", color:active?G.green:"#444",
+    fontSize:"12px", fontWeight:active?"700":"500", cursor:"pointer",
     fontFamily:"'Georgia',serif", display:"flex", justifyContent:"space-between",
     transition:"all 0.15s", WebkitTapHighlightColor:"transparent",
   });
 
-  // ─── Render ─────────────────────────────────────────────────────────────
   return (
     <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${G.green} 0%,${G.greenLight} 100%)`,fontFamily:"'Georgia',serif",padding:"16px"}}>
 
       {/* Header */}
-      <div style={{display:"flex",alignItems:"center",gap:"16px",marginBottom:"20px"}}>
-        <button onClick={onBack} style={{background:"rgba(255,255,255,0.2)",border:"none",color:G.cream,padding:"10px 20px",borderRadius:"50px",cursor:"pointer",fontSize:"clamp(12px,3vw,14px)",fontWeight:"600",WebkitTapHighlightColor:"transparent"}}>
-          ← Back
-        </button>
-        <div>
-          <div style={{fontSize:"clamp(20px,5vw,30px)",fontWeight:"bold",color:G.cream,letterSpacing:"2px",textTransform:"uppercase"}}>Meal Flow</div>
-          <div style={{fontSize:"clamp(11px,2.5vw,13px)",color:G.cream,opacity:0.8,fontStyle:"italic"}}>Equipment → Supply → Trends → History → Season → Events → Region → Weather → Decision → Nutrition → Menu</div>
+      <div style={{display:"flex",alignItems:"baseline",gap:"10px",marginBottom:"20px"}}>
+        <div style={{fontSize:"clamp(22px,5vw,30px)",fontWeight:"bold",color:G.cream,letterSpacing:"1px"}}>
+          <em>Smart</em><span style={{fontStyle:"normal"}}>R Food</span>
         </div>
+        <div style={{fontSize:"11px",color:G.cream,opacity:0.6,fontStyle:"italic"}}>by Taste Rover</div>
       </div>
 
-      {/* Two-panel layout */}
       <div style={{display:"flex",gap:"18px",alignItems:"flex-start",flexWrap:"wrap"}}>
 
-        {/* ── LEFT SIDEBAR ───────────────────────────────────────────────── */}
+        {/* ── SIDEBAR ─────────────────────────────────────────────────────── */}
         <div style={{background:G.card,borderRadius:"20px",padding:"20px",width:"clamp(240px,26vw,280px)",flexShrink:0,boxShadow:"0 8px 24px rgba(0,0,0,0.2)"}}>
           <div style={{fontWeight:"700",color:G.green,fontSize:"14px",marginBottom:"14px",letterSpacing:"0.5px"}}>INPUTS</div>
 
-          {/* Van selector */}
+          {/* Auto-selected van */}
           <div style={{marginBottom:"16px"}}>
-            <label style={{fontSize:"11px",color:"#777",display:"block",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.5px"}}>Select Van</label>
+            <label style={{fontSize:"11px",color:"#777",display:"block",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.5px"}}>Van (Auto-selected)</label>
             {vans.length===0
-              ? <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>Loading vans…</div>
-              : vans.map(v=>(
-                <button key={v.id} onClick={()=>{setSelectedVan(v.id);resetAll();}}
-                  style={{
-                    display:"block", width:"100%", textAlign:"left",
-                    padding:"7px 10px", marginBottom:"4px",
-                    borderRadius:"8px", cursor:"pointer",
-                    border:`2px solid ${selectedVan===v.id?G.green:"#ddd"}`,
-                    background:selectedVan===v.id?"#e6f4ee":"#fafafa",
-                    fontFamily:"'Georgia',serif", WebkitTapHighlightColor:"transparent",
-                    transition:"all 0.15s",
-                  }}>
-                  <div style={{fontSize:"13px",fontWeight:selectedVan===v.id?"700":"500",color:selectedVan===v.id?G.green:"#333"}}>{v.name}</div>
-                  <div style={{fontSize:"10px",color:"#999"}}>{v.base_location}</div>
-                </button>
-              ))
+              ? <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>Loading…</div>
+              : (
+                <div style={{padding:"8px 10px",borderRadius:"8px",background:"#e6f4ee",border:`2px solid ${G.green}`}}>
+                  <div style={{fontSize:"13px",fontWeight:"700",color:G.green}}>🚐 {selectedVanData?.name ?? selectedVan}</div>
+                  <div style={{fontSize:"10px",color:"#666",marginTop:"2px"}}>{selectedVanData?.base_location ?? "Auto-assigned"}</div>
+                </div>
+              )
             }
           </div>
 
-          {/* Location tabs */}
+          {/* Location mode tabs */}
           <div style={{display:"flex",borderRadius:"8px",overflow:"hidden",border:`2px solid ${G.green}`,marginBottom:"12px"}}>
             <button style={tabBtn(inputMode==="postcode")} onClick={()=>{setInputMode("postcode");resetAll();}}>Postcode</button>
             <button style={tabBtn(inputMode==="region")}   onClick={()=>{setInputMode("region");resetAll();}}>UK Region</button>
@@ -460,7 +665,8 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
                 placeholder="e.g. SW1A 1AA"
                 style={{width:"100%",padding:"9px 11px",border:"2px solid #e0e0e0",borderRadius:"8px",fontSize:"14px",outline:"none",fontFamily:"'Georgia',serif",boxSizing:"border-box",transition:"border-color 0.2s"}}
                 onFocus={e=>e.currentTarget.style.borderColor=G.green}
-                onBlur={e=>e.currentTarget.style.borderColor="#e0e0e0"}/>
+                onBlur={e=>e.currentTarget.style.borderColor="#e0e0e0"}
+              />
             </div>
           )}
 
@@ -493,22 +699,21 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
 
           <button onClick={runFlow} disabled={!canRun}
             style={{width:"100%",padding:"13px",background:canRun?G.green:"#ccc",color:"#fff",border:"none",borderRadius:"10px",fontSize:"15px",fontWeight:"700",cursor:canRun?"pointer":"not-allowed",fontFamily:"'Georgia',serif",letterSpacing:"1px",transition:"background 0.2s",WebkitTapHighlightColor:"transparent"}}>
-            {running?"Running…":"▶ Run Flow"}
+            {running?"Running…":"▶ Run SmarTR Food"}
           </button>
         </div>
 
-        {/* ── RIGHT PANEL ──────────────────────────────────────────────────── */}
+        {/* ── RIGHT PANEL ─────────────────────────────────────────────────── */}
         <div style={{flex:1,minWidth:"280px"}}>
 
-          {/* Empty state */}
           {weatherStatus==="idle"&&!running&&(
             <div style={{textAlign:"center",padding:"56px 24px",color:"rgba(255,255,255,0.55)",fontStyle:"italic",fontSize:"15px"}}>
-              Choose a van, location and day — then press <strong style={{color:"rgba(255,255,255,0.85)"}}>▶ Run Flow</strong>.
+              Choose a location and day — then press <strong style={{color:"rgba(255,255,255,0.85)"}}>▶ Run SmarTR Food</strong>.
             </div>
           )}
 
           {/* ① Equipment */}
-          <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="hardcoded">
+          <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="mock">
             {equipStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{equipErr}</div>}
             {equipResult&&(
               <div>
@@ -530,7 +735,7 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
           </SectionCard>
 
           {/* ② Supply Chain */}
-          <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock data">
+          <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock">
             {supplyStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{supplyErr}</div>}
             {supplyResult&&(
               <div>
@@ -645,8 +850,53 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
             )}
           </SectionCard>
 
-          {/* ⑧ Weather */}
-          <SectionCard step={8} title="Weather" status={weatherStatus}>
+          {/* ⑧ Competitor Menus */}
+          <SectionCard step={8} title="Competitor Menus" status={competitorStatus} dataLabel="reference">
+            {competitorStatus==="done"&&(
+              <div>
+                <div style={{fontSize:"12px",color:"#888",marginBottom:"10px"}}>
+                  Browse competitor menus for context and positioning.
+                </div>
+                <button
+                  onClick={onOpenMcDonalds}
+                  style={{
+                    display:"flex", alignItems:"center", gap:"12px",
+                    width:"100%", padding:"12px 14px",
+                    background:"#fff7f0", border:"1.5px solid #ffd6a0",
+                    borderRadius:"10px", cursor:"pointer",
+                    fontFamily:"'Georgia',serif", textAlign:"left",
+                    transition:"background 0.15s", WebkitTapHighlightColor:"transparent",
+                  }}
+                  onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background="#fff0e0";}}
+                  onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="#fff7f0";}}
+                >
+                  <span style={{fontSize:"28px"}}>🍔</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:"14px",fontWeight:"700",color:"#c8600a"}}>McDonald's Menu</div>
+                    <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>Browse full menu & nutrition data →</div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </SectionCard>
+
+          {/* ⑨ Weather */}
+          <SectionCard
+            step={9} title="Weather" status={weatherStatus}
+            titleAction={
+              <button onClick={onOpenWeather}
+                style={{
+                  marginLeft:"auto", padding:"4px 10px",
+                  border:`1.5px solid rgba(255,255,255,0.6)`, borderRadius:"20px",
+                  background:"transparent", color:"#fff",
+                  fontSize:"11px", fontWeight:"600", cursor:"pointer",
+                  fontFamily:"'Georgia',serif", WebkitTapHighlightColor:"transparent",
+                  flexShrink:0,
+                }}>
+                Open tool →
+              </button>
+            }
+          >
             {weatherStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{weatherErr}</div>}
             {weatherResult&&(
               <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
@@ -662,11 +912,10 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
             )}
           </SectionCard>
 
-          {/* ⑨ Decision + Options */}
-          <SectionCard step={9} title="Decision & Menu Options" status={decisionStatus} dataLabel="hardcoded rules">
+          {/* ⑩ Decision */}
+          <SectionCard step={10} title="Decision & Menu Options" status={decisionStatus} dataLabel="hardcoded rules">
             {decisionResult&&(
               <div>
-                {/* Primary recommendation */}
                 <div style={{padding:"12px 14px",background:"#e6f4ee",borderRadius:"10px",marginBottom:"14px"}}>
                   <div style={{fontSize:"11px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:"6px"}}>Primary Recommendation</div>
                   <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"6px"}}>
@@ -675,7 +924,6 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
                   </div>
                   <div style={{fontSize:"12px",color:"#555",fontStyle:"italic",lineHeight:"1.5"}}>{decisionResult.primary_reason}</div>
                 </div>
-                {/* Options grid */}
                 <div style={{fontSize:"12px",color:"#888",marginBottom:"8px"}}>Weather-informed menu concepts:</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:"6px"}}>
                   {decisionResult.menu_options.map((opt,i)=>(
@@ -692,13 +940,16 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
             )}
           </SectionCard>
 
-          {/* ⑩ Nutrition */}
-          <SectionCard step={10} title="Nutrition" status={nutritionStatus} dataLabel={nutritionResult?"OpenAI":undefined}>
+          {/* ⑪ Nutrition — burger sample only */}
+          <SectionCard step={11} title="Nutrition Sample" status={nutritionStatus} dataLabel={nutritionResult?"OpenAI":undefined}>
             {nutritionStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{nutritionErr}</div>}
             {nutritionResult&&(
               <div>
+                <div style={{fontSize:"12px",color:"#888",marginBottom:"8px",fontStyle:"italic"}}>
+                  Calorie estimate for a Smash Burger (example item)
+                </div>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#e6f4ee",borderRadius:"8px",marginBottom:"10px"}}>
-                  <span style={{fontWeight:"600",color:G.green,fontSize:"13px"}}>Total calories</span>
+                  <span style={{fontWeight:"600",color:G.green,fontSize:"13px"}}>🍔 Smash Burger</span>
                   <span style={{fontSize:"20px",fontWeight:"bold",color:G.green}}>{nutritionResult.total_calories_kcal} kcal</span>
                 </div>
                 {nutritionResult.items.map((item,i)=>(
@@ -714,53 +965,15 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
             )}
           </SectionCard>
 
-          {/* ⑪ Final Menu */}
-          <SectionCard step={11} title="Menu Proposal" status={menuStatus} dataLabel="hardcoded logic">
+          {/* ⑫ Menu Proposal — TR styled */}
+          <SectionCard step={12} title="Menu Proposal" status={menuStatus} dataLabel="hardcoded logic">
             {menuStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{menuErr}</div>}
             {menuResult&&(
-              <div>
-                {/* Proportions */}
-                <div style={{display:"flex",gap:"8px",flexWrap:"wrap",marginBottom:"14px"}}>
-                  {[
-                    {label:"Veggie",      val:menuResult.pct_veggie, color:"#22c55e"},
-                    {label:"Vegan",       val:menuResult.pct_vegan,  color:"#16a34a"},
-                    {label:"Gluten-free", val:menuResult.pct_gluten_free, color:"#f59e0b"},
-                  ].map(p=>(
-                    <div key={p.label} style={{padding:"6px 12px",borderRadius:"20px",background:"#f0f0f0",display:"flex",gap:"6px",alignItems:"center"}}>
-                      <span style={{fontSize:"13px",fontWeight:"700",color:p.color}}>{p.val}%</span>
-                      <span style={{fontSize:"12px",color:"#666"}}>{p.label}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Categories */}
-                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:"10px",marginBottom:"12px"}}>
-                  {[
-                    {key:"grill",      label:"🔥 Grill"},
-                    {key:"snacks",     label:"🧆 Snacks"},
-                    {key:"sides",      label:"🍟 Sides"},
-                    {key:"desserts",   label:"🍮 Desserts"},
-                    {key:"cold_drinks",label:"🥤 Cold Drinks"},
-                    {key:"hot_drinks", label:"☕ Hot Drinks"},
-                  ].map(cat=>(
-                    <div key={cat.key} style={{padding:"10px 12px",background:"#f9f9f9",borderRadius:"10px",border:"1px solid #eee"}}>
-                      <div style={{fontSize:"12px",fontWeight:"700",color:G.green,marginBottom:"6px"}}>{cat.label}</div>
-                      {(menuResult[cat.key] as string[]).map((item,i)=>(
-                        <div key={i} style={{fontSize:"12px",color:"#444",padding:"2px 0",borderBottom:i<(menuResult[cat.key] as string[]).length-1?"1px solid #f0f0f0":"none"}}>• {item}</div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Influences */}
-                <div style={{fontSize:"11px",color:"#aaa",fontStyle:"italic"}}>
-                  Influenced by: {(menuResult.influences as string[]).join(", ")}
-                </div>
-              </div>
+              <TRMenuDisplay menuResult={menuResult} primaryMeal={decisionResult?.primary_meal ?? ""} />
             )}
           </SectionCard>
 
-          {/* ── Final summary banner ─────────────────────────────────── */}
+          {/* Final summary banner */}
           {allDone && decisionResult && weatherResult && (
             <div style={{background:G.green,borderRadius:"16px",padding:"22px",marginBottom:"14px",boxShadow:"0 8px 24px rgba(26,95,63,0.35)",color:"#fff"}}>
               <div style={{textAlign:"center",marginBottom:"16px"}}>
@@ -769,18 +982,18 @@ export default function FlowScreen({onBack}:{onBack:()=>void}) {
                 <div style={{fontSize:"13px",opacity:0.8,fontStyle:"italic",marginTop:"4px"}}>{decisionResult.primary_reason}</div>
               </div>
               <div style={{background:"rgba(255,255,255,0.15)",borderRadius:"10px",padding:"12px 16px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",fontSize:"12px"}}>
-                <span style={{opacity:0.75}}>Location</span>   <span style={{textAlign:"right",fontWeight:"600"}}>{activePostcode}</span>
-                <span style={{opacity:0.75}}>Date</span>       <span style={{textAlign:"right",fontWeight:"600"}}>{fmtDate(selectedDate)}</span>
-                <span style={{opacity:0.75}}>Temperature</span><span style={{textAlign:"right",fontWeight:"600"}}>{weatherResult.avg_temp.toFixed(1)}°C</span>
-                <span style={{opacity:0.75}}>Conditions</span> <span style={{textAlign:"right",fontWeight:"600",textTransform:"capitalize"}}>{weatherResult.condition}</span>
-                {nutritionResult&&<><span style={{opacity:0.75}}>Calories</span><span style={{textAlign:"right",fontWeight:"600"}}>{nutritionResult.total_calories_kcal} kcal</span></>}
+                <span style={{opacity:0.75}}>Location</span>    <span style={{textAlign:"right",fontWeight:"600"}}>{activePostcode}</span>
+                <span style={{opacity:0.75}}>Date</span>        <span style={{textAlign:"right",fontWeight:"600"}}>{fmtDate(selectedDate)}</span>
+                <span style={{opacity:0.75}}>Temperature</span> <span style={{textAlign:"right",fontWeight:"600"}}>{weatherResult.avg_temp.toFixed(1)}°C</span>
+                <span style={{opacity:0.75}}>Conditions</span>  <span style={{textAlign:"right",fontWeight:"600",textTransform:"capitalize"}}>{weatherResult.condition}</span>
+                {nutritionResult&&<><span style={{opacity:0.75}}>Burger kcal</span><span style={{textAlign:"right",fontWeight:"600"}}>{nutritionResult.total_calories_kcal} kcal</span></>}
                 {menuResult&&<><span style={{opacity:0.75}}>Veggie %</span><span style={{textAlign:"right",fontWeight:"600"}}>{menuResult.pct_veggie}%</span></>}
               </div>
             </div>
           )}
 
-        </div>{/* end right panel */}
-      </div>{/* end two-panel */}
+        </div>
+      </div>
     </div>
   );
 }
