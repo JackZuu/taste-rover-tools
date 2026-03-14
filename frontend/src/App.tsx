@@ -46,7 +46,29 @@ type McDonaldsProduct = {
   allergens: string;
 };
 
-type Screen = "flow" | "weather" | "nutrition" | "mcdonalds" | "mcdonalds-detail";
+type BurgerKingProduct = {
+  name: string;
+  category: string;
+  description: string;
+  price: string;
+  image_url: string;
+  meal_components: string[];
+  nutrition: {
+    energy_kj: number;
+    energy_kcal: number;
+    fat: number;
+    saturates: number;
+    carbohydrates: number;
+    sugars: number;
+    fibre: number;
+    protein: number;
+    salt: number;
+  };
+  allergens: string;
+  ingredients: string;
+};
+
+type Screen = "flow" | "weather" | "nutrition" | "mcdonalds" | "mcdonalds-detail" | "burgerking" | "burgerking-detail";
 
 const getWeatherIcon = (condition: string) => {
   if (condition === "mainly sun") return "☀️";
@@ -102,6 +124,12 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<McDonaldsProduct | null>(null);
   const [mcLoading, setMcLoading] = useState(false);
   const [mcError, setMcError] = useState<string | null>(null);
+
+  // Burger King state
+  const [bkProducts, setBkProducts] = useState<BurgerKingProduct[]>([]);
+  const [selectedBkProduct, setSelectedBkProduct] = useState<BurgerKingProduct | null>(null);
+  const [bkLoading, setBkLoading] = useState(false);
+  const [bkError, setBkError] = useState<string | null>(null);
 
   async function getWeather() {
     if (!postcode.trim()) return;
@@ -219,6 +247,32 @@ export default function App() {
     setScreen("mcdonalds");
   }
 
+  async function loadBurgerKingMenu() {
+    setBkLoading(true);
+    setBkError(null);
+
+    try {
+      const res = await fetch("/api/burgerking/menu");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data.error) {
+        setBkError(data.error);
+      } else {
+        setBkProducts(data.products || []);
+      }
+    } catch (e: any) {
+      setBkError(e?.message ?? "Failed to load menu");
+    } finally {
+      setBkLoading(false);
+    }
+  }
+
+  function openBurgerKing() {
+    if (bkProducts.length === 0) loadBurgerKingMenu();
+    setScreen("burgerking");
+  }
+
   const handleWeatherKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !weatherLoading && postcode.trim()) {
       getWeather();
@@ -231,6 +285,7 @@ export default function App() {
       <FlowScreen
         onOpenWeather={() => setScreen("weather")}
         onOpenMcDonalds={openMcDonalds}
+        onOpenBurgerKing={openBurgerKing}
         onOpenNutrition={() => setScreen("nutrition")}
       />
     );
@@ -592,6 +647,366 @@ export default function App() {
                     border: "1px solid #ffc107"
                   }}>
                     {selectedProduct.allergens}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // BURGER KING MENU SCREEN
+  if (screen === "burgerking") {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1a5f3f 0%, #2d8659 100%)",
+        fontFamily: "'Georgia', serif",
+        padding: "16px"
+      }}>
+        <button
+          onClick={() => setScreen("flow")}
+          style={{
+            background: "rgba(255, 255, 255, 0.2)",
+            border: "none",
+            color: "#f5f1e8",
+            padding: "10px 20px",
+            borderRadius: "50px",
+            cursor: "pointer",
+            fontSize: "clamp(12px, 3vw, 14px)",
+            fontWeight: "600",
+            marginBottom: "16px",
+            WebkitTapHighlightColor: "transparent"
+          }}
+        >
+          ← Back to SmarTR Food
+        </button>
+
+        <div style={{
+          textAlign: "center",
+          padding: "16px",
+          color: "#f5f1e8",
+          marginBottom: "20px"
+        }}>
+          <div style={{
+            fontSize: "clamp(28px, 7vw, 40px)",
+            fontWeight: "bold",
+            letterSpacing: "clamp(2px, 0.5vw, 3px)",
+            marginBottom: "8px",
+            textTransform: "uppercase"
+          }}>
+            Burger King Menu
+          </div>
+          <div style={{
+            fontSize: "clamp(13px, 3.5vw, 16px)",
+            fontStyle: "italic",
+            opacity: 0.9
+          }}>
+            Browse {bkProducts.length} products
+          </div>
+        </div>
+
+        {bkLoading && (
+          <div style={{
+            textAlign: "center",
+            color: "#f5f1e8",
+            fontSize: "18px",
+            padding: "40px"
+          }}>
+            Loading menu...
+          </div>
+        )}
+
+        {bkError && (
+          <div style={{
+            maxWidth: "600px",
+            margin: "0 auto 20px",
+            padding: "16px 24px",
+            background: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "12px",
+            color: "#c41e3a",
+            textAlign: "center",
+            fontWeight: "500"
+          }}>
+            {bkError}
+          </div>
+        )}
+
+        <div style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(min(280px, 100%), 1fr))",
+          gap: "16px",
+          padding: "0 16px"
+        }}>
+          {bkProducts.map((product, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                setSelectedBkProduct(product);
+                setScreen("burgerking-detail");
+              }}
+              style={{
+                background: "rgba(255, 255, 255, 0.95)",
+                borderRadius: "16px",
+                overflow: "hidden",
+                cursor: "pointer",
+                transition: "all 0.3s",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                WebkitTapHighlightColor: "transparent"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+              }}
+            >
+              {product.image_url && (
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover"
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              )}
+              <div style={{ padding: "16px" }}>
+                {product.category && (
+                  <div style={{
+                    fontSize: "clamp(10px, 2.5vw, 11px)",
+                    fontWeight: "600",
+                    color: "#d4500a",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    marginBottom: "4px"
+                  }}>
+                    {product.category}
+                  </div>
+                )}
+                <div style={{
+                  fontSize: "clamp(15px, 4vw, 18px)",
+                  fontWeight: "600",
+                  color: "#1a5f3f",
+                  marginBottom: "8px"
+                }}>
+                  {product.name}
+                </div>
+                <div style={{
+                  fontSize: "clamp(12px, 3vw, 14px)",
+                  color: "#666",
+                  marginBottom: "8px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden"
+                }}>
+                  {product.description}
+                </div>
+                <div style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                }}>
+                  <div style={{
+                    fontSize: "clamp(14px, 3.5vw, 16px)",
+                    fontWeight: "bold",
+                    color: "#1a5f3f"
+                  }}>
+                    {product.price || "See menu"}
+                  </div>
+                  <div style={{
+                    fontSize: "clamp(12px, 3vw, 14px)",
+                    color: "#888"
+                  }}>
+                    {product.nutrition.energy_kcal || 0} kcal
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // BURGER KING DETAIL SCREEN
+  if (screen === "burgerking-detail" && selectedBkProduct) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1a5f3f 0%, #2d8659 100%)",
+        fontFamily: "'Georgia', serif",
+        padding: "16px"
+      }}>
+        <button
+          onClick={() => setScreen("burgerking")}
+          style={{
+            background: "rgba(255, 255, 255, 0.2)",
+            border: "none",
+            color: "#f5f1e8",
+            padding: "10px 20px",
+            borderRadius: "50px",
+            cursor: "pointer",
+            fontSize: "clamp(12px, 3vw, 14px)",
+            fontWeight: "600",
+            marginBottom: "16px",
+            WebkitTapHighlightColor: "transparent"
+          }}
+        >
+          ← Back to Menu
+        </button>
+
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <div style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            borderRadius: "20px",
+            overflow: "hidden",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.2)"
+          }}>
+            {selectedBkProduct.image_url && (
+              <img
+                src={selectedBkProduct.image_url}
+                alt={selectedBkProduct.name}
+                style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }}
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            )}
+
+            <div style={{ padding: "clamp(20px, 5vw, 32px)" }}>
+              {selectedBkProduct.category && (
+                <div style={{
+                  fontSize: "clamp(11px, 3vw, 12px)",
+                  fontWeight: "600",
+                  color: "#d4500a",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  marginBottom: "6px"
+                }}>
+                  {selectedBkProduct.category}
+                </div>
+              )}
+
+              <div style={{
+                fontSize: "clamp(24px, 6vw, 32px)",
+                fontWeight: "bold",
+                color: "#1a5f3f",
+                marginBottom: "12px"
+              }}>
+                {selectedBkProduct.name}
+              </div>
+
+              {selectedBkProduct.price && (
+                <div style={{
+                  fontSize: "clamp(18px, 4.5vw, 24px)",
+                  fontWeight: "600",
+                  color: "#2d8659",
+                  marginBottom: "16px"
+                }}>
+                  {selectedBkProduct.price}
+                </div>
+              )}
+
+              <div style={{
+                fontSize: "clamp(13px, 3.5vw, 15px)",
+                color: "#333",
+                lineHeight: "1.6",
+                marginBottom: "24px"
+              }}>
+                {selectedBkProduct.description}
+              </div>
+
+              {selectedBkProduct.meal_components.length > 0 && (
+                <div style={{ marginBottom: "20px" }}>
+                  <div style={{
+                    fontSize: "clamp(14px, 3.5vw, 16px)",
+                    fontWeight: "600",
+                    color: "#1a5f3f",
+                    marginBottom: "8px"
+                  }}>
+                    Meal Components
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                    {selectedBkProduct.meal_components.map((c, i) => (
+                      <span key={i} style={{
+                        padding: "4px 12px",
+                        background: "#f0f7f3",
+                        border: "1px solid #c8e6d0",
+                        borderRadius: "20px",
+                        fontSize: "clamp(12px, 3vw, 13px)",
+                        color: "#1a5f3f"
+                      }}>
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div style={{
+                borderTop: "2px solid #e0e0e0",
+                paddingTop: "20px",
+                marginBottom: "20px"
+              }}>
+                <div style={{
+                  fontSize: "clamp(16px, 4vw, 20px)",
+                  fontWeight: "600",
+                  color: "#1a5f3f",
+                  marginBottom: "16px"
+                }}>
+                  Nutrition Information
+                </div>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                  gap: "12px"
+                }}>
+                  {[
+                    { label: "Calories", value: `${selectedBkProduct.nutrition.energy_kcal || 0} kcal` },
+                    { label: "Protein",  value: `${selectedBkProduct.nutrition.protein || 0}g` },
+                    { label: "Carbs",    value: `${selectedBkProduct.nutrition.carbohydrates || 0}g` },
+                    { label: "Fat",      value: `${selectedBkProduct.nutrition.fat || 0}g` },
+                    { label: "Sugar",    value: `${selectedBkProduct.nutrition.sugars || 0}g` },
+                    { label: "Salt",     value: `${selectedBkProduct.nutrition.salt || 0}g` },
+                  ].map(({ label, value }) => (
+                    <div key={label} style={{ padding: "12px", background: "#f9f9f9", borderRadius: "8px" }}>
+                      <div style={{ fontSize: "clamp(11px, 3vw, 12px)", color: "#888" }}>{label}</div>
+                      <div style={{ fontSize: "clamp(16px, 4vw, 20px)", fontWeight: "bold", color: "#1a5f3f" }}>{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedBkProduct.allergens && (
+                <div>
+                  <div style={{
+                    fontSize: "clamp(14px, 3.5vw, 16px)",
+                    fontWeight: "600",
+                    color: "#1a5f3f",
+                    marginBottom: "8px"
+                  }}>
+                    Allergen Information
+                  </div>
+                  <div style={{
+                    fontSize: "clamp(12px, 3vw, 14px)",
+                    color: "#666",
+                    lineHeight: "1.5",
+                    padding: "12px",
+                    background: "#fff3cd",
+                    borderRadius: "8px",
+                    border: "1px solid #ffc107"
+                  }}>
+                    {selectedBkProduct.allergens}
                   </div>
                 </div>
               )}

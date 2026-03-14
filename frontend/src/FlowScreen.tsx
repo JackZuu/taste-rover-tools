@@ -515,10 +515,12 @@ function TRMenuDisplay({menuResult, primaryMeal}:{menuResult:any; primaryMeal:st
 export default function FlowScreen({
   onOpenWeather,
   onOpenMcDonalds,
+  onOpenBurgerKing,
   onOpenNutrition,
 }: {
   onOpenWeather: () => void;
   onOpenMcDonalds: () => void;
+  onOpenBurgerKing: () => void;
   onOpenNutrition: () => void;
 }) {
   const [vans, setVans] = useState<Van[]>([]);
@@ -997,6 +999,25 @@ export default function FlowScreen({
                 <span style={{fontSize:"28px"}}>🍔</span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:"14px",fontWeight:"700",color:"#c8600a"}}>McDonald's Menu</div>
+                  <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>Browse full menu & nutrition data →</div>
+                </div>
+              </button>
+              <button
+                onClick={onOpenBurgerKing}
+                style={{
+                  display:"flex", alignItems:"center", gap:"12px",
+                  width:"100%", padding:"12px 14px", marginTop:"10px",
+                  background:"#fff8f0", border:"1.5px solid #f5c06a",
+                  borderRadius:"10px", cursor:"pointer",
+                  fontFamily:"'Georgia',serif", textAlign:"left",
+                  transition:"background 0.15s", WebkitTapHighlightColor:"transparent",
+                }}
+                onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background="#fff0dc";}}
+                onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="#fff8f0";}}
+              >
+                <span style={{fontSize:"28px"}}>👑</span>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:"14px",fontWeight:"700",color:"#b8520a"}}>Burger King Menu</div>
                   <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>Browse full menu & nutrition data →</div>
                 </div>
               </button>

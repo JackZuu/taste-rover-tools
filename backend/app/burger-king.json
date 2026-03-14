@@ -1,0 +1,4870 @@
+{
+  "restaurant": "Burger King UK",
+  "url": "https://www.burgerking.co.uk/menu",
+  "storeSearchUsed": "CV47",
+  "scrapedAt": "2026-03-14T13:59:01.604Z",
+  "totalItems": 96,
+  "items": [
+    {
+      "name": "Ultimate Philly Cheese Angus Medium Meal",
+      "category": "GOURMET KINGS",
+      "url": "https://www.burgerking.co.uk/menu/picker-539584ea-4602-49ef-be8c-8830260ba086",
+      "description": "A deliciously seasoned, 100% Aberdeen Angus beef patty flame-grilled to perfection, topped with American cheese, fresh rocket, streaky bacon, caramelised onions, crispy onions, cheese sauce and a rich BBQ gravy, served in a soft brioche bun​.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.99",
+      "mealComponents": [
+        "Ultimate Philly Cheese Angus",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Ultimate Philly Cheese Angus",
+          "energy_kcal": "797",
+          "energy_kj": "3,334.6",
+          "carbohydrates_g": "50 g",
+          "sugars_g": "17 g",
+          "fat_g": "46 g",
+          "saturates_g": "22 g",
+          "protein_g": "47 g",
+          "salt_g": "4 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:41:10.964Z"
+    },
+    {
+      "name": "Ultimate Philly Cheese Angus Large Meal",
+      "category": "GOURMET KINGS",
+      "url": "https://www.burgerking.co.uk/menu/picker-539584ea-4602-49ef-be8c-8830260ba086",
+      "description": "A deliciously seasoned, 100% Aberdeen Angus beef patty flame-grilled to perfection, topped with American cheese, fresh rocket, streaky bacon, caramelised onions, crispy onions, cheese sauce and a rich BBQ gravy, served in a soft brioche bun​.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£12.19",
+      "mealComponents": [
+        "Ultimate Philly Cheese Angus",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Ultimate Philly Cheese Angus",
+          "energy_kcal": "797",
+          "energy_kj": "3,334.6",
+          "carbohydrates_g": "50 g",
+          "sugars_g": "17 g",
+          "fat_g": "46 g",
+          "saturates_g": "22 g",
+          "protein_g": "47 g",
+          "salt_g": "4 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:41:16.049Z"
+    },
+    {
+      "name": "Ultimate Philly Cheese Angus",
+      "category": "GOURMET KINGS",
+      "url": "https://www.burgerking.co.uk/menu/picker-539584ea-4602-49ef-be8c-8830260ba086",
+      "description": "A deliciously seasoned, 100% Aberdeen Angus beef patty flame-grilled to perfection, topped with American cheese, fresh rocket, streaky bacon, caramelised onions, crispy onions, cheese sauce and a rich BBQ gravy, served in a soft brioche bun​.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Ultimate Philly Cheese Angus",
+          "energy_kcal": "797",
+          "energy_kj": "3,334.6",
+          "carbohydrates_g": "50 g",
+          "sugars_g": "17 g",
+          "fat_g": "46 g",
+          "saturates_g": "22 g",
+          "protein_g": "47 g",
+          "salt_g": "4 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:41:20.520Z"
+    },
+    {
+      "name": "Ultimate Philly Cheese Crispy Chicken Medium Meal",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-502349a6-511d-4c63-8160-be3e1ff9b2c2",
+      "description": "A golden, crispy chicken patty made with 100% chicken breast, topped with American cheese, fresh rocket, streaky bacon, caramelised onions, crispy onions, cheese sauce and a rich BBQ gravy, served in a soft brioche bun​.",
+      "imageUrl": "",
+      "price": "£10.89",
+      "mealComponents": [
+        "Ultimate Philly Cheese Crispy Chicken",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Ultimate Philly Cheese Crispy Chicken",
+          "energy_kcal": "661",
+          "energy_kj": "2,765.6",
+          "carbohydrates_g": "67 g",
+          "sugars_g": "17 g",
+          "fat_g": "28.9 g",
+          "saturates_g": "9.7 g",
+          "protein_g": "34 g",
+          "salt_g": "5 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:41:40.523Z"
+    },
+    {
+      "name": "Ultimate Philly Cheese Crispy Chicken Large Meal",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-502349a6-511d-4c63-8160-be3e1ff9b2c2",
+      "description": "A golden, crispy chicken patty made with 100% chicken breast, topped with American cheese, fresh rocket, streaky bacon, caramelised onions, crispy onions, cheese sauce and a rich BBQ gravy, served in a soft brioche bun​.",
+      "imageUrl": "",
+      "price": "£12.09",
+      "mealComponents": [
+        "Ultimate Philly Cheese Crispy Chicken",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Ultimate Philly Cheese Crispy Chicken",
+          "energy_kcal": "661",
+          "energy_kj": "2,765.6",
+          "carbohydrates_g": "67 g",
+          "sugars_g": "17 g",
+          "fat_g": "28.9 g",
+          "saturates_g": "9.7 g",
+          "protein_g": "34 g",
+          "salt_g": "5 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:41:45.243Z"
+    },
+    {
+      "name": "Ultimate Philly Cheese Crispy Chicken",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-502349a6-511d-4c63-8160-be3e1ff9b2c2",
+      "description": "A golden, crispy chicken patty made with 100% chicken breast, topped with American cheese, fresh rocket, streaky bacon, caramelised onions, crispy onions, cheese sauce and a rich BBQ gravy, served in a soft brioche bun​.",
+      "imageUrl": "",
+      "price": "£8.39",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Ultimate Philly Cheese Crispy Chicken",
+          "energy_kcal": "661",
+          "energy_kj": "2,765.6",
+          "carbohydrates_g": "67 g",
+          "sugars_g": "17 g",
+          "fat_g": "28.9 g",
+          "saturates_g": "9.7 g",
+          "protein_g": "34 g",
+          "salt_g": "5 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:41:49.666Z"
+    },
+    {
+      "name": "Big King Meal Medium",
+      "category": "FLAME-GRILLED BURGERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-49e49a7f-82d6-463f-af7f-6b0e53b4805f",
+      "description": "A true fan-favourite returns. Two juicy, 100% flame-grilled beef patties topped with two layers of melted American cheese, pickles, onions, fresh lettuce, and a pickle relish sauce, served in a soft, glazed sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£11.59",
+      "mealComponents": [
+        "Big King",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Big King",
+          "energy_kcal": "941",
+          "energy_kj": "3,937.1",
+          "carbohydrates_g": "55 g",
+          "sugars_g": "17 g",
+          "fat_g": "57 g",
+          "saturates_g": "20 g",
+          "protein_g": "52 g",
+          "salt_g": "3.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:42:12.982Z"
+    },
+    {
+      "name": "Big King Meal Large",
+      "category": "FLAME-GRILLED BURGERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-49e49a7f-82d6-463f-af7f-6b0e53b4805f",
+      "description": "A true fan-favourite returns. Two juicy, 100% flame-grilled beef patties topped with two layers of melted American cheese, pickles, onions, fresh lettuce, and a pickle relish sauce, served in a soft, glazed sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£12.79",
+      "mealComponents": [
+        "Big King",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Big King",
+          "energy_kcal": "941",
+          "energy_kj": "3,937.1",
+          "carbohydrates_g": "55 g",
+          "sugars_g": "17 g",
+          "fat_g": "57 g",
+          "saturates_g": "20 g",
+          "protein_g": "52 g",
+          "salt_g": "3.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:42:17.703Z"
+    },
+    {
+      "name": "Big King",
+      "category": "FLAME-GRILLED BURGERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-49e49a7f-82d6-463f-af7f-6b0e53b4805f",
+      "description": "A true fan-favourite returns. Two juicy, 100% flame-grilled beef patties topped with two layers of melted American cheese, pickles, onions, fresh lettuce, and a pickle relish sauce, served in a soft, glazed sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£9.19",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Big King",
+          "energy_kcal": "941",
+          "energy_kj": "3,937.1",
+          "carbohydrates_g": "55 g",
+          "sugars_g": "17 g",
+          "fat_g": "57 g",
+          "saturates_g": "20 g",
+          "protein_g": "52 g",
+          "salt_g": "3.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:42:22.200Z"
+    },
+    {
+      "name": "Big King Double Royale Meal Medium",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-bc674ecf-b99d-4ec5-8747-51fefa15d52f",
+      "description": "Two golden, crispy chicken patties made with 100% chicken breast topped with two layers of melted American cheese, pickles, onions, fresh lettuce, and a pickle relish sauce, served in a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£11.39",
+      "mealComponents": [
+        "Big King Double Royale",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Big King Double Royale",
+          "energy_kcal": "1,159",
+          "energy_kj": "4,849.3",
+          "carbohydrates_g": "110 g",
+          "sugars_g": "12 g",
+          "fat_g": "57 g",
+          "saturates_g": "9.5 g",
+          "protein_g": "46 g",
+          "salt_g": "7.1 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:42:41.870Z"
+    },
+    {
+      "name": "Big King Double Royale Meal Large",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-bc674ecf-b99d-4ec5-8747-51fefa15d52f",
+      "description": "Two golden, crispy chicken patties made with 100% chicken breast topped with two layers of melted American cheese, pickles, onions, fresh lettuce, and a pickle relish sauce, served in a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£12.59",
+      "mealComponents": [
+        "Big King Double Royale",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Big King Double Royale",
+          "energy_kcal": "1,159",
+          "energy_kj": "4,849.3",
+          "carbohydrates_g": "110 g",
+          "sugars_g": "12 g",
+          "fat_g": "57 g",
+          "saturates_g": "9.5 g",
+          "protein_g": "46 g",
+          "salt_g": "7.1 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:42:46.611Z"
+    },
+    {
+      "name": "Big King Double Royale",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-bc674ecf-b99d-4ec5-8747-51fefa15d52f",
+      "description": "Two golden, crispy chicken patties made with 100% chicken breast topped with two layers of melted American cheese, pickles, onions, fresh lettuce, and a pickle relish sauce, served in a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.99",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Big King Double Royale",
+          "energy_kcal": "1,159",
+          "energy_kj": "4,849.3",
+          "carbohydrates_g": "110 g",
+          "sugars_g": "12 g",
+          "fat_g": "57 g",
+          "saturates_g": "9.5 g",
+          "protein_g": "46 g",
+          "salt_g": "7.1 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:42:51.081Z"
+    },
+    {
+      "name": "Big King Royale",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-c4f63154-ca0d-48ad-b834-5b0620dc21a7",
+      "description": "",
+      "imageUrl": "",
+      "price": "",
+      "mealComponents": [
+        "Big King Royale",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Big King Royale",
+          "energy_kcal": "645",
+          "energy_kj": "2,698.7",
+          "carbohydrates_g": "57 g",
+          "sugars_g": "11 g",
+          "fat_g": "33 g",
+          "saturates_g": "6.3 g",
+          "protein_g": "27 g",
+          "salt_g": "4.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:43:09.768Z"
+    },
+    {
+      "name": "Steakhouse Angus Gourmet Medium Meal",
+      "category": "GOURMET KINGS",
+      "url": "https://www.burgerking.co.uk/menu/picker-8bbd27c3-1e77-4695-8e8a-c4031d76f5e1",
+      "description": "New & improved recipe! A deep smokey BBQ sauce, rocket, a smoked cheddar cheese slice, bacon, crispy onions, tomato and mayo on top of a flame grilled 100% Aberdeen Angus Beef Burger.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.79",
+      "mealComponents": [
+        "BBQ Steakhouse Angus",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "BBQ Steakhouse Angus",
+          "energy_kcal": "780.1",
+          "energy_kj": "3,263.8",
+          "carbohydrates_g": "44 g",
+          "sugars_g": "9.6 g",
+          "fat_g": "48.1 g",
+          "saturates_g": "19.8 g",
+          "protein_g": "40.3 g",
+          "salt_g": "1.1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "sesame"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:43:21.717Z"
+    },
+    {
+      "name": "Steakhouse Angus Gourmet Large Meal",
+      "category": "GOURMET KINGS",
+      "url": "https://www.burgerking.co.uk/menu/picker-8bbd27c3-1e77-4695-8e8a-c4031d76f5e1",
+      "description": "New & improved recipe! A deep smokey BBQ sauce, rocket, a smoked cheddar cheese slice, bacon, crispy onions, tomato and mayo on top of a flame grilled 100% Aberdeen Angus Beef Burger.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£11.99",
+      "mealComponents": [
+        "BBQ Steakhouse Angus",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "BBQ Steakhouse Angus",
+          "energy_kcal": "780.1",
+          "energy_kj": "3,263.8",
+          "carbohydrates_g": "44 g",
+          "sugars_g": "9.6 g",
+          "fat_g": "48.1 g",
+          "saturates_g": "19.8 g",
+          "protein_g": "40.3 g",
+          "salt_g": "1.1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "sesame"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:43:26.678Z"
+    },
+    {
+      "name": "BBQ Steakhouse Angus ",
+      "category": "GOURMET KINGS",
+      "url": "https://www.burgerking.co.uk/menu/picker-8bbd27c3-1e77-4695-8e8a-c4031d76f5e1",
+      "description": "New & improved recipe! A deep smokey BBQ sauce, rocket, a smoked cheddar cheese slice, bacon, crispy onions, tomato and mayo on top of a flame grilled 100% Aberdeen Angus Beef Burger.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.29",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "BBQ Steakhouse Angus",
+          "energy_kcal": "780.1",
+          "energy_kj": "3,263.8",
+          "carbohydrates_g": "44 g",
+          "sugars_g": "9.6 g",
+          "fat_g": "48.1 g",
+          "saturates_g": "19.8 g",
+          "protein_g": "40.3 g",
+          "salt_g": "1.1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "sesame"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:43:31.088Z"
+    },
+    {
+      "name": "Steakhouse Crispy Chicken Meal Medium",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-ac546e7a-d82b-4e3a-b446-b8314d6cfccb",
+      "description": "Made with 100% juicy chicken, sandwiched in a pillowy brioche bun and layered with smooth oaksmoked cheddar cheese, fresh rocket, sizzling bacon and topped with crispy onions. It's gourmet.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.69",
+      "mealComponents": [
+        "BBQ Steakhouse Crispy Chicken",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "BBQ Steakhouse Crispy Chicken",
+          "energy_kcal": "636.5",
+          "energy_kj": "2,663.2",
+          "carbohydrates_g": "61.8 g",
+          "sugars_g": "12.2 g",
+          "fat_g": "28.7 g",
+          "saturates_g": "10.4 g",
+          "protein_g": "31.2 g",
+          "salt_g": "3.3 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "sesame",
+            "celery"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:43:51.055Z"
+    },
+    {
+      "name": "Steakhouse Crispy Chicken Meal Large",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-ac546e7a-d82b-4e3a-b446-b8314d6cfccb",
+      "description": "Made with 100% juicy chicken, sandwiched in a pillowy brioche bun and layered with smooth oaksmoked cheddar cheese, fresh rocket, sizzling bacon and topped with crispy onions. It's gourmet.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£11.89",
+      "mealComponents": [
+        "BBQ Steakhouse Crispy Chicken",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "BBQ Steakhouse Crispy Chicken",
+          "energy_kcal": "636.5",
+          "energy_kj": "2,663.2",
+          "carbohydrates_g": "61.8 g",
+          "sugars_g": "12.2 g",
+          "fat_g": "28.7 g",
+          "saturates_g": "10.4 g",
+          "protein_g": "31.2 g",
+          "salt_g": "3.3 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "sesame",
+            "celery"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:43:55.996Z"
+    },
+    {
+      "name": "BBQ Steakhouse Crispy Chicken ",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-ac546e7a-d82b-4e3a-b446-b8314d6cfccb",
+      "description": "Made with 100% juicy chicken, sandwiched in a pillowy brioche bun and layered with smooth oaksmoked cheddar cheese, fresh rocket, sizzling bacon and topped with crispy onions. It's gourmet.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.19",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "BBQ Steakhouse Crispy Chicken",
+          "energy_kcal": "636.5",
+          "energy_kj": "2,663.2",
+          "carbohydrates_g": "61.8 g",
+          "sugars_g": "12.2 g",
+          "fat_g": "28.7 g",
+          "saturates_g": "10.4 g",
+          "protein_g": "31.2 g",
+          "salt_g": "3.3 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "sesame",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:44:00.436Z"
+    },
+    {
+      "name": "WHOPPER® Meal Medium",
+      "category": "FLAME-GRILLED BURGERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-23d38263-8347-4ddc-aec0-a738c3cc6578",
+      "description": "A flame-grilled beef patty, topped with tomatoes, fresh cut lettuce, mayo, pickles, a swirl of ketchup, and sliced onions on a soft sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.99",
+      "mealComponents": [
+        "WHOPPER®",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "WHOPPER®",
+          "energy_kcal": "566.8",
+          "energy_kj": "2,371.5",
+          "carbohydrates_g": "47.2 g",
+          "sugars_g": "6.6 g",
+          "fat_g": "29.7 g",
+          "saturates_g": "8.2 g",
+          "protein_g": "28.1 g",
+          "salt_g": "2.3 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:44:21.814Z"
+    },
+    {
+      "name": "WHOPPER® Meal Large",
+      "category": "FLAME-GRILLED BURGERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-23d38263-8347-4ddc-aec0-a738c3cc6578",
+      "description": "A flame-grilled beef patty, topped with tomatoes, fresh cut lettuce, mayo, pickles, a swirl of ketchup, and sliced onions on a soft sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.19",
+      "mealComponents": [
+        "WHOPPER®",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "WHOPPER®",
+          "energy_kcal": "566.8",
+          "energy_kj": "2,371.5",
+          "carbohydrates_g": "47.2 g",
+          "sugars_g": "6.6 g",
+          "fat_g": "29.7 g",
+          "saturates_g": "8.2 g",
+          "protein_g": "28.1 g",
+          "salt_g": "2.3 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:44:26.523Z"
+    },
+    {
+      "name": "WHOPPER®",
+      "category": "FLAME-GRILLED BURGERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-23d38263-8347-4ddc-aec0-a738c3cc6578",
+      "description": "A flame-grilled beef patty, topped with tomatoes, fresh cut lettuce, mayo, pickles, a swirl of ketchup, and sliced onions on a soft sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£6.59",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "WHOPPER®",
+          "energy_kcal": "566.8",
+          "energy_kj": "2,371.5",
+          "carbohydrates_g": "47.2 g",
+          "sugars_g": "6.6 g",
+          "fat_g": "29.7 g",
+          "saturates_g": "8.2 g",
+          "protein_g": "28.1 g",
+          "salt_g": "2.3 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:44:30.950Z"
+    },
+    {
+      "name": "WHOPPER® with Bacon and Cheese Meal Medium",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-c0d49343-ee9e-4376-a8ac-934ac156f51f",
+      "description": "A juicy, flame-grilled beef patty, topped with smoked bacon, melted cheese, tomatoes, fresh lettuce, mayo, pickles, a swirl of ketchup, and sliced onions, served in a soft, glazed sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.79",
+      "mealComponents": [
+        "WHOPPER® with Bacon and Cheese",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "WHOPPER® with Bacon and Cheese",
+          "energy_kcal": "717.3",
+          "energy_kj": "3,001.3",
+          "carbohydrates_g": "55.5 g",
+          "sugars_g": "12.9 g",
+          "fat_g": "38.7 g",
+          "saturates_g": "13 g",
+          "protein_g": "37 g",
+          "salt_g": "3.7 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:44:51.311Z"
+    },
+    {
+      "name": "WHOPPER® with Bacon and Cheese Meal Large",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-c0d49343-ee9e-4376-a8ac-934ac156f51f",
+      "description": "A juicy, flame-grilled beef patty, topped with smoked bacon, melted cheese, tomatoes, fresh lettuce, mayo, pickles, a swirl of ketchup, and sliced onions, served in a soft, glazed sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£11.99",
+      "mealComponents": [
+        "WHOPPER® with Bacon and Cheese",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "WHOPPER® with Bacon and Cheese",
+          "energy_kcal": "717.3",
+          "energy_kj": "3,001.3",
+          "carbohydrates_g": "55.5 g",
+          "sugars_g": "12.9 g",
+          "fat_g": "38.7 g",
+          "saturates_g": "13 g",
+          "protein_g": "37 g",
+          "salt_g": "3.7 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:44:56.048Z"
+    },
+    {
+      "name": "WHOPPER® with Bacon and Cheese",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-c0d49343-ee9e-4376-a8ac-934ac156f51f",
+      "description": "A juicy, flame-grilled beef patty, topped with smoked bacon, melted cheese, tomatoes, fresh lettuce, mayo, pickles, a swirl of ketchup, and sliced onions, served in a soft, glazed sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.29",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "WHOPPER® with Bacon and Cheese",
+          "energy_kcal": "717.3",
+          "energy_kj": "3,001.3",
+          "carbohydrates_g": "55.5 g",
+          "sugars_g": "12.9 g",
+          "fat_g": "38.7 g",
+          "saturates_g": "13 g",
+          "protein_g": "37 g",
+          "salt_g": "3.7 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:45:00.514Z"
+    },
+    {
+      "name": "Double WHOPPER® Meal Medium",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-d0d2c428-1b2d-443a-86e2-739f161fa6db",
+      "description": "Two flame-grilled beef patties topped with juicy tomatoes, fresh cut lettuce, mayo, pickles, white onions and a swirl of ketchup on a soft sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.89",
+      "mealComponents": [
+        "Double WHOPPER®",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Double WHOPPER®",
+          "energy_kcal": "792.1",
+          "energy_kj": "3,314.1",
+          "carbohydrates_g": "47.2 g",
+          "sugars_g": "6.6 g",
+          "fat_g": "45.9 g",
+          "saturates_g": "15.2 g",
+          "protein_g": "47.8 g",
+          "salt_g": "2.4 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:45:18.275Z"
+    },
+    {
+      "name": "Double WHOPPER® Meal Large",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-d0d2c428-1b2d-443a-86e2-739f161fa6db",
+      "description": "Two flame-grilled beef patties topped with juicy tomatoes, fresh cut lettuce, mayo, pickles, white onions and a swirl of ketchup on a soft sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£12.09",
+      "mealComponents": [
+        "Double WHOPPER®",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Double WHOPPER®",
+          "energy_kcal": "792.1",
+          "energy_kj": "3,314.1",
+          "carbohydrates_g": "47.2 g",
+          "sugars_g": "6.6 g",
+          "fat_g": "45.9 g",
+          "saturates_g": "15.2 g",
+          "protein_g": "47.8 g",
+          "salt_g": "2.4 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:45:23.005Z"
+    },
+    {
+      "name": "Double WHOPPER®",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-d0d2c428-1b2d-443a-86e2-739f161fa6db",
+      "description": "Two flame-grilled beef patties topped with juicy tomatoes, fresh cut lettuce, mayo, pickles, white onions and a swirl of ketchup on a soft sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.39",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Double WHOPPER®",
+          "energy_kcal": "792.1",
+          "energy_kj": "3,314.1",
+          "carbohydrates_g": "47.2 g",
+          "sugars_g": "6.6 g",
+          "fat_g": "45.9 g",
+          "saturates_g": "15.2 g",
+          "protein_g": "47.8 g",
+          "salt_g": "2.4 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:45:27.413Z"
+    },
+    {
+      "name": "Double Whopper® with Bacon and Cheese Meal Medium",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-1785eadf-89b6-40f1-b6f8-28cddca44850",
+      "description": "Two flame-grilled beef patties topped with smoked bacon, melted cheese, tomatoes, fresh lettuce, mayo, pickles, a swirl of ketchup, and sliced onions, served in a soft, glazed sesame seed bun. Meals include Large fries and a drink of your choice",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£12.59",
+      "mealComponents": [
+        "Double Whopper® with Bacon and Cheese",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Double Whopper® with Bacon and Cheese",
+          "energy_kcal": "960",
+          "energy_kj": "4,016.6",
+          "carbohydrates_g": "50 g",
+          "sugars_g": "13 g",
+          "fat_g": "57 g",
+          "saturates_g": "21 g",
+          "protein_g": "60 g",
+          "salt_g": "3.8 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:45:50.802Z"
+    },
+    {
+      "name": "Double Whopper® with Bacon and Cheese Meal Large",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-1785eadf-89b6-40f1-b6f8-28cddca44850",
+      "description": "Two flame-grilled beef patties topped with smoked bacon, melted cheese, tomatoes, fresh lettuce, mayo, pickles, a swirl of ketchup, and sliced onions, served in a soft, glazed sesame seed bun. Meals include Large fries and a drink of your choice",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£13.79",
+      "mealComponents": [
+        "Double Whopper® with Bacon and Cheese",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Double Whopper® with Bacon and Cheese",
+          "energy_kcal": "960",
+          "energy_kj": "4,016.6",
+          "carbohydrates_g": "50 g",
+          "sugars_g": "13 g",
+          "fat_g": "57 g",
+          "saturates_g": "21 g",
+          "protein_g": "60 g",
+          "salt_g": "3.8 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:45:55.566Z"
+    },
+    {
+      "name": "Double Whopper® with Bacon and Cheese",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-1785eadf-89b6-40f1-b6f8-28cddca44850",
+      "description": "Two flame-grilled beef patties topped with smoked bacon, melted cheese, tomatoes, fresh lettuce, mayo, pickles, a swirl of ketchup, and sliced onions, served in a soft, glazed sesame seed bun. Meals include Large fries and a drink of your choice",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.09",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Double Whopper® with Bacon and Cheese",
+          "energy_kcal": "960",
+          "energy_kj": "4,016.6",
+          "carbohydrates_g": "50 g",
+          "sugars_g": "13 g",
+          "fat_g": "57 g",
+          "saturates_g": "21 g",
+          "protein_g": "60 g",
+          "salt_g": "3.8 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:46:00.135Z"
+    },
+    {
+      "name": "Bacon Double Cheese XL Meal Medium",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-69dae60e-146d-4b37-8090-9c7639c79a5a",
+      "description": "Two flamed-grilled beef patties topped with Applewood smoked bacon and American cheese, all in our toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£11.19",
+      "mealComponents": [
+        "Bacon Double Cheese XL",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Bacon Double Cheese XL",
+          "energy_kcal": "894.7",
+          "energy_kj": "3,743.3",
+          "carbohydrates_g": "50.3 g",
+          "sugars_g": "9.4 g",
+          "fat_g": "50.5 g",
+          "saturates_g": "23 g",
+          "protein_g": "59.9 g",
+          "salt_g": "3.6 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:46:32.168Z"
+    },
+    {
+      "name": "Bacon Double Cheese XL Meal Large",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-69dae60e-146d-4b37-8090-9c7639c79a5a",
+      "description": "Two flamed-grilled beef patties topped with Applewood smoked bacon and American cheese, all in our toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£12.39",
+      "mealComponents": [
+        "Bacon Double Cheese XL",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Bacon Double Cheese XL",
+          "energy_kcal": "894.7",
+          "energy_kj": "3,743.3",
+          "carbohydrates_g": "50.3 g",
+          "sugars_g": "9.4 g",
+          "fat_g": "50.5 g",
+          "saturates_g": "23 g",
+          "protein_g": "59.9 g",
+          "salt_g": "3.6 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:46:37.278Z"
+    },
+    {
+      "name": "Bacon Double Cheese XL",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-69dae60e-146d-4b37-8090-9c7639c79a5a",
+      "description": "Two flamed-grilled beef patties topped with Applewood smoked bacon and American cheese, all in our toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.69",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Bacon Double Cheese XL",
+          "energy_kcal": "894.7",
+          "energy_kj": "3,743.3",
+          "carbohydrates_g": "50.3 g",
+          "sugars_g": "9.4 g",
+          "fat_g": "50.5 g",
+          "saturates_g": "23 g",
+          "protein_g": "59.9 g",
+          "salt_g": "3.6 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:46:41.833Z"
+    },
+    {
+      "name": "Bacon Double Cheeseburger Meal Medium",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-0493aedb-baf4-47b8-ad61-029dde49b6fe",
+      "description": "Two signature flame-grilled beef patties topped with smoked bacon and two layers of melted American cheese on a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.29",
+      "mealComponents": [
+        "Bacon Double Cheeseburger",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Bacon Double Cheeseburger",
+          "energy_kcal": "331",
+          "energy_kj": "1,385",
+          "carbohydrates_g": "23.8 g",
+          "sugars_g": "3.2 g",
+          "fat_g": "16.1 g",
+          "saturates_g": "6.7 g",
+          "protein_g": "22.3 g",
+          "salt_g": "2 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:47:04.065Z"
+    },
+    {
+      "name": "Bacon Double Cheeseburger Meal Large",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-0493aedb-baf4-47b8-ad61-029dde49b6fe",
+      "description": "Two signature flame-grilled beef patties topped with smoked bacon and two layers of melted American cheese on a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£9.49",
+      "mealComponents": [
+        "Bacon Double Cheeseburger",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Bacon Double Cheeseburger",
+          "energy_kcal": "331",
+          "energy_kj": "1,385",
+          "carbohydrates_g": "23.8 g",
+          "sugars_g": "3.2 g",
+          "fat_g": "16.1 g",
+          "saturates_g": "6.7 g",
+          "protein_g": "22.3 g",
+          "salt_g": "2 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:47:09.264Z"
+    },
+    {
+      "name": "Bacon Double Cheeseburger",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-0493aedb-baf4-47b8-ad61-029dde49b6fe",
+      "description": "Two signature flame-grilled beef patties topped with smoked bacon and two layers of melted American cheese on a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£5.69",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Bacon Double Cheeseburger",
+          "energy_kcal": "331",
+          "energy_kj": "1,385",
+          "carbohydrates_g": "23.8 g",
+          "sugars_g": "3.2 g",
+          "fat_g": "16.1 g",
+          "saturates_g": "6.7 g",
+          "protein_g": "22.3 g",
+          "salt_g": "2 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:47:13.756Z"
+    },
+    {
+      "name": "Chicken Royale Meal Medium",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-e30e8df2-b618-45fc-b60a-27eaefa57894",
+      "description": "Tasty chicken wrapped in a special crisp coating, topped with iceberg lettuce, creamy mayo and crowned with a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.99",
+      "mealComponents": [
+        "Chicken Royale",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Chicken Royale",
+          "energy_kcal": "537.8",
+          "energy_kj": "2,250.1",
+          "carbohydrates_g": "48.6 g",
+          "sugars_g": "6.1 g",
+          "fat_g": "28.2 g",
+          "saturates_g": "3.2 g",
+          "protein_g": "21.1 g",
+          "salt_g": "3 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:47:41.764Z"
+    },
+    {
+      "name": "Chicken Royale Meal Large",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-e30e8df2-b618-45fc-b60a-27eaefa57894",
+      "description": "Tasty chicken wrapped in a special crisp coating, topped with iceberg lettuce, creamy mayo and crowned with a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.19",
+      "mealComponents": [
+        "Chicken Royale",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Chicken Royale",
+          "energy_kcal": "537.8",
+          "energy_kj": "2,250.1",
+          "carbohydrates_g": "48.6 g",
+          "sugars_g": "6.1 g",
+          "fat_g": "28.2 g",
+          "saturates_g": "3.2 g",
+          "protein_g": "21.1 g",
+          "salt_g": "3 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:47:46.791Z"
+    },
+    {
+      "name": "Chicken Royale",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-e30e8df2-b618-45fc-b60a-27eaefa57894",
+      "description": "Tasty chicken wrapped in a special crisp coating, topped with iceberg lettuce, creamy mayo and crowned with a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£6.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Chicken Royale",
+          "energy_kcal": "537.8",
+          "energy_kj": "2,250.1",
+          "carbohydrates_g": "48.6 g",
+          "sugars_g": "6.1 g",
+          "fat_g": "28.2 g",
+          "saturates_g": "3.2 g",
+          "protein_g": "21.1 g",
+          "salt_g": "3 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:47:51.339Z"
+    },
+    {
+      "name": "Chicken Royale Cheese & Bacon Meal Medium",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-734bb15c-6d84-46c3-a08e-871f0ac6576e",
+      "description": "Toasted long sesame bun with crispy chicken, lettuce, creamy mayo, American cheese and crispy bacon.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.69",
+      "mealComponents": [
+        "Chicken Royale Bacon & Cheese",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Chicken Royale Bacon & Cheese",
+          "energy_kcal": "661.4",
+          "energy_kj": "2,767.1",
+          "carbohydrates_g": "51.2 g",
+          "sugars_g": "8.1 g",
+          "fat_g": "37.1 g",
+          "saturates_g": "8 g",
+          "protein_g": "29.4 g",
+          "salt_g": "4.4 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:48:19.770Z"
+    },
+    {
+      "name": "Chicken Royale Cheese & Bacon Meal Large",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-734bb15c-6d84-46c3-a08e-871f0ac6576e",
+      "description": "Toasted long sesame bun with crispy chicken, lettuce, creamy mayo, American cheese and crispy bacon.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£11.89",
+      "mealComponents": [
+        "Chicken Royale Bacon & Cheese",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Chicken Royale Bacon & Cheese",
+          "energy_kcal": "661.4",
+          "energy_kj": "2,767.1",
+          "carbohydrates_g": "51.2 g",
+          "sugars_g": "8.1 g",
+          "fat_g": "37.1 g",
+          "saturates_g": "8 g",
+          "protein_g": "29.4 g",
+          "salt_g": "4.4 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:48:24.803Z"
+    },
+    {
+      "name": "Chicken Royale Bacon & Cheese",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-734bb15c-6d84-46c3-a08e-871f0ac6576e",
+      "description": "Toasted long sesame bun with crispy chicken, lettuce, creamy mayo, American cheese and crispy bacon.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.19",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Chicken Royale Bacon & Cheese",
+          "energy_kcal": "661.4",
+          "energy_kj": "2,767.1",
+          "carbohydrates_g": "51.2 g",
+          "sugars_g": "8.1 g",
+          "fat_g": "37.1 g",
+          "saturates_g": "8 g",
+          "protein_g": "29.4 g",
+          "salt_g": "4.4 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:48:29.259Z"
+    },
+    {
+      "name": "Double Chicken Royale",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-780e10ef-7cd3-44a5-97f0-418d55a19cd1",
+      "description": "Two golden, crispy Chicken Royale patties made with 100% chicken breast topped with iceberg lettuce, creamy mayo and crowned with a toasted sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "",
+      "mealComponents": [
+        "Double Chicken Royale",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Double Chicken Royale",
+          "energy_kcal": "794.1",
+          "energy_kj": "3,322.5",
+          "carbohydrates_g": "65.2 g",
+          "sugars_g": "6.9 g",
+          "fat_g": "41 g",
+          "saturates_g": "3.7 g",
+          "protein_g": "37.7 g",
+          "salt_g": "4.9 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:48:52.778Z"
+    },
+    {
+      "name": "Double Chicken Royale Bacon & Cheese Meal Medium",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-95a26e75-830d-4fd6-9a85-2fc026871cba",
+      "description": "Two golden crispy Chicken Royale patties in a toasted long sesame bun with lettuce, creamy mayo, melted cheese and crispy bacon.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£12.49",
+      "mealComponents": [
+        "Double Chicken Royale Bacon & Cheese",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Double Chicken Royale Bacon & Cheese",
+          "energy_kcal": "846",
+          "energy_kj": "3,539.7",
+          "carbohydrates_g": "62.3 g",
+          "sugars_g": "8.2 g",
+          "fat_g": "47 g",
+          "saturates_g": "9.1 g",
+          "protein_g": "42.1 g",
+          "salt_g": "6.2 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:49:08.872Z"
+    },
+    {
+      "name": "Double Chicken Royale Bacon & Cheese Meal Large",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-95a26e75-830d-4fd6-9a85-2fc026871cba",
+      "description": "Two golden crispy Chicken Royale patties in a toasted long sesame bun with lettuce, creamy mayo, melted cheese and crispy bacon.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£13.69",
+      "mealComponents": [
+        "Double Chicken Royale Bacon & Cheese",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Double Chicken Royale Bacon & Cheese",
+          "energy_kcal": "846",
+          "energy_kj": "3,539.7",
+          "carbohydrates_g": "62.3 g",
+          "sugars_g": "8.2 g",
+          "fat_g": "47 g",
+          "saturates_g": "9.1 g",
+          "protein_g": "42.1 g",
+          "salt_g": "6.2 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:49:13.636Z"
+    },
+    {
+      "name": "Double Chicken Royale Bacon & Cheese",
+      "category": "CRISPY & TENDER CHICKEN",
+      "url": "https://www.burgerking.co.uk/menu/picker-95a26e75-830d-4fd6-9a85-2fc026871cba",
+      "description": "Two golden crispy Chicken Royale patties in a toasted long sesame bun with lettuce, creamy mayo, melted cheese and crispy bacon.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£9.99",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Double Chicken Royale Bacon & Cheese",
+          "energy_kcal": "846",
+          "energy_kj": "3,539.7",
+          "carbohydrates_g": "62.3 g",
+          "sugars_g": "8.2 g",
+          "fat_g": "47 g",
+          "saturates_g": "9.1 g",
+          "protein_g": "42.1 g",
+          "salt_g": "6.2 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:49:18.166Z"
+    },
+    {
+      "name": "Vegan Royale Meal Medium",
+      "category": "VEGGIE & MORE",
+      "url": "https://www.burgerking.co.uk/menu/picker-5b9b9566-997b-4a15-88dd-2ca2626de654",
+      "description": "Certified by the Vegan Society. A crispy vegan patty topped with iceberg lettuce, vegan mayo and crowned with a toasted sesame seed bun. For products certified by the Vegan Society, check for the logo.Please note, vegan meals are served with regular fries and bottled water. Any modifications may result in a non-vegan meal.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.99",
+      "mealComponents": [
+        "Vegan Royale",
+        "Regular Fries",
+        "Bottled Water"
+      ],
+      "nutrition": [
+        {
+          "component": "Vegan Royale",
+          "energy_kcal": "564.3",
+          "energy_kj": "2,360.9",
+          "carbohydrates_g": "53.7 g",
+          "sugars_g": "6.8 g",
+          "fat_g": "269.5 g",
+          "saturates_g": "2.7 g",
+          "protein_g": "16.8 g",
+          "salt_g": "2.9 g",
+          "allergens_contains": [
+            "soy",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "mustard",
+            "celery"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Bottled Water",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:49:38.355Z"
+    },
+    {
+      "name": "Vegan Royale Meal Large",
+      "category": "VEGGIE & MORE",
+      "url": "https://www.burgerking.co.uk/menu/picker-5b9b9566-997b-4a15-88dd-2ca2626de654",
+      "description": "Certified by the Vegan Society. A crispy vegan patty topped with iceberg lettuce, vegan mayo and crowned with a toasted sesame seed bun. For products certified by the Vegan Society, check for the logo.Please note, vegan meals are served with regular fries and bottled water. Any modifications may result in a non-vegan meal.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.19",
+      "mealComponents": [
+        "Vegan Royale",
+        "Large Fries",
+        "Bottled Water"
+      ],
+      "nutrition": [
+        {
+          "component": "Vegan Royale",
+          "energy_kcal": "564.3",
+          "energy_kj": "2,360.9",
+          "carbohydrates_g": "53.7 g",
+          "sugars_g": "6.8 g",
+          "fat_g": "269.5 g",
+          "saturates_g": "2.7 g",
+          "protein_g": "16.8 g",
+          "salt_g": "2.9 g",
+          "allergens_contains": [
+            "soy",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "mustard",
+            "celery"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Bottled Water",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:49:43.321Z"
+    },
+    {
+      "name": "Vegan Royale",
+      "category": "VEGGIE & MORE",
+      "url": "https://www.burgerking.co.uk/menu/picker-5b9b9566-997b-4a15-88dd-2ca2626de654",
+      "description": "Certified by the Vegan Society. A crispy vegan patty topped with iceberg lettuce, vegan mayo and crowned with a toasted sesame seed bun. For products certified by the Vegan Society, check for the logo.Please note, vegan meals are served with regular fries and bottled water. Any modifications may result in a non-vegan meal.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£6.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Vegan Royale",
+          "energy_kcal": "564.3",
+          "energy_kj": "2,360.9",
+          "carbohydrates_g": "53.7 g",
+          "sugars_g": "6.8 g",
+          "fat_g": "269.5 g",
+          "saturates_g": "2.7 g",
+          "protein_g": "16.8 g",
+          "salt_g": "2.9 g",
+          "allergens_contains": [
+            "soy",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "mustard",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:49:47.842Z"
+    },
+    {
+      "name": "Plant Based WHOPPER® medium meal",
+      "category": "VEGGIE & MORE",
+      "url": "https://www.burgerking.co.uk/menu/picker-fe6d92f7-5bd2-455b-8bef-ff6939aabba5",
+      "description": "A flame-grilled plant-based burger, topped with tomatoes, fresh cut lettuce, vegan mayo, pickles, a swirl of ketchup, and sliced onions on a soft sesame seed bun.*Plant-based WHOPPER® is plant-based, however it is cooked on the same broiler as our beef WHOPPER® to deliver the same unique flame-grilled taste.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.99",
+      "mealComponents": [
+        "Plant-based WHOPPER®",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Plant-based WHOPPER®",
+          "energy_kcal": "542.3",
+          "energy_kj": "2,268.9",
+          "carbohydrates_g": "50.2 g",
+          "sugars_g": "11.3 g",
+          "fat_g": "24.2 g",
+          "saturates_g": "4.4 g",
+          "protein_g": "26.8 g",
+          "salt_g": "2.7 g",
+          "allergens_contains": [
+            "soy",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:50:09.352Z"
+    },
+    {
+      "name": "Plant Based WHOPPER® large meal",
+      "category": "VEGGIE & MORE",
+      "url": "https://www.burgerking.co.uk/menu/picker-fe6d92f7-5bd2-455b-8bef-ff6939aabba5",
+      "description": "A flame-grilled plant-based burger, topped with tomatoes, fresh cut lettuce, vegan mayo, pickles, a swirl of ketchup, and sliced onions on a soft sesame seed bun.*Plant-based WHOPPER® is plant-based, however it is cooked on the same broiler as our beef WHOPPER® to deliver the same unique flame-grilled taste.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£10.19",
+      "mealComponents": [
+        "Plant-based WHOPPER®",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "Plant-based WHOPPER®",
+          "energy_kcal": "542.3",
+          "energy_kj": "2,268.9",
+          "carbohydrates_g": "50.2 g",
+          "sugars_g": "11.3 g",
+          "fat_g": "24.2 g",
+          "saturates_g": "4.4 g",
+          "protein_g": "26.8 g",
+          "salt_g": "2.7 g",
+          "allergens_contains": [
+            "soy",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:50:14.344Z"
+    },
+    {
+      "name": "Plant-based WHOPPER®",
+      "category": "VEGGIE & MORE",
+      "url": "https://www.burgerking.co.uk/menu/picker-fe6d92f7-5bd2-455b-8bef-ff6939aabba5",
+      "description": "A flame-grilled plant-based burger, topped with tomatoes, fresh cut lettuce, vegan mayo, pickles, a swirl of ketchup, and sliced onions on a soft sesame seed bun.*Plant-based WHOPPER® is plant-based, however it is cooked on the same broiler as our beef WHOPPER® to deliver the same unique flame-grilled taste.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£6.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Plant-based WHOPPER®",
+          "energy_kcal": "542.3",
+          "energy_kj": "2,268.9",
+          "carbohydrates_g": "50.2 g",
+          "sugars_g": "11.3 g",
+          "fat_g": "24.2 g",
+          "saturates_g": "4.4 g",
+          "protein_g": "26.8 g",
+          "salt_g": "2.7 g",
+          "allergens_contains": [
+            "soy",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:50:18.764Z"
+    },
+    {
+      "name": "Kids Cheeseburger Meal",
+      "category": "FAMILY & KING JR. MEALS",
+      "url": "https://www.burgerking.co.uk/menu/picker-dce01677-51d2-49f5-8428-53ea41caab90",
+      "description": "Our original burger topped with a slice of cheese and ketchup in a sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "",
+      "mealComponents": [
+        "Kids Cheeseburger",
+        "Small Fries",
+        "Bottled Water"
+      ],
+      "nutrition": [
+        {
+          "component": "Kids Cheeseburger",
+          "energy_kcal": "282.4",
+          "energy_kj": "1,181.5",
+          "carbohydrates_g": "26.9 g",
+          "sugars_g": "6 g",
+          "fat_g": "12.2 g",
+          "saturates_g": "5.5 g",
+          "protein_g": "15.7 g",
+          "salt_g": "1.1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Small Fries",
+          "energy_kcal": "208.8",
+          "energy_kj": "873.6",
+          "carbohydrates_g": "28 g",
+          "sugars_g": "0.3 g",
+          "fat_g": "8.8 g",
+          "saturates_g": "2.5 g",
+          "protein_g": "2.4 g",
+          "salt_g": "0.4 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Bottled Water",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:50:38.748Z"
+    },
+    {
+      "name": "Kids Hamburger Meal  ",
+      "category": "FAMILY & KING JR. MEALS",
+      "url": "https://www.burgerking.co.uk/menu/picker-2ca19ac1-d07f-4909-82a7-6923b5fc62b9",
+      "description": "Our original burger with ketchup served in a sesame seed bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.99",
+      "mealComponents": [
+        "Kids Hamburger",
+        "Small Fries",
+        "Bottled Water"
+      ],
+      "nutrition": [
+        {
+          "component": "Kids Hamburger",
+          "energy_kcal": "244.1",
+          "energy_kj": "1,021.1",
+          "carbohydrates_g": "25.9 g",
+          "sugars_g": "5.3 g",
+          "fat_g": "9.2 g",
+          "saturates_g": "3.7 g",
+          "protein_g": "13.7 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [
+            "wheat",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        },
+        {
+          "component": "Small Fries",
+          "energy_kcal": "208.8",
+          "energy_kj": "873.6",
+          "carbohydrates_g": "28 g",
+          "sugars_g": "0.3 g",
+          "fat_g": "8.8 g",
+          "saturates_g": "2.5 g",
+          "protein_g": "2.4 g",
+          "salt_g": "0.4 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Bottled Water",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:50:50.362Z"
+    },
+    {
+      "name": "6pc Garlic & Jalapeño Chicken Fries ",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-1630f289-969f-4783-b577-2c5e5fd62532",
+      "description": "Juicy chicken strips made with 100% chicken breast, wrapped in a crispy, golden coating packed with the perfect balance of garlic, onion and a hint of green jalapeños spice",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£5.59",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "6pc Garlic & Jalapeño Chicken Fries",
+          "energy_kcal": "253",
+          "energy_kj": "1,058.6",
+          "carbohydrates_g": "18 g",
+          "sugars_g": "0.9 g",
+          "fat_g": "14 g",
+          "saturates_g": "2 g",
+          "protein_g": "14 g",
+          "salt_g": "1 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:51:09.579Z"
+    },
+    {
+      "name": "9pc Garlic & Jalapeño Chicken Fries ",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-1630f289-969f-4783-b577-2c5e5fd62532",
+      "description": "Juicy chicken strips made with 100% chicken breast, wrapped in a crispy, golden coating packed with the perfect balance of garlic, onion and a hint of green jalapeños spice",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£6.79",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "9pc Garlic & Jalapeño Chicken Fries",
+          "energy_kcal": "379",
+          "energy_kj": "1,585.7",
+          "carbohydrates_g": "27 g",
+          "sugars_g": "1.3 g",
+          "fat_g": "20 g",
+          "saturates_g": "2 g",
+          "protein_g": "21 g",
+          "salt_g": "1.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:51:14.405Z"
+    },
+    {
+      "name": "20pc Garlic & Jalapeño Chicken Fries ",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-1630f289-969f-4783-b577-2c5e5fd62532",
+      "description": "Juicy chicken strips made with 100% chicken breast, wrapped in a crispy, golden coating packed with the perfect balance of garlic, onion and a hint of green jalapeños spice",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.59",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "20pc Garlic & Jalapeño Chicken Fries",
+          "energy_kcal": "845",
+          "energy_kj": "3,535.5",
+          "carbohydrates_g": "61 g",
+          "sugars_g": "3 g",
+          "fat_g": "45 g",
+          "saturates_g": "5 g",
+          "protein_g": "47 g",
+          "salt_g": "3.5 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:51:19.091Z"
+    },
+    {
+      "name": "BBQ Stacker King Box - Beef",
+      "category": "KING SAVERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-7843492c-a5d4-42ae-be2c-8bf7e423f703",
+      "description": "Introducing the BBQ Stacker King Box. Two signature flame-grilled patties topped with golden onion rings, crispy bacon, a swirl of cheese sauce and mayonnaise, and finished with a drizzle of BBQ sauce. Meal includes Regular Fries, drink and your choice of either Chilli Cheese Bites or golden Onion Rings.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/5e49ccc4b8acb0f3b52e254caf3e85b7444cd003-590x393.png",
+      "price": "£6.49",
+      "mealComponents": [
+        "item_53347",
+        "Bacon BBQ Stacker Melt Burger",
+        "3 Chilli Cheese Bites",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "item_53347",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Bacon BBQ Stacker Melt Burger",
+          "energy_kcal": "516.9",
+          "energy_kj": "2,162.6",
+          "carbohydrates_g": "38 g",
+          "sugars_g": "7.4 g",
+          "fat_g": "28 g",
+          "saturates_g": "9.3 g",
+          "protein_g": "27 g",
+          "salt_g": "1.6 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "soy",
+            "celery"
+          ]
+        },
+        {
+          "component": "3 Chilli Cheese Bites",
+          "energy_kcal": "162.8",
+          "energy_kj": "680.9",
+          "carbohydrates_g": "15.1 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "9 g",
+          "saturates_g": "3.9 g",
+          "protein_g": "4.8 g",
+          "salt_g": "1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:51:43.563Z"
+    },
+    {
+      "name": "BBQ Stacker King Box - Chicken",
+      "category": "KING SAVERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-271bb43f-2241-4528-9201-1890b872fa96",
+      "description": "",
+      "imageUrl": "",
+      "price": "£6.49",
+      "mealComponents": [
+        "item_53347",
+        "Bacon BBQ Chicken Stacker",
+        "3 Chilli Cheese Bites",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "item_53347",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Bacon BBQ Chicken Stacker",
+          "energy_kcal": "549.7",
+          "energy_kj": "2,300.1",
+          "carbohydrates_g": "51 g",
+          "sugars_g": "7.8 g",
+          "fat_g": "28.3 g",
+          "saturates_g": "7.7 g",
+          "protein_g": "21.2 g",
+          "salt_g": "2.5 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy"
+          ]
+        },
+        {
+          "component": "3 Chilli Cheese Bites",
+          "energy_kcal": "162.8",
+          "energy_kj": "680.9",
+          "carbohydrates_g": "15.1 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "9 g",
+          "saturates_g": "3.9 g",
+          "protein_g": "4.8 g",
+          "salt_g": "1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:52:04.636Z"
+    },
+    {
+      "name": "King Box - Beef",
+      "category": "KING SAVERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-74e69c56-0d7d-4942-a079-f561ad551640",
+      "description": "Nutritional Information & Allergens",
+      "imageUrl": "",
+      "price": "£5.99",
+      "mealComponents": [
+        "item_53347",
+        "Classic Double Beef Melt",
+        "Regular Fries",
+        "Coca-Cola Zero",
+        "3 Chilli Cheese Bites"
+      ],
+      "nutrition": [
+        {
+          "component": "item_53347",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Classic Double Beef Melt",
+          "energy_kcal": "352.4",
+          "energy_kj": "1,474.6",
+          "carbohydrates_g": "25.4 g",
+          "sugars_g": "3.7 g",
+          "fat_g": "17.3 g",
+          "saturates_g": "7.4 g",
+          "protein_g": "23.3 g",
+          "salt_g": "1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "sesame",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "3 Chilli Cheese Bites",
+          "energy_kcal": "162.8",
+          "energy_kj": "680.9",
+          "carbohydrates_g": "15.1 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "9 g",
+          "saturates_g": "3.9 g",
+          "protein_g": "4.8 g",
+          "salt_g": "1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:52:25.968Z"
+    },
+    {
+      "name": "Cheeseburger",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-558a6077-a1a2-439a-9667-f5ea170cb3ea",
+      "description": "100% beef topped with a slice of melted cheese, pickles, ketchup and mustard all wrapped up in a toasted bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Cheeseburger",
+          "energy_kcal": "273.2",
+          "energy_kj": "1,143.1",
+          "carbohydrates_g": "24.8 g",
+          "sugars_g": "3.9 g",
+          "fat_g": "12.2 g",
+          "saturates_g": "5.5 g",
+          "protein_g": "15.6 g",
+          "salt_g": "1.1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:52:46.900Z"
+    },
+    {
+      "name": "Hamburger",
+      "category": "WHOPPER®",
+      "url": "https://www.burgerking.co.uk/menu/picker-11377de0-5046-423e-96ed-c155405c48fe",
+      "description": "A signature flame-grilled beef patty topped with a simple layer of crinkle cut pickles, yellow mustard, and ketchup on a toasted sesame bun.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£1.79",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Hamburger",
+          "energy_kcal": "234.9",
+          "energy_kj": "982.7",
+          "carbohydrates_g": "23.8 g",
+          "sugars_g": "3.2 g",
+          "fat_g": "9.2 g",
+          "saturates_g": "3.7 g",
+          "protein_g": "13.6 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [
+            "wheat",
+            "mustard",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:53:02.310Z"
+    },
+    {
+      "name": "Chicken Nuggets",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-335a685e-d422-478e-9a76-c6a5b742d9dc",
+      "description": "",
+      "imageUrl": "",
+      "price": "",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "9 Nuggets",
+          "energy_kcal": "382.2",
+          "energy_kj": "1,599.2",
+          "carbohydrates_g": "26.7 g",
+          "sugars_g": "1.8 g",
+          "fat_g": "20.7 g",
+          "saturates_g": "3.2 g",
+          "protein_g": "20.2 g",
+          "salt_g": "2.1 g",
+          "allergens_contains": [
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:53:15.533Z"
+    },
+    {
+      "name": "5pc Halloumi Fries Medium Meal",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-fc12e23d-762f-4758-a84d-4ab0fae93451",
+      "description": "100% authentic Cypriot Halloumi, golden and cheesy fries.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£7.49",
+      "mealComponents": [
+        "5pc Halloumi Fries",
+        "Regular Fries",
+        "Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "5pc Halloumi Fries",
+          "energy_kcal": "286.6",
+          "energy_kj": "1,199.1",
+          "carbohydrates_g": "12.8 g",
+          "sugars_g": "11.2 g",
+          "fat_g": "18.9 g",
+          "saturates_g": "11.7 g",
+          "protein_g": "16.4 g",
+          "salt_g": "2.2 g",
+          "allergens_contains": [
+            "milk"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:53:34.362Z"
+    },
+    {
+      "name": "5pc Halloumi Fries Large Meal",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-fc12e23d-762f-4758-a84d-4ab0fae93451",
+      "description": "100% authentic Cypriot Halloumi, golden and cheesy fries.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£8.69",
+      "mealComponents": [
+        "5pc Halloumi Fries",
+        "Large Fries",
+        "Large Coca-Cola Zero"
+      ],
+      "nutrition": [
+        {
+          "component": "5pc Halloumi Fries",
+          "energy_kcal": "286.6",
+          "energy_kj": "1,199.1",
+          "carbohydrates_g": "12.8 g",
+          "sugars_g": "11.2 g",
+          "fat_g": "18.9 g",
+          "saturates_g": "11.7 g",
+          "protein_g": "16.4 g",
+          "salt_g": "2.2 g",
+          "allergens_contains": [
+            "milk"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten"
+          ]
+        },
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Large Coca-Cola Zero",
+          "energy_kcal": "3.1",
+          "energy_kj": "13",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:53:39.360Z"
+    },
+    {
+      "name": "5pc Halloumi Fries",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-fc12e23d-762f-4758-a84d-4ab0fae93451",
+      "description": "100% authentic Cypriot Halloumi, golden and cheesy fries.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£4.99",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "5pc Halloumi Fries",
+          "energy_kcal": "286.6",
+          "energy_kj": "1,199.1",
+          "carbohydrates_g": "12.8 g",
+          "sugars_g": "11.2 g",
+          "fat_g": "18.9 g",
+          "saturates_g": "11.7 g",
+          "protein_g": "16.4 g",
+          "salt_g": "2.2 g",
+          "allergens_contains": [
+            "milk"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:53:43.874Z"
+    },
+    {
+      "name": "8pc Halloumi Fries",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-fc12e23d-762f-4758-a84d-4ab0fae93451",
+      "description": "100% authentic Cypriot Halloumi, golden and cheesy fries.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£6.29",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "8pc Halloumi Fries",
+          "energy_kcal": "430.5",
+          "energy_kj": "1,801.3",
+          "carbohydrates_g": "13.6 g",
+          "sugars_g": "11.5 g",
+          "fat_g": "30.2 g",
+          "saturates_g": "18.7 g",
+          "protein_g": "26.1 g",
+          "salt_g": "3.2 g",
+          "allergens_contains": [
+            "milk"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:53:49.405Z"
+    },
+    {
+      "name": "Chilli Cheese Bites",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-464ce53b-3fd4-4e87-b0ac-903bcbc94e6f",
+      "description": "Crispy coated with smooth and spicy cheese inside. A unique taste of chilli with every bite. *Product is cooked in the same oil as chicken",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/8b6fa5c860ec645c14f04fdcc15300383f2eda82-590x393.png",
+      "price": "",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "6 Chilli Cheese Bites*",
+          "energy_kcal": "325.5",
+          "energy_kj": "1,361.9",
+          "carbohydrates_g": "30.2 g",
+          "sugars_g": "1 g",
+          "fat_g": "18 g",
+          "saturates_g": "7.8 g",
+          "protein_g": "9.6 g",
+          "salt_g": "2 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:54:06.592Z"
+    },
+    {
+      "name": "Regular Fries",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-daddf80d-608a-446b-bd8e-03cf391de010",
+      "description": "Our signature thick cut salted French Fries.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.79",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.5 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "soy",
+            "wheat",
+            "mustard",
+            "sesame",
+            "celery",
+            "gluten"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:54:20.822Z"
+    },
+    {
+      "name": "Large Fries",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-daddf80d-608a-446b-bd8e-03cf391de010",
+      "description": "Our signature thick cut salted French Fries.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.29",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Large Fries",
+          "energy_kcal": "368.9",
+          "energy_kj": "1,543.4",
+          "carbohydrates_g": "49.4 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "15.6 g",
+          "saturates_g": "4.5 g",
+          "protein_g": "4.3 g",
+          "salt_g": "0.7 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "soy",
+            "wheat",
+            "mustard",
+            "sesame",
+            "celery",
+            "gluten"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:54:25.300Z"
+    },
+    {
+      "name": "6pc Onion Rings",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-0a707f28-3aed-4678-8790-25a17d62584b",
+      "description": "Classic golden onion rings.*Product is cooked in the same oil as chicken and fish.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.19",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "6pc Onion Rings",
+          "energy_kcal": "224.8",
+          "energy_kj": "940.6",
+          "carbohydrates_g": "28 g",
+          "sugars_g": "4.3 g",
+          "fat_g": "9.8 g",
+          "saturates_g": "2.2 g",
+          "protein_g": "4.6 g",
+          "salt_g": "0.4 g",
+          "allergens_contains": [
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:54:43.853Z"
+    },
+    {
+      "name": "9 Onion Rings",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-0a707f28-3aed-4678-8790-25a17d62584b",
+      "description": "Classic golden onion rings.*Product is cooked in the same oil as chicken and fish.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£4.19",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "9 Onion Rings",
+          "energy_kcal": "337.2",
+          "energy_kj": "1,411",
+          "carbohydrates_g": "42 g",
+          "sugars_g": "6.4 g",
+          "fat_g": "14.7 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "6.9 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:54:48.337Z"
+    },
+    {
+      "name": "20 Onion Rings",
+      "category": "SIDES",
+      "url": "https://www.burgerking.co.uk/menu/picker-0a707f28-3aed-4678-8790-25a17d62584b",
+      "description": "Classic golden onion rings.*Product is cooked in the same oil as chicken and fish.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£5.89",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "20 Onion Rings",
+          "energy_kcal": "749.4",
+          "energy_kj": "3,135.5",
+          "carbohydrates_g": "93.2 g",
+          "sugars_g": "14.3 g",
+          "fat_g": "293.5 g",
+          "saturates_g": "7.2 g",
+          "protein_g": "15.3 g",
+          "salt_g": "1.3 g",
+          "allergens_contains": [
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:54:52.899Z"
+    },
+    {
+      "name": "Kids Chicken Nuggets Meal Small",
+      "category": "FAMILY & KING JR. MEALS",
+      "url": "https://www.burgerking.co.uk/menu/picker-69cea646-dad4-4428-8822-e9b37c213c0f",
+      "description": "Bite-sized Chicken Nuggets, coated in a crispy tempura.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.99",
+      "mealComponents": [
+        "Kids Nuggets",
+        "Small Fries",
+        "Bottled Water"
+      ],
+      "nutrition": [
+        {
+          "component": "Kids Nuggets",
+          "energy_kcal": "169.2",
+          "energy_kj": "707.8",
+          "carbohydrates_g": "11.7 g",
+          "sugars_g": "0.7 g",
+          "fat_g": "9.2 g",
+          "saturates_g": "1.4 g",
+          "protein_g": "9 g",
+          "salt_g": "0.9 g",
+          "allergens_contains": [
+            "wheat",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "soy",
+            "mustard"
+          ]
+        },
+        {
+          "component": "Small Fries",
+          "energy_kcal": "208.8",
+          "energy_kj": "873.6",
+          "carbohydrates_g": "28 g",
+          "sugars_g": "0.3 g",
+          "fat_g": "8.8 g",
+          "saturates_g": "2.5 g",
+          "protein_g": "2.4 g",
+          "salt_g": "0.4 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Bottled Water",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:55:09.968Z"
+    },
+    {
+      "name": "Big King Little King",
+      "category": "FAMILY & KING JR. MEALS",
+      "url": "https://www.burgerking.co.uk/menu/picker-1ea7e05d-5527-465d-9a06-8ce6ce1999aa",
+      "description": "",
+      "imageUrl": "",
+      "price": "",
+      "mealComponents": [],
+      "nutrition": [],
+      "scrapedAt": "2026-03-14T13:55:29.722Z"
+    },
+    {
+      "name": "Chicken Melts King Box",
+      "category": "KING SAVERS",
+      "url": "https://www.burgerking.co.uk/menu/picker-aa69b9ef-18ad-4ab0-8b7e-581369096af7",
+      "description": "Nutritional Information & Allergens",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/0e738fd90511790737edc783abbd33fb784722be-870x570.png",
+      "price": "",
+      "mealComponents": [
+        "item_53347",
+        "Classic Chicken Melt",
+        "Regular Fries",
+        "Coca-Cola Zero",
+        "3 Chilli Cheese Bites"
+      ],
+      "nutrition": [
+        {
+          "component": "item_53347",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "Classic Chicken Melt",
+          "energy_kcal": "385.3",
+          "energy_kj": "1,612.1",
+          "carbohydrates_g": "38.4 g",
+          "sugars_g": "4.2 g",
+          "fat_g": "17.5 g",
+          "saturates_g": "5.8 g",
+          "protein_g": "17.5 g",
+          "salt_g": "1.9 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "mustard",
+            "sesame",
+            "celery",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy"
+          ]
+        },
+        {
+          "component": "Regular Fries",
+          "energy_kcal": "269.1",
+          "energy_kj": "1,126",
+          "carbohydrates_g": "36 g",
+          "sugars_g": "0.4 g",
+          "fat_g": "11.4 g",
+          "saturates_g": "3.3 g",
+          "protein_g": "3.1 g",
+          "salt_g": "0.6 g",
+          "allergens_contains": [],
+          "allergens_may_contain": [
+            "milk",
+            "eggs",
+            "fish",
+            "crustaceans/molluscs",
+            "soy",
+            "wheat",
+            "mustard",
+            "celery",
+            "gluten",
+            "sulphur dioxide"
+          ]
+        },
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        },
+        {
+          "component": "3 Chilli Cheese Bites",
+          "energy_kcal": "162.8",
+          "energy_kj": "680.9",
+          "carbohydrates_g": "15.1 g",
+          "sugars_g": "0.5 g",
+          "fat_g": "9 g",
+          "saturates_g": "3.9 g",
+          "protein_g": "4.8 g",
+          "salt_g": "1 g",
+          "allergens_contains": [
+            "milk",
+            "wheat",
+            "gluten"
+          ],
+          "allergens_may_contain": [
+            "eggs",
+            "soy",
+            "mustard",
+            "celery"
+          ]
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:55:45.942Z"
+    },
+    {
+      "name": "Frozen Strawberry Fanta Regular",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-decd18d8-a3ad-4ed3-ba07-4c99ae709edd",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.29",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Frozen Strawberry Fanta Regular",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:56:02.277Z"
+    },
+    {
+      "name": "Frozen Strawberry Fanta Large",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-decd18d8-a3ad-4ed3-ba07-4c99ae709edd",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Frozen Strawberry Fanta Large",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:56:06.818Z"
+    },
+    {
+      "name": "Blue Raspberry Frozen Fanta ",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-9696c24d-6730-47dd-a753-bbc780b607ae",
+      "description": "Keep cool with our new addition to the Frozen Fanta range! Introducing a refreshing blue raspberry flavour with a Fanta fizz. Order now at selected restaurants.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.29",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Blue Raspberry Frozen Fanta",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:56:20.906Z"
+    },
+    {
+      "name": "Blue Raspberry Frozen Fanta ",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-9696c24d-6730-47dd-a753-bbc780b607ae",
+      "description": "Keep cool with our new addition to the Frozen Fanta range! Introducing a refreshing blue raspberry flavour with a Fanta fizz. Order now at selected restaurants.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Blue Raspberry Frozen Fanta",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:56:25.304Z"
+    },
+    {
+      "name": "Coca-Cola Zero",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-7074f092-caff-457f-ba4b-7f398812fe0f",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.69",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Coca-Cola Zero",
+          "energy_kcal": "2.3",
+          "energy_kj": "9.6",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:56:36.666Z"
+    },
+    {
+      "name": "Coca-Cola",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-16dbed84-1b4c-4bc7-8287-98542ad48de9",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.83",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Coca-Cola",
+          "energy_kcal": "190",
+          "energy_kj": "795",
+          "carbohydrates_g": "48.2 g",
+          "sugars_g": "48.2 g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:56:48.889Z"
+    },
+    {
+      "name": "Diet Coca-Cola",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-82b582d5-801e-416f-8223-780ee5df49d9",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.69",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Diet Coca-Cola",
+          "energy_kcal": "1.4",
+          "energy_kj": "5.9",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:56:59.714Z"
+    },
+    {
+      "name": "Fanta Zero",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-df445149-a2ec-4110-bcfd-9783ecdbdef9",
+      "description": "Nutritional Information & Allergens",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.69",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Fanta Zero",
+          "energy_kcal": "86.4",
+          "energy_kj": "361.5",
+          "carbohydrates_g": "20.5 g",
+          "sugars_g": "20.5 g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:57:12.464Z"
+    },
+    {
+      "name": "Sprite Zero",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-48f36586-b854-4335-b1a7-3e1a7aa711b0",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.69",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Sprite Zero",
+          "energy_kcal": "4.5",
+          "energy_kj": "18.8",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:57:23.194Z"
+    },
+    {
+      "name": "Dr Pepper Zero Regular",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-810be5a9-84c5-4bbe-960f-1e86864fe262",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.69",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Dr Pepper Zero Regular",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:57:36.204Z"
+    },
+    {
+      "name": "Dr Pepper Zero Large",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-810be5a9-84c5-4bbe-960f-1e86864fe262",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£2.99",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Dr Pepper Zero Large",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:57:40.695Z"
+    },
+    {
+      "name": "Frozen Fanta Strawberry & Blue Raspberry Regular",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-6480cf70-cb26-4fdc-a095-6f667d3bec9a",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.29",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Frozen Fanta Strawberry & Blue Raspberry Regular",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:57:55.935Z"
+    },
+    {
+      "name": "Frozen Fanta Strawberry & Blue Raspberry Large",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-6480cf70-cb26-4fdc-a095-6f667d3bec9a",
+      "description": "Adults need around 2000 kcal a day..",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Frozen Fanta Strawberry & Blue Raspberry Large",
+          "energy_kcal": "0",
+          "energy_kj": "0",
+          "carbohydrates_g": "0g",
+          "sugars_g": "0g",
+          "fat_g": "0g",
+          "saturates_g": "0g",
+          "protein_g": "0g",
+          "salt_g": "0g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:58:00.412Z"
+    },
+    {
+      "name": "Regular Vanilla Milkshake",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-1a794e31-ecc2-4057-abc0-4f27c8519119",
+      "description": "A thick creamy milkshake with the taste of vanilla.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.99",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Regular Vanilla Milkshake",
+          "energy_kcal": "520.6",
+          "energy_kj": "2,178",
+          "carbohydrates_g": "87.9 g",
+          "sugars_g": "72.5 g",
+          "fat_g": "12.6 g",
+          "saturates_g": "8.5 g",
+          "protein_g": "14.3 g",
+          "salt_g": "1.3 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:58:15.247Z"
+    },
+    {
+      "name": "Large Vanilla Milkshake",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-1a794e31-ecc2-4057-abc0-4f27c8519119",
+      "description": "A thick creamy milkshake with the taste of vanilla.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£4.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Large Vanilla Milkshake",
+          "energy_kcal": "716.4",
+          "energy_kj": "2,997.6",
+          "carbohydrates_g": "120.9 g",
+          "sugars_g": "99.8 g",
+          "fat_g": "17.3 g",
+          "saturates_g": "11.7 g",
+          "protein_g": "19.7 g",
+          "salt_g": "1.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:58:19.775Z"
+    },
+    {
+      "name": "Regular Chocolate Milkshake",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-0190f9e9-54cd-48e1-8a20-971be1f383da",
+      "description": "A thick creamy milkshake with the taste of chocolate.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.99",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Regular Chocolate Milkshake",
+          "energy_kcal": "640.9",
+          "energy_kj": "2,681.5",
+          "carbohydrates_g": "116 g",
+          "sugars_g": "92.1 g",
+          "fat_g": "13 g",
+          "saturates_g": "8.7 g",
+          "protein_g": "14.8 g",
+          "salt_g": "1.4 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:58:34.005Z"
+    },
+    {
+      "name": "Large Chocolate Milkshake",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-0190f9e9-54cd-48e1-8a20-971be1f383da",
+      "description": "A thick creamy milkshake with the taste of chocolate.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£4.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Large Chocolate Milkshake",
+          "energy_kcal": "953.1",
+          "energy_kj": "3,987.9",
+          "carbohydrates_g": "176.4 g",
+          "sugars_g": "138.4 g",
+          "fat_g": "18.1 g",
+          "saturates_g": "12.1 g",
+          "protein_g": "20.6 g",
+          "salt_g": "1.9 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:58:38.553Z"
+    },
+    {
+      "name": "Regular Strawberry Milkshake",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-b31f7f87-301a-48d4-b658-5ad7703df273",
+      "description": "A thick creamy milkshake with the taste of strawberry.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£3.99",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Regular Strawberry Milkshake",
+          "energy_kcal": "598.1",
+          "energy_kj": "2,502.4",
+          "carbohydrates_g": "107.2 g",
+          "sugars_g": "87.3 g",
+          "fat_g": "12.6 g",
+          "saturates_g": "8.5 g",
+          "protein_g": "14.3 g",
+          "salt_g": "1.3 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:58:52.710Z"
+    },
+    {
+      "name": "Large Strawberry Milkshake",
+      "category": "DRINKS & COFFEE",
+      "url": "https://www.burgerking.co.uk/menu/picker-b31f7f87-301a-48d4-b658-5ad7703df273",
+      "description": "A thick creamy milkshake with the taste of strawberry.",
+      "imageUrl": "https://cdn.sanity.io/images/czqk28jt/prod_bk_gb/fe9f2cc38fc372d47c909b4aedc3429e8bfbc89b-590x393.png",
+      "price": "£4.49",
+      "mealComponents": [],
+      "nutrition": [
+        {
+          "component": "Large Strawberry Milkshake",
+          "energy_kcal": "868.9",
+          "energy_kj": "3,635.6",
+          "carbohydrates_g": "159 g",
+          "sugars_g": "129 g",
+          "fat_g": "17.3 g",
+          "saturates_g": "11.7 g",
+          "protein_g": "19.8 g",
+          "salt_g": "1.8 g",
+          "allergens_contains": [],
+          "allergens_may_contain": []
+        }
+      ],
+      "scrapedAt": "2026-03-14T13:58:57.278Z"
+    }
+  ]
+}
