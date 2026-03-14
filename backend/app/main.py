@@ -13,6 +13,7 @@ from app.core import run_task
 from app.nutrition import calculate_nutrition
 from app.mcdonalds import get_mcdonalds_menu
 from app.burgerking import get_burgerking_menu
+from app.greggs import get_greggs_menu
 from app.equipment import list_vans, get_van_equipment, get_equipment
 from app.supply import get_supply_chain, get_ingredient_supply
 from app.trends import get_trends
@@ -107,6 +108,10 @@ def get_menu():
 @app.get("/api/burgerking/menu")
 def get_bk_menu():
     return get_burgerking_menu()
+
+@app.get("/api/greggs/menu")
+def get_greggs_menu_endpoint():
+    return get_greggs_menu()
 
 # ─── Equipment ────────────────────────────────────────────────────────────────
 

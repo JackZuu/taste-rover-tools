@@ -516,11 +516,13 @@ export default function FlowScreen({
   onOpenWeather,
   onOpenMcDonalds,
   onOpenBurgerKing,
+  onOpenGreggs,
   onOpenNutrition,
 }: {
   onOpenWeather: () => void;
   onOpenMcDonalds: () => void;
   onOpenBurgerKing: () => void;
+  onOpenGreggs: () => void;
   onOpenNutrition: () => void;
 }) {
   const [vans, setVans] = useState<Van[]>([]);
@@ -1018,6 +1020,25 @@ export default function FlowScreen({
                 <span style={{fontSize:"28px"}}>👑</span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:"14px",fontWeight:"700",color:"#b8520a"}}>Burger King Menu</div>
+                  <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>Browse full menu & nutrition data →</div>
+                </div>
+              </button>
+              <button
+                onClick={onOpenGreggs}
+                style={{
+                  display:"flex", alignItems:"center", gap:"12px",
+                  width:"100%", padding:"12px 14px", marginTop:"10px",
+                  background:"#f0f9f4", border:"1.5px solid #a0d8b8",
+                  borderRadius:"10px", cursor:"pointer",
+                  fontFamily:"'Georgia',serif", textAlign:"left",
+                  transition:"background 0.15s", WebkitTapHighlightColor:"transparent",
+                }}
+                onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background="#dff2ea";}}
+                onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="#f0f9f4";}}
+              >
+                <span style={{fontSize:"28px"}}>🥐</span>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:"14px",fontWeight:"700",color:"#007a3d"}}>Greggs Menu</div>
                   <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>Browse full menu & nutrition data →</div>
                 </div>
               </button>
