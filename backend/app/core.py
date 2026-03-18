@@ -180,15 +180,27 @@ def run_task(postcode: str) -> dict:
     Main task function that gets weather data for a given postcode.
     """
     temp_now, label_now = get_current_weather_by_postcode(postcode, API_KEY)
-    
+
     if temp_now is None:
         return {
             "error": "Unable to fetch weather data. Please check the postcode.",
             "postcode": postcode
         }
-    
+
     daily_forecast = get_daily_forecast_by_postcode(postcode, API_KEY, days=DAYS_AHEAD)
-    
+
+    # Ensure today always appears in the forecast.
+    # The 3-hour forecast API may omit today if all its slots are in the past
+    # (e.g. fetched late in the day). Use current weather as fallback for today.
+    today_str = datetime.now(LOCAL_TZ).date().isoformat()
+    if not any(d["date"] == today_str for d in daily_forecast):
+        today_entry = {
+            "date": today_str,
+            "avg_temp": round(temp_now, 1),
+            "mainly": label_now,
+        }
+        daily_forecast = [today_entry] + daily_forecast
+
     return {
         "postcode": postcode,
         "current": {
