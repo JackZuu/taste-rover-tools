@@ -202,8 +202,7 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
     finally { setLoading(false); }
   }
 
-  async function runCustom(input?: string) {
-    const raw = input ?? customInput;
+  async function runCustom(raw: string) {
     const keywords = raw.split(",").map(k => k.trim()).filter(Boolean);
     if (!keywords.length) return;
     setCustomLoading(true); setCustomError(null); setCustomData(null);
@@ -247,7 +246,7 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
               type="text"
               value={customInput}
               onChange={e => setCustomInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && runCustom()}
+              onKeyDown={e => e.key === "Enter" && runCustom(customInput)}
               placeholder="e.g. birria tacos, smash burger, matcha"
               style={{
                 flex: 1, minWidth: "200px", padding: "9px 12px",
@@ -255,7 +254,7 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
                 fontSize: "13px", fontFamily: "'Georgia',serif", outline: "none",
               }}
             />
-            <RunBtn onClick={runCustom} loading={customLoading} label="Search" />
+            <RunBtn onClick={() => runCustom(customInput)} loading={customLoading} label="Search" />
           </div>
           {savedSearches.length > 0 && (
             <div style={{ marginTop: "10px" }}>
