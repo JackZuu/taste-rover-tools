@@ -9,6 +9,15 @@ const G = {
   amber:      "#d97706",
 };
 
+const openModBtn: React.CSSProperties = {
+  marginLeft: "auto", padding: "5px 12px",
+  border: "1.5px solid #1a5f3f", borderRadius: "20px",
+  background: "#e6f4ee", color: "#1a5f3f",
+  fontSize: "11px", fontWeight: "600",
+  cursor: "pointer", fontFamily: "'Georgia',serif",
+  WebkitTapHighlightColor: "transparent", flexShrink: 0,
+};
+
 function condIcon(c: string) {
   if (c === "mainly sun")  return "☀️";
   if (c === "mainly rain") return "🌧️";
@@ -597,7 +606,7 @@ export default function FlowScreen({
   const [celebResult,      setCelebResult]      = useState<{upcoming:Celebration[];source:string}|null>(null);
 
   const [regionStatus,     setRegionStatus]     = useState<PS>("idle");
-  const [regionResult,     setRegionResult]     = useState<{region:string;insights:RegionalInsight[]}|null>(null);
+  const [regionResult,     setRegionResult]     = useState<{region:string;insights:RegionalInsight[];source:string}|null>(null);
 
   const [competitorStatus, setCompetitorStatus] = useState<PS>("idle");
 
@@ -862,7 +871,7 @@ export default function FlowScreen({
 
           {/* ① Equipment */}
           <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="mock"
-            titleAction={<button onClick={onOpenEquipment} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${equipStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:equipStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+            titleAction={<button onClick={onOpenEquipment} style={openModBtn}>Open module →</button>}
           >
             {equipStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{equipErr}</div>}
             {equipResult&&(
@@ -886,7 +895,7 @@ export default function FlowScreen({
 
           {/* ② Supply Chain */}
           <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock"
-            titleAction={<button onClick={onOpenSupply} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${supplyStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:supplyStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+            titleAction={<button onClick={onOpenSupply} style={openModBtn}>Open module →</button>}
           >
             {supplyStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{supplyErr}</div>}
             {supplyResult&&(
@@ -925,7 +934,7 @@ export default function FlowScreen({
           {/* ③ Trends */}
           <SectionCard step={3} title="High-Level Trends" status={trendsStatus}
             dataLabel={trendsResult?.source==="google_trends"?"Google Trends":"hardcoded"}
-            titleAction={<button onClick={onOpenTrends} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${trendsStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:trendsStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+            titleAction={<button onClick={onOpenTrends} style={openModBtn}>Open module →</button>}
           >
             {trendsResult&&(
               <div style={{display:"flex",flexWrap:"wrap",gap:"6px"}}>
@@ -945,7 +954,7 @@ export default function FlowScreen({
 
           {/* ④ Historic */}
           <SectionCard step={4} title="Tasterover Historic Data" status={historicStatus} dataLabel="mock"
-            titleAction={<button onClick={onOpenHistoric} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${historicStatus==="idle"?G.green:historicStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:historicStatus==="idle"||historicStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+            titleAction={<button onClick={onOpenHistoric} style={openModBtn}>Open module →</button>}
           >
             {historicStatus==="idle"&&(
               <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
@@ -977,7 +986,7 @@ export default function FlowScreen({
 
           {/* ⑤ Seasonal */}
           <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
-            titleAction={<button onClick={onOpenSeasonal} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${seasonStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:seasonStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+            titleAction={<button onClick={onOpenSeasonal} style={openModBtn}>Open module →</button>}
           >
             {seasonResult&&(
               <div>
@@ -995,7 +1004,7 @@ export default function FlowScreen({
 
           {/* ⑥ Celebrations */}
           <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":"hardcoded"}
-            titleAction={<button onClick={onOpenCelebrations} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${celebStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:celebStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+            titleAction={<button onClick={onOpenCelebrations} style={openModBtn}>Open module →</button>}
           >
             {celebResult&&(
               <div style={{display:"flex",flexDirection:"column",gap:"6px"}}>
@@ -1013,8 +1022,8 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ⑦ Regional */}
-          <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel="hardcoded"
-            titleAction={<button onClick={onOpenRegional} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${regionStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:regionStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel={regionResult?.source==="openai"?"OpenAI":"hardcoded"}
+            titleAction={<button onClick={onOpenRegional} style={openModBtn}>Open module →</button>}
           >
             {regionResult&&(
               <div>

@@ -10,7 +10,7 @@ DATA SOURCE: OpenAI gpt-4o-mini | hardcoded fallback
 import os
 import json
 from datetime import date, timedelta
-from app.models import CelebrationEvent, CelebrationsResult
+from app.models import CelebrationEvent, CelebrationsResult, FoodSuggestion
 
 # ---------------------------------------------------------------------------
 # OpenAI availability check
@@ -25,25 +25,41 @@ except ImportError:
 # 30-minute AI cache keyed by date string
 _ai_cache: dict = {}
 
-# Annual events: (month, day, name, food_opportunity)
-# Floating holidays use approximate fixed dates for POC
-_ANNUAL_EVENTS: list[tuple[int, int, str, str]] = [
-    (1,  1,  "New Year's Day",          "Party food, champagne mocktails, canapés"),
-    (1,  25, "Burns Night",             "Haggis, neeps & tatties, cranachan"),
-    (2,  14, "Valentine's Day",         "Sharing boards, desserts, chocolates"),
-    (3,  17, "St Patrick's Day",        "Irish stew, soda bread, Guinness cake"),
-    (4,  1,  "Easter Sunday",           "Hot cross buns, simnel cake, roast lamb"),
-    (4,  23, "St George's Day",         "Fish & chips, pies, English classics"),
-    (5,  5,  "Early May Bank Holiday",  "BBQ, burgers, summer drinks"),
-    (5,  26, "Spring Bank Holiday",     "Outdoor dining, wraps, cold drinks"),
-    (6,  21, "Summer Solstice",         "Salads, cold desserts, refreshing drinks"),
-    (8,  25, "August Bank Holiday",     "BBQ, ice cream, street food"),
-    (10, 31, "Halloween",               "Pumpkin soup, spooky snacks, hot chocolate"),
-    (11, 5,  "Bonfire Night",           "Hot dogs, toffee apples, mulled cider"),
-    (11, 11, "Remembrance Sunday",      "Comfort food, warming soups"),
-    (12, 25, "Christmas Day",           "Roast turkey, mince pies, mulled wine"),
-    (12, 26, "Boxing Day",              "Leftovers specials, cold cuts, bubble & squeak"),
-    (12, 31, "New Year's Eve",          "Party platters, fizz, finger food"),
+# Annual events: (month, day, name, food_opportunity, menu_suggestions)
+# Each menu_suggestion: (name, category) — categories from taxonomy: main/snack/beverage/dessert/produce
+_ANNUAL_EVENTS: list[tuple] = [
+    (1,  1,  "New Year's Day",          "Party food and mocktails to start the year.",
+     [("Party Canapes", "snack"), ("Champagne Mocktail", "beverage"), ("Mini Sliders", "main")]),
+    (1,  25, "Burns Night",             "Scottish classics are a draw — haggis wraps and cranachan pots.",
+     [("Haggis Wrap", "main"), ("Cranachan Pot", "dessert"), ("Scotch Broth", "snack")]),
+    (2,  14, "Valentine's Day",         "Sharing boards, chocolate desserts, and indulgent bites.",
+     [("Sharing Platter", "snack"), ("Chocolate Fondant", "dessert"), ("Strawberry Prosecco Slush", "beverage")]),
+    (3,  17, "St Patrick's Day",        "Irish-inspired comfort food and stout-flavoured treats.",
+     [("Irish Stew Pot", "main"), ("Soda Bread Roll", "snack"), ("Stout Hot Chocolate", "beverage")]),
+    (4,  1,  "Easter Sunday",           "Hot cross buns, spring lamb, and seasonal produce specials.",
+     [("Spring Lamb Wrap", "main"), ("Hot Cross Bun", "dessert"), ("Elderflower Lemonade", "beverage")]),
+    (4,  23, "St George's Day",         "English classics — pies, fish and chips, and heritage produce.",
+     [("Beef & Ale Pie", "main"), ("Fish & Chips", "main"), ("English Custard Tart", "dessert")]),
+    (5,  5,  "Early May Bank Holiday",  "BBQ season opener — burgers and summer drinks.",
+     [("Smash Burger", "main"), ("BBQ Loaded Fries", "snack"), ("Lemonade", "beverage")]),
+    (5,  26, "Spring Bank Holiday",     "Outdoor dining with wraps, salads, and cold drinks.",
+     [("Chicken Wrap", "main"), ("Side Salad", "snack"), ("Iced Coffee", "beverage")]),
+    (6,  21, "Summer Solstice",         "Refreshing cold food and drinks for the longest day.",
+     [("Halloumi Skewer", "main"), ("Fruit Skewer", "dessert"), ("Watermelon Juice", "beverage")]),
+    (8,  25, "August Bank Holiday",     "Peak BBQ and ice cream weather — summer crowd pleasers.",
+     [("Grilled Chicken", "main"), ("Ice Cream Sandwich", "dessert"), ("Mango Slush", "beverage")]),
+    (10, 31, "Halloween",               "Spooky themed snacks and warming autumn drinks.",
+     [("Pumpkin Soup", "snack"), ("Toffee Apple", "dessert"), ("Spiced Hot Chocolate", "beverage")]),
+    (11, 5,  "Bonfire Night",           "Hot dogs, toffee apples, and warming cider drinks.",
+     [("Hot Dog", "main"), ("Toffee Apple", "dessert"), ("Mulled Cider", "beverage")]),
+    (11, 11, "Remembrance Sunday",      "Comforting soups and warming staples for the season.",
+     [("Tomato Soup Roll", "main"), ("Sausage Roll", "snack"), ("Tea", "beverage")]),
+    (12, 25, "Christmas Day",           "Festive roast flavours and mince pie treats.",
+     [("Turkey & Stuffing Wrap", "main"), ("Mince Pie", "dessert"), ("Mulled Wine", "beverage")]),
+    (12, 26, "Boxing Day",              "Leftover specials and comfort classics.",
+     [("Bubble & Squeak", "snack"), ("Cold Cut Wrap", "main"), ("Spiced Apple Juice", "beverage")]),
+    (12, 31, "New Year's Eve",          "Party platters and fizz for the countdown.",
+     [("Party Platter", "snack"), ("Mini Burgers", "main"), ("Sparkling Elderflower", "beverage")]),
 ]
 
 # UK school holiday approximate windows (month_start, day_start, month_end, day_end, name)
@@ -75,8 +91,12 @@ def _get_ai_celebrations(today: date, window_days: int = 90) -> list[Celebration
             f"List the next 6 upcoming UK public holidays, festivals, or food-relevant cultural events "
             f"between now and {cutoff.isoformat()}. "
             f"Return a JSON object with key \"events\" containing an array. "
-            f"Each element must have: \"name\" (string), \"date\" (YYYY-MM-DD), "
-            f"\"food_opportunity\" (1 sentence describing the food angle). "
+            f"Each element must have: "
+            f"\"name\" (string), "
+            f"\"date\" (YYYY-MM-DD), "
+            f"\"food_opportunity\" (1 concise sentence describing the food angle for a street food van), "
+            f"\"menu_suggestions\" (array of 2-4 objects each with \"name\" (title case string) and "
+            f"\"category\" (one of: main, snack, beverage, dessert, produce)). "
             f"Only include events with known fixed UK dates. Return JSON only."
         )
         response = client.chat.completions.create(
@@ -92,17 +112,27 @@ def _get_ai_celebrations(today: date, window_days: int = 90) -> list[Celebration
         if not isinstance(events_list, list):
             return None
 
+        VALID_MENU_CATS = {"main", "snack", "beverage", "dessert", "produce"}
         result: list[CelebrationEvent] = []
         for ev in events_list:
             try:
                 ev_date = date.fromisoformat(ev["date"])
                 days_away = (ev_date - today).days
                 if 0 <= days_away <= window_days:
+                    raw_suggestions = ev.get("menu_suggestions", [])
+                    suggestions = []
+                    if isinstance(raw_suggestions, list):
+                        for s in raw_suggestions:
+                            cat = s.get("category", "main")
+                            if cat not in VALID_MENU_CATS:
+                                cat = "main"
+                            suggestions.append(FoodSuggestion(name=s.get("name", ""), category=cat))
                     result.append(CelebrationEvent(
                         name=ev["name"],
                         date=ev_date.isoformat(),
                         days_away=days_away,
                         food_opportunity=ev.get("food_opportunity", ""),
+                        menu_suggestions=suggestions,
                     ))
             except (KeyError, ValueError):
                 continue
@@ -141,18 +171,20 @@ def get_celebrations(window_days: int = 90) -> CelebrationsResult:
     cutoff = today + timedelta(days=window_days)
     events: list[CelebrationEvent] = []
 
-    for month, day, name, food_opp in _ANNUAL_EVENTS:
+    for month, day, name, food_opp, suggestions_raw in _ANNUAL_EVENTS:
         try:
             event_date = _next_occurrence(month, day, today)
         except ValueError:
             continue
         if event_date <= cutoff:
             days_away = (event_date - today).days
+            suggestions = [FoodSuggestion(name=n, category=c) for n, c in suggestions_raw]
             events.append(CelebrationEvent(
                 name=name,
                 date=event_date.isoformat(),
                 days_away=days_away,
                 food_opportunity=food_opp,
+                menu_suggestions=suggestions,
             ))
 
     # Add school holidays that overlap the window
@@ -169,7 +201,12 @@ def get_celebrations(window_days: int = 90) -> CelebrationsResult:
                     name=name,
                     date=start.isoformat(),
                     days_away=days_away,
-                    food_opportunity="Family meals, kids' favourites, sharing platters",
+                    food_opportunity="Family meals and kids' favourites drive higher footfall.",
+                    menu_suggestions=[
+                        FoodSuggestion(name="Kids Sharing Platter", category="snack"),
+                        FoodSuggestion(name="Hot Dog", category="main"),
+                        FoodSuggestion(name="Ice Cream", category="dessert"),
+                    ],
                 ))
 
     events.sort(key=lambda e: e.days_away)

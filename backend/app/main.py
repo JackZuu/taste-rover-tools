@@ -198,7 +198,7 @@ def get_celebrations_endpoint():
 @app.post("/api/regional")
 def get_regional_endpoint(req: RegionRequest):
     result = get_regional_demand(req.region)
-    return {"region": result.region, "insights": [asdict(i) for i in result.insights]}
+    return {"region": result.region, "insights": [asdict(i) for i in result.insights], "source": result.source}
 
 @app.post("/api/decision")
 def get_decision_endpoint(req: DecisionRequest):

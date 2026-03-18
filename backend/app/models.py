@@ -150,11 +150,18 @@ class SeasonalResult:
 # ─── Celebrations ─────────────────────────────────────────────────────────────
 
 @dataclass
+class FoodSuggestion:
+    name: str
+    category: str   # from taxonomy: main, snack, beverage, dessert, produce, etc.
+
+
+@dataclass
 class CelebrationEvent:
     name: str
-    date: str          # ISO date string
+    date: str                # ISO date string
     days_away: int
-    food_opportunity: str
+    food_opportunity: str    # short human-readable description
+    menu_suggestions: list = field(default_factory=list)  # list[FoodSuggestion]
 
 
 @dataclass
@@ -175,6 +182,7 @@ class RegionalInsight:
 class RegionalResult:
     region: str
     insights: list[RegionalInsight] = field(default_factory=list)
+    source: str = "hardcoded"   # "openai" | "hardcoded"
 
 
 # ─── Decision + options ───────────────────────────────────────────────────────

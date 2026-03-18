@@ -462,7 +462,8 @@ export function SeasonalScreen({ onBack }: { onBack: () => void }) {
 // 4. CELEBRATIONS SCREEN
 // ─────────────────────────────────────────────────────────────────────────────
 
-type CelebrationEvent = { name: string; date: string; days_away: number; food_opportunity: string };
+type FoodSuggestion = { name: string; category: string };
+type CelebrationEvent = { name: string; date: string; days_away: number; food_opportunity: string; menu_suggestions?: FoodSuggestion[] };
 type CelebrationsData = { upcoming: CelebrationEvent[]; source: string };
 
 export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
@@ -516,12 +517,33 @@ export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
               </div>
             </div>
             <div style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>{fmtDate(ev.date)}</div>
-            <div style={{
-              fontSize: "13px", color: "#555", fontStyle: "italic",
-              padding: "8px 12px", background: "#f9f9f9", borderRadius: "8px",
-            }}>
+            <div style={{ fontSize: "12px", color: "#666", marginBottom: "8px" }}>
               {ev.food_opportunity}
             </div>
+            {ev.menu_suggestions && ev.menu_suggestions.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {ev.menu_suggestions.map((s, j) => {
+                  const catColors: Record<string, [string, string]> = {
+                    main:     ["#e6f4ee", G.green],
+                    snack:    ["#fdf3e6", "#a16207"],
+                    beverage: ["#e0f2fe", "#0369a1"],
+                    dessert:  ["#fce7f3", "#9d174d"],
+                    produce:  ["#f0fdf4", "#166534"],
+                  };
+                  const [bg2, col] = catColors[s.category] ?? ["#f0f0f0", "#555"];
+                  return (
+                    <span key={j} style={{
+                      padding: "3px 10px", borderRadius: "20px",
+                      background: bg2, color: col,
+                      fontSize: "12px", fontWeight: "600",
+                    }}>
+                      {s.name}
+                      <span style={{ fontSize: "10px", opacity: 0.7, marginLeft: "4px" }}>{s.category}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </Card>
         ))}
         {data && data.upcoming.length === 0 && (
@@ -539,7 +561,7 @@ export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type RegionalInsight = { insight: string; category: string };
-type RegionalData = { region: string; insights: RegionalInsight[] };
+type RegionalData = { region: string; insights: RegionalInsight[]; source: string };
 
 export function RegionalScreen({ onBack }: { onBack: () => void }) {
   const [region, setRegion] = useState("London");
@@ -593,8 +615,11 @@ export function RegionalScreen({ onBack }: { onBack: () => void }) {
         {error && <ErrBox msg={error} />}
         {data && (
           <Card>
-            <div style={{ fontWeight: "700", color: G.green, marginBottom: "12px", fontSize: "15px" }}>
-              Insights for {data.region}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
+              <div style={{ fontWeight: "700", color: G.green, fontSize: "15px" }}>
+                Insights for {data.region}
+              </div>
+              <SourceBadge source={data.source} />
             </div>
             {data.insights.map((ins, i) => (
               <div key={i} style={{

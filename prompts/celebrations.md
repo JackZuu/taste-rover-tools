@@ -17,7 +17,9 @@ List the next 6 upcoming UK public holidays, festivals, or food-relevant cultura
 between now and {cutoff_iso}.
 Return a JSON object with key "events" containing an array.
 Each element must have: "name" (string), "date" (YYYY-MM-DD),
-"food_opportunity" (1 sentence describing the food angle).
+"food_opportunity" (1 concise sentence describing the food angle for a street food van),
+"menu_suggestions" (array of 2-4 objects each with "name" (title case string) and
+"category" (one of: main, snack, beverage, dessert, produce)).
 Only include events with known fixed UK dates. Return JSON only.
 ```
 
@@ -35,9 +37,13 @@ Only include events with known fixed UK dates. Return JSON only.
     {
       "name": "St Patrick's Day",
       "date": "2026-03-17",
-      "food_opportunity": "Irish stew, soda bread, and Guinness-inspired bakes are crowd-pleasers."
-    },
-    ...
+      "food_opportunity": "Irish-inspired comfort food and stout-flavoured treats work well on the day.",
+      "menu_suggestions": [
+        { "name": "Irish Stew Pot",   "category": "main" },
+        { "name": "Soda Bread Roll",  "category": "snack" },
+        { "name": "Stout Hot Chocolate", "category": "beverage" }
+      ]
+    }
   ]
 }
 ```
