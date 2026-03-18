@@ -164,7 +164,8 @@ type Supplier       = {name:string; distance_miles:number; lead_time_hours:numbe
 type InvItem        = {name:string; category:string; status:"in_stock"|"low"|"out"};
 type TrendItem      = {label:string; direction:"up"|"down"|"stable"; category:string; momentum_pct?:number; avg_interest?:number};
 type SeasonalItem   = {name:string; category:string};
-type Celebration    = {name:string; date:string; days_away:number; food_opportunity:string};
+type FoodSuggestion = {name:string; category:string};
+type Celebration    = {name:string; date:string; days_away:number; food_opportunity:string; menu_suggestions?:FoodSuggestion[]};
 type RegionalInsight= {insight:string; category:string};
 type MenuOption     = {name:string; category:string; weather_fit:string; emoji:string};
 type NutritionItem  = {ingredient:string; assumed_amount:string; calories_kcal:number; notes:string};
@@ -284,28 +285,37 @@ type SectionCardProps = {
   dataLabel?:string; children?:React.ReactNode; titleAction?:React.ReactNode;
 };
 function SectionCard({step,title,status,dataLabel,children,titleAction}:SectionCardProps) {
-  const borderColor = status==="done"?"#b2d8c5":status==="error"?G.red:status==="loading"?"#ccc":"#e8e8e8";
+  const borderColor = status==="done"?"#b2d8c5":status==="error"?G.red:status==="loading"?G.greenLight:"#e8e8e8";
   return (
     <div style={{
       background:G.card, borderRadius:"16px", border:`2px solid ${borderColor}`,
       padding:"18px 22px", marginBottom:"14px",
       boxShadow:status==="done"?"0 4px 14px rgba(26,95,63,0.09)":"0 2px 6px rgba(0,0,0,0.05)",
       transition:"border-color 0.3s,box-shadow 0.3s",
+      overflow:"hidden", position:"relative",
     }}>
+      {status==="loading"&&(
+        <div style={{
+          position:"absolute", top:0, left:0, right:0, height:"3px",
+          background:`linear-gradient(90deg,${G.green},${G.greenLight},${G.green})`,
+          backgroundSize:"200% 100%",
+          animation:"pulse-bar 1.4s ease infinite",
+        }}/>
+      )}
       <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:children?12:0}}>
         <div style={{
           width:26,height:26,borderRadius:"50%",flexShrink:0,
-          background:status==="done"?G.green:status==="error"?G.red:"#ddd",
+          background:status==="done"?G.green:status==="error"?G.red:status==="loading"?G.greenLight:"#ddd",
           color:"#fff",display:"flex",alignItems:"center",
           justifyContent:"center",fontSize:"12px",fontWeight:"700",
           transition:"background 0.3s",
         }}>{status==="loading"?"…":step}</div>
         <div style={{
           fontSize:"clamp(14px,3.2vw,16px)",fontWeight:"700",flex:1,
-          color:status==="done"?G.green:status==="error"?G.red:"#bbb",
+          color:status==="done"?G.green:status==="error"?G.red:status==="loading"?G.greenLight:"#bbb",
           letterSpacing:"0.4px",transition:"color 0.3s",
         }}>{title}</div>
-        {status==="loading"&&<span style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>Loading…</span>}
+        {status==="loading"&&<span style={{fontSize:"12px",color:G.greenLight,fontStyle:"italic",fontWeight:"600"}}>Working…</span>}
         {titleAction}
       </div>
       {children && dataLabel && <MockLabel label={dataLabel}/>}
@@ -606,7 +616,7 @@ export default function FlowScreen({
   const [celebResult,      setCelebResult]      = useState<{upcoming:Celebration[];source:string}|null>(null);
 
   const [regionStatus,     setRegionStatus]     = useState<PS>("idle");
-  const [regionResult,     setRegionResult]     = useState<{region:string;insights:RegionalInsight[];source:string}|null>(null);
+  const [regionResult,     setRegionResult]     = useState<{region:string;insights:RegionalInsight[];menu_suggestions?:FoodSuggestion[];source:string}|null>(null);
 
   const [competitorStatus, setCompetitorStatus] = useState<PS>("idle");
 
@@ -937,17 +947,41 @@ export default function FlowScreen({
             titleAction={<button onClick={onOpenTrends} style={openModBtn}>Open module →</button>}
           >
             {trendsResult&&(
-              <div style={{display:"flex",flexWrap:"wrap",gap:"6px"}}>
-                {trendsResult.trends.map((t,i)=>{
-                  const icon = t.direction==="up"?"📈":t.direction==="down"?"📉":"➡️";
-                  const bg   = t.direction==="up"?"#e6f4ee":t.direction==="down"?"#fdecea":"#f0f0f0";
-                  const col  = t.direction==="up"?G.green:t.direction==="down"?G.red:"#555";
-                  return(
-                    <div key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600",display:"flex",alignItems:"center",gap:"4px"}}>
-                      {icon} {t.label}
+              <div>
+                {trendsResult.trends.filter(t=>t.direction==="up").length>0&&(
+                  <div style={{marginBottom:"8px"}}>
+                    <div style={{fontSize:"11px",color:"#888",marginBottom:"5px",textTransform:"uppercase",letterSpacing:"0.4px"}}>Rising trends — influencing menu</div>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
+                      {trendsResult.trends.filter(t=>t.direction==="up").map((t,i)=>{
+                        const catColors: Record<string,[string,string]> = {
+                          main:["#e6f4ee",G.green], snack:["#fdf3e6","#a16207"],
+                          beverage:["#e0f2fe","#0369a1"], dessert:["#fce7f3","#9d174d"],
+                          cuisine:["#ede9fe","#6d28d9"], produce:["#f0fdf4","#166534"],
+                        };
+                        const [bg,col] = catColors[t.category]??["#e6f4ee",G.green];
+                        return(
+                          <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600"}}>
+                            📈 {t.label}
+                          </span>
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                  </div>
+                )}
+                {trendsResult.trends.filter(t=>t.direction!=="up").length>0&&(
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
+                    {trendsResult.trends.filter(t=>t.direction!=="up").map((t,i)=>{
+                      const icon = t.direction==="down"?"📉":"➡️";
+                      const bg   = t.direction==="down"?"#fdecea":"#f0f0f0";
+                      const col  = t.direction==="down"?G.red:"#555";
+                      return(
+                        <span key={i} style={{padding:"3px 8px",borderRadius:"20px",background:bg,color:col,fontSize:"11px",fontWeight:"500"}}>
+                          {icon} {t.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </SectionCard>
@@ -990,13 +1024,23 @@ export default function FlowScreen({
           >
             {seasonResult&&(
               <div>
-                <div style={{fontSize:"12px",color:"#888",marginBottom:"8px"}}>Currently in season — <strong>{seasonResult.month}</strong></div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:"6px"}}>
-                  {seasonResult.items.map((item,i)=>(
-                    <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:"#e6f4ee",color:G.green,fontSize:"12px",fontWeight:"600"}}>
-                      🌿 {item.name}
-                    </span>
-                  ))}
+                <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>In season — <strong style={{color:G.green}}>{seasonResult.month}</strong> — use in menu</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
+                  {seasonResult.items.map((item,i)=>{
+                    const catColors: Record<string,[string,string]> = {
+                      produce:["#e6f4ee",G.green], protein:["#fdf3e6","#a16207"],
+                      seafood:["#e0f2fe","#0369a1"], game:["#fdf3e6","#92400e"],
+                      dairy:["#fce7f3","#9d174d"], dessert:["#fce7f3","#9d174d"],
+                      beverage:["#e0f2fe","#0369a1"], grain:["#fefce8","#92400e"],
+                    };
+                    const [bg,col] = catColors[item.category]??["#e6f4ee",G.green];
+                    return(
+                      <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600"}}>
+                        {item.name}
+                        <span style={{fontSize:"10px",opacity:0.65,marginLeft:"4px"}}>{item.category}</span>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -1006,19 +1050,38 @@ export default function FlowScreen({
           <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":"hardcoded"}
             titleAction={<button onClick={onOpenCelebrations} style={openModBtn}>Open module →</button>}
           >
-            {celebResult&&(
-              <div style={{display:"flex",flexDirection:"column",gap:"6px"}}>
-                {celebResult.upcoming.map((ev,i)=>(
-                  <div key={i} style={{padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px"}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"2px"}}>
-                      <span style={{fontSize:"13px",fontWeight:"600",color:"#333"}}>{ev.name}</span>
-                      <span style={{fontSize:"11px",color:"#888",flexShrink:0,marginLeft:"8px"}}>{ev.days_away===0?"Today":`in ${ev.days_away}d`}</span>
+            {celebResult&&(()=>{
+              const catColors: Record<string,[string,string]> = {
+                main:["#e6f4ee",G.green], snack:["#fdf3e6","#a16207"],
+                beverage:["#e0f2fe","#0369a1"], dessert:["#fce7f3","#9d174d"],
+                produce:["#f0fdf4","#166534"],
+              };
+              return(
+                <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+                  {celebResult.upcoming.slice(0,3).map((ev,i)=>(
+                    <div key={i} style={{padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"5px"}}>
+                        <span style={{fontSize:"13px",fontWeight:"600",color:"#333"}}>{ev.name}</span>
+                        <span style={{fontSize:"11px",color:"#888",flexShrink:0,marginLeft:"8px"}}>{ev.days_away===0?"Today":`in ${ev.days_away}d`}</span>
+                      </div>
+                      {ev.menu_suggestions&&ev.menu_suggestions.length>0&&(
+                        <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
+                          {ev.menu_suggestions.map((s,j)=>{
+                            const [bg,col] = catColors[s.category]??["#f0f0f0","#555"];
+                            return(
+                              <span key={j} style={{padding:"3px 8px",borderRadius:"20px",background:bg,color:col,fontSize:"11px",fontWeight:"600"}}>
+                                {s.name}
+                                <span style={{fontSize:"9px",opacity:0.65,marginLeft:"3px"}}>{s.category}</span>
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                    <div style={{fontSize:"11px",color:"#777",fontStyle:"italic"}}>{ev.food_opportunity}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              );
+            })()}
           </SectionCard>
 
           {/* ⑦ Regional */}
@@ -1027,17 +1090,32 @@ export default function FlowScreen({
           >
             {regionResult&&(
               <div>
-                <div style={{fontSize:"12px",color:"#888",marginBottom:"8px"}}>Insights for <strong>{regionResult.region}</strong></div>
-                {regionResult.insights.map((ins,i)=>{
-                  const catColor = ins.category==="demand"?"#e0eeff":ins.category==="trend"?"#e6f4ee":"#fdf3e6";
-                  const catLabel = ins.category==="demand"?"Demand":ins.category==="trend"?"Trend":"Preference";
+                {regionResult.menu_suggestions&&regionResult.menu_suggestions.length>0&&(()=>{
+                  const catColors: Record<string,[string,string]> = {
+                    main:["#e6f4ee",G.green], snack:["#fdf3e6","#a16207"],
+                    beverage:["#e0f2fe","#0369a1"], dessert:["#fce7f3","#9d174d"],
+                    produce:["#f0fdf4","#166534"],
+                  };
                   return(
-                    <div key={i} style={{display:"flex",gap:"8px",alignItems:"flex-start",padding:"6px 0",borderBottom:i<regionResult.insights.length-1?"1px solid #f0f0f0":"none"}}>
-                      <span style={{padding:"2px 7px",borderRadius:"10px",background:catColor,fontSize:"10px",fontWeight:"600",color:"#555",flexShrink:0,marginTop:"1px"}}>{catLabel}</span>
-                      <span style={{fontSize:"13px",color:"#333"}}>{ins.insight}</span>
+                    <div>
+                      <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>Regional menu items — <strong style={{color:G.green}}>{regionResult.region}</strong></div>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"8px"}}>
+                        {regionResult.menu_suggestions!.map((s,i)=>{
+                          const [bg,col] = catColors[s.category]??["#f0f0f0","#555"];
+                          return(
+                            <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600"}}>
+                              {s.name}
+                              <span style={{fontSize:"10px",opacity:0.65,marginLeft:"4px"}}>{s.category}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
-                })}
+                })()}
+                <div style={{fontSize:"11px",color:"#aaa",fontStyle:"italic"}}>
+                  {regionResult.insights.length} demand insights available — open module for details
+                </div>
               </div>
             )}
           </SectionCard>
@@ -1111,23 +1189,11 @@ export default function FlowScreen({
           {/* ⑨ Weather */}
           <SectionCard
             step={9} title="Weather" status={weatherStatus==="idle"?"done":weatherStatus}
-            titleAction={
-              <button onClick={onOpenWeather}
-                style={{
-                  marginLeft:"auto", padding:"4px 10px",
-                  border:`1.5px solid ${weatherStatus==="idle"?G.green:"rgba(255,255,255,0.6)"}`, borderRadius:"20px",
-                  background:"transparent", color:weatherStatus==="idle"?G.green:"#fff",
-                  fontSize:"11px", fontWeight:"600", cursor:"pointer",
-                  fontFamily:"'Georgia',serif", WebkitTapHighlightColor:"transparent",
-                  flexShrink:0,
-                }}>
-                Open tool →
-              </button>
-            }
+            titleAction={<button onClick={onOpenWeather} style={openModBtn}>Open module →</button>}
           >
             {weatherStatus==="idle"&&(
               <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
-                Click <strong style={{color:G.green}}>Open tool →</strong> to check weather independently, or run the full flow above.
+                Run the full flow above, or open the Weather module independently.
               </div>
             )}
             {weatherStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{weatherErr}</div>}

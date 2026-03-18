@@ -140,9 +140,26 @@ export default function App() {
   
   // Weather state
   const [postcode, setPostcode] = useState("");
+  const [weatherInputMode, setWeatherInputMode] = useState<"postcode"|"region">("postcode");
+  const [weatherRegion, setWeatherRegion] = useState<string|null>(null);
   const [weather, setWeather] = useState<WeatherResponse | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+
+  const WEATHER_REGIONS = [
+    { label: "London",          postcode: "SW1A 1AA" },
+    { label: "South East",      postcode: "RH1 1AA" },
+    { label: "South West",      postcode: "BS1 4ST" },
+    { label: "East of England", postcode: "CB2 1TN" },
+    { label: "East Midlands",   postcode: "NG1 5FB" },
+    { label: "West Midlands",   postcode: "B1 1BB" },
+    { label: "Yorks & Humber",  postcode: "LS1 3AA" },
+    { label: "North West",      postcode: "M1 1AE" },
+    { label: "North East",      postcode: "NE1 7RU" },
+    { label: "Wales",           postcode: "CF10 3NQ" },
+    { label: "Scotland",        postcode: "EH1 1YZ" },
+    { label: "N. Ireland",      postcode: "BT1 2LA" },
+  ];
 
   // Nutrition state
   const [ingredientsText, setIngredientsText] = useState("");
@@ -1493,58 +1510,55 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{
-          maxWidth: "600px",
-          margin: "0 auto clamp(24px, 6vw, 40px)",
-          padding: "0 16px"
-        }}>
-          <div style={{
-            background: "#f5f1e8",
-            borderRadius: "50px",
-            padding: "6px 16px",
-            display: "flex",
-            alignItems: "center",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            gap: "8px"
-          }}>
-            <input
-              value={postcode}
-              onChange={(e) => setPostcode(e.target.value)}
-              onKeyPress={handleWeatherKeyPress}
-              placeholder="Enter UK postcode"
-              style={{
-                flex: 1,
-                border: "none",
-                background: "transparent",
-                padding: "10px 8px",
-                fontSize: "clamp(14px, 3.5vw, 16px)",
-                outline: "none",
-                fontFamily: "'Georgia', serif"
-              }}
-            />
-            <button
-              onClick={getWeather}
-              disabled={weatherLoading || !postcode.trim()}
-              style={{
-                background: "#1a5f3f",
-                color: "#f5f1e8",
-                border: "none",
-                borderRadius: "50px",
-                padding: "10px clamp(16px, 5vw, 32px)",
-                fontSize: "clamp(13px, 3.5vw, 16px)",
-                fontWeight: "600",
-                cursor: weatherLoading || !postcode.trim() ? "not-allowed" : "pointer",
-                opacity: weatherLoading || !postcode.trim() ? 0.6 : 1,
-                transition: "all 0.3s",
-                fontFamily: "'Georgia', serif",
-                letterSpacing: "1px",
-                whiteSpace: "nowrap",
-                WebkitTapHighlightColor: "transparent"
-              }}
-            >
-              {weatherLoading ? "Loading..." : "Check"}
-            </button>
+        <div style={{ maxWidth: "600px", margin: "0 auto clamp(24px, 6vw, 40px)", padding: "0 16px" }}>
+          {/* Mode tabs */}
+          <div style={{ display: "flex", borderRadius: "10px", overflow: "hidden", border: "2px solid rgba(255,255,255,0.4)", marginBottom: "12px" }}>
+            {(["postcode", "region"] as const).map(mode => (
+              <button key={mode} onClick={() => { setWeatherInputMode(mode); setWeather(null); setWeatherError(null); setWeatherRegion(null); }}
+                style={{
+                  flex: 1, padding: "9px", border: "none",
+                  background: weatherInputMode === mode ? "rgba(255,255,255,0.95)" : "transparent",
+                  color: weatherInputMode === mode ? "#1a5f3f" : "#f5f1e8",
+                  fontWeight: "600", fontSize: "13px", cursor: "pointer",
+                  fontFamily: "'Georgia',serif", WebkitTapHighlightColor: "transparent",
+                  textTransform: "capitalize",
+                }}>
+                {mode === "postcode" ? "Postcode" : "UK Region"}
+              </button>
+            ))}
           </div>
+
+          {weatherInputMode === "postcode" ? (
+            <div style={{ background: "#f5f1e8", borderRadius: "50px", padding: "6px 16px", display: "flex", alignItems: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", gap: "8px" }}>
+              <input
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
+                onKeyPress={handleWeatherKeyPress}
+                placeholder="Enter UK postcode"
+                style={{ flex: 1, border: "none", background: "transparent", padding: "10px 8px", fontSize: "clamp(14px, 3.5vw, 16px)", outline: "none", fontFamily: "'Georgia', serif" }}
+              />
+              <button onClick={getWeather} disabled={weatherLoading || !postcode.trim()}
+                style={{ background: "#1a5f3f", color: "#f5f1e8", border: "none", borderRadius: "50px", padding: "10px clamp(16px, 5vw, 32px)", fontSize: "clamp(13px, 3.5vw, 16px)", fontWeight: "600", cursor: weatherLoading || !postcode.trim() ? "not-allowed" : "pointer", opacity: weatherLoading || !postcode.trim() ? 0.6 : 1, transition: "all 0.3s", fontFamily: "'Georgia', serif", letterSpacing: "1px", whiteSpace: "nowrap", WebkitTapHighlightColor: "transparent" }}>
+                {weatherLoading ? "Loading..." : "Check"}
+              </button>
+            </div>
+          ) : (
+            <div style={{ background: "rgba(255,255,255,0.95)", borderRadius: "16px", padding: "16px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginBottom: "12px" }}>
+                {WEATHER_REGIONS.map(r => (
+                  <button key={r.label} onClick={() => { setWeatherRegion(r.label); setPostcode(r.postcode); setWeather(null); setWeatherError(null); }}
+                    style={{ padding: "8px 6px", borderRadius: "8px", border: `2px solid ${weatherRegion === r.label ? "#1a5f3f" : "#ddd"}`, background: weatherRegion === r.label ? "#e6f4ee" : "#fafafa", color: weatherRegion === r.label ? "#1a5f3f" : "#444", fontSize: "12px", fontWeight: weatherRegion === r.label ? "700" : "500", cursor: "pointer", fontFamily: "'Georgia',serif", WebkitTapHighlightColor: "transparent", textAlign: "center" }}>
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+              {weatherRegion && <div style={{ fontSize: "11px", color: "#888", textAlign: "center", marginBottom: "10px" }}>Using postcode: <strong>{WEATHER_REGIONS.find(r => r.label === weatherRegion)?.postcode}</strong></div>}
+              <button onClick={getWeather} disabled={weatherLoading || !weatherRegion}
+                style={{ width: "100%", background: weatherLoading || !weatherRegion ? "#ccc" : "#1a5f3f", color: "#fff", border: "none", borderRadius: "10px", padding: "11px", fontSize: "14px", fontWeight: "700", cursor: weatherLoading || !weatherRegion ? "not-allowed" : "pointer", fontFamily: "'Georgia',serif", WebkitTapHighlightColor: "transparent" }}>
+                {weatherLoading ? "Loading..." : weatherRegion ? `Check ${weatherRegion}` : "Select a region"}
+              </button>
+            </div>
+          )}
         </div>
 
         {weatherError && (

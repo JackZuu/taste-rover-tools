@@ -177,18 +177,29 @@ function TrendsGrid({ data }: { data: TrendsData }) {
   );
 }
 
+// A saved custom search: the query string + cached result data
+type SavedSearch = { query: string; data: TrendsData };
+
+const LS_KEY = "tr_custom_trends_history";
+
+function loadSavedSearches(): string[] {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) ?? "[]"); } catch { return []; }
+}
+
+function persistSavedSearches(list: string[]) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch {}
+}
+
 export function TrendsScreen({ onBack }: { onBack: () => void }) {
   const [data, setData] = useState<TrendsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Custom keyword search — history persisted in localStorage
-  const LS_KEY = "tr_custom_trends_history";
+  // Custom searches: list of {query, data} — queries persisted in localStorage
   const [customInput, setCustomInput] = useState("");
-  const [savedSearches, setSavedSearches] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) ?? "[]"); } catch { return []; }
-  });
-  const [customData, setCustomData] = useState<TrendsData | null>(null);
+  const [savedQueries, setSavedQueries] = useState<string[]>(loadSavedSearches);
+  // In-memory results for each saved query (keyed by query string)
+  const [searchResults, setSearchResults] = useState<Record<string, TrendsData>>({});
   const [customLoading, setCustomLoading] = useState(false);
   const [customError, setCustomError] = useState<string | null>(null);
 
@@ -205,7 +216,8 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
   async function runCustom(raw: string) {
     const keywords = raw.split(",").map(k => k.trim()).filter(Boolean);
     if (!keywords.length) return;
-    setCustomLoading(true); setCustomError(null); setCustomData(null);
+    const entry = keywords.join(", ");
+    setCustomLoading(true); setCustomError(null);
     try {
       const r = await fetch("/api/trends/custom", {
         method: "POST",
@@ -213,16 +225,27 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
         body: JSON.stringify({ keywords }),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      setCustomData(await r.json());
-      // Save to history (dedupe, newest first, max 10)
-      const entry = keywords.join(", ");
-      setSavedSearches(prev => {
+      const result: TrendsData = await r.json();
+      // Save result in-memory
+      setSearchResults(prev => ({ ...prev, [entry]: result }));
+      // Add query to saved list (dedupe, newest first, max 10)
+      setSavedQueries(prev => {
         const next = [entry, ...prev.filter(s => s !== entry)].slice(0, 10);
-        try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
+        persistSavedSearches(next);
         return next;
       });
+      setCustomInput("");
     } catch (e: any) { setCustomError(e?.message ?? "Failed to load"); }
     finally { setCustomLoading(false); }
+  }
+
+  function removeSearch(query: string) {
+    setSavedQueries(prev => {
+      const next = prev.filter(s => s !== query);
+      persistSavedSearches(next);
+      return next;
+    });
+    setSearchResults(prev => { const n = { ...prev }; delete n[query]; return n; });
   }
 
   useEffect(() => { fetch_(); }, []);
@@ -231,15 +254,15 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
     <div style={bg}>
       <BackBtn onClick={onBack} />
       <PageTitle title="Food & Drink Trends" sub="UK consumer search interest" />
-      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
 
-        {/* Custom keyword search */}
+        {/* Custom keyword search input */}
         <Card>
           <div style={{ fontWeight: "700", color: G.green, marginBottom: "10px", fontSize: "14px" }}>
             🔍 Custom Keyword Search
           </div>
           <div style={{ fontSize: "12px", color: "#888", marginBottom: "10px" }}>
-            Enter up to 5 keywords separated by commas to see their Google Trends performance.
+            Enter up to 5 keywords separated by commas. Results appear as columns below.
           </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <input
@@ -256,41 +279,97 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
             />
             <RunBtn onClick={() => runCustom(customInput)} loading={customLoading} label="Search" />
           </div>
-          {savedSearches.length > 0 && (
-            <div style={{ marginTop: "10px" }}>
-              <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Saved searches</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                {savedSearches.map((s, i) => (
-                  <button key={i} onClick={() => { setCustomInput(s); runCustom(s); }}
-                    style={{ padding: "3px 10px", borderRadius: "20px", border: `1px solid #ddd`, background: "#f9f9f9", color: "#555", fontSize: "12px", cursor: "pointer", fontFamily: "'Georgia',serif", WebkitTapHighlightColor: "transparent" }}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
           {customError && <ErrBox msg={customError} />}
-          {customData && (
-            <div style={{ marginTop: "14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                <div style={{ fontSize: "13px", fontWeight: "600", color: "#555" }}>Results</div>
-                <SourceBadge source={customData.source} />
-              </div>
-              <TrendsGrid data={customData} />
-            </div>
-          )}
         </Card>
 
-        {/* Pre-built trend categories */}
+        {/* Unified trends grid: category columns + custom search columns */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "4px 0 16px" }}>
-          <div style={{ fontSize: "14px", fontWeight: "700", color: G.cream }}>Category Trends</div>
+          <div style={{ fontSize: "14px", fontWeight: "700", color: G.cream }}>
+            Trends
+            {savedQueries.length > 0 && (
+              <span style={{ fontSize: "12px", fontWeight: "400", opacity: 0.7, marginLeft: "8px" }}>
+                ({savedQueries.length} custom search{savedQueries.length > 1 ? "es" : ""})
+              </span>
+            )}
+          </div>
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             {data && <SourceBadge source={data.source} />}
             <RunBtn onClick={fetch_} loading={loading} />
           </div>
         </div>
         {error && <ErrBox msg={error} />}
-        {data && <TrendsGrid data={data} />}
+
+        {/* Render category grid + custom search columns side-by-side */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "16px" }}>
+          {/* Category direction columns */}
+          {data && (() => {
+            const rising  = data.trends.filter(t => t.direction === "up");
+            const stable  = data.trends.filter(t => t.direction === "stable");
+            const falling = data.trends.filter(t => t.direction === "down");
+            return (
+              <>
+                {rising.length > 0 && (
+                  <Card>
+                    <div style={{ fontWeight: "700", color: G.green, marginBottom: "12px", fontSize: "14px" }}>📈 Rising ({rising.length})</div>
+                    {rising.map((t, i) => <TrendBadge key={i} t={t} />)}
+                  </Card>
+                )}
+                {stable.length > 0 && (
+                  <Card>
+                    <div style={{ fontWeight: "700", color: "#555", marginBottom: "12px", fontSize: "14px" }}>➡️ Stable ({stable.length})</div>
+                    {stable.map((t, i) => <TrendBadge key={i} t={t} />)}
+                  </Card>
+                )}
+                {falling.length > 0 && (
+                  <Card>
+                    <div style={{ fontWeight: "700", color: G.red, marginBottom: "12px", fontSize: "14px" }}>📉 Declining ({falling.length})</div>
+                    {falling.map((t, i) => <TrendBadge key={i} t={t} />)}
+                  </Card>
+                )}
+              </>
+            );
+          })()}
+
+          {/* Custom search columns */}
+          {savedQueries.map((query, qi) => {
+            const result = searchResults[query];
+            return (
+              <Card key={qi} style={{ borderTop: `3px solid ${G.greenLight}` }}>
+                {/* Column header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+                  <div>
+                    <div style={{ fontWeight: "700", color: G.green, fontSize: "13px", marginBottom: "2px" }}>
+                      🔍 {query}
+                    </div>
+                    {result && <SourceBadge source={result.source} />}
+                  </div>
+                  <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                    {!result && (
+                      <button onClick={() => runCustom(query)}
+                        style={{ padding: "3px 8px", borderRadius: "6px", border: `1px solid ${G.green}`, background: "#e6f4ee", color: G.green, fontSize: "11px", cursor: "pointer", fontFamily: "'Georgia',serif" }}>
+                        Load
+                      </button>
+                    )}
+                    <button onClick={() => removeSearch(query)}
+                      style={{ padding: "2px 6px", borderRadius: "6px", border: "1px solid #ddd", background: "#f9f9f9", color: "#888", fontSize: "12px", cursor: "pointer", lineHeight: "1.4" }}
+                      title="Remove search">
+                      ✕
+                    </button>
+                  </div>
+                </div>
+                {!result && (
+                  <div style={{ color: "#aaa", fontStyle: "italic", fontSize: "12px" }}>
+                    Click Load to fetch results
+                  </div>
+                )}
+                {result && result.trends.map((t, i) => <TrendBadge key={i} t={t} />)}
+                {result && result.trends.length === 0 && (
+                  <div style={{ color: "#aaa", fontStyle: "italic", fontSize: "12px" }}>No data returned.</div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
