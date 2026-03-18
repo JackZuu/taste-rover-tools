@@ -90,20 +90,46 @@ class SupplyChainResult:
 @dataclass
 class TrendItem:
     label: str
-    direction: str    # "up" | "down" | "stable"
-    category: str     # e.g. "beverage", "snack", "protein"
+    direction: str      # "up" | "down" | "stable"
+    category: str       # e.g. "beverage", "snack", "main", "cuisine"
+    momentum_pct: float = 0.0
+    avg_interest: float = 0.0
 
 
 @dataclass
 class TrendsResult:
     trends: list[TrendItem] = field(default_factory=list)
+    source: str = "hardcoded"   # "google_trends" | "hardcoded"
 
 
 # ─── Historic ─────────────────────────────────────────────────────────────────
 
 @dataclass
+class HistoricDailyStat:
+    date: str                   # ISO date
+    total_covers: int
+    total_revenue_gbp: float
+    top_meal: str
+
+
+@dataclass
+class HistoricTopMeal:
+    meal_name: str
+    category: str
+    total_qty: int
+    total_revenue_gbp: float
+    pct_of_total: float         # % of 30-day revenue
+
+
+@dataclass
 class HistoricResult:
-    message: str = "No data available"
+    daily_stats: list = field(default_factory=list)   # list[HistoricDailyStat]
+    top_meals: list = field(default_factory=list)     # list[HistoricTopMeal]
+    total_revenue_gbp: float = 0.0
+    avg_daily_covers: int = 0
+    best_day: str = ""
+    source: str = "mock"
+    message: str = ""           # kept for backward compat
 
 
 # ─── Seasonal ─────────────────────────────────────────────────────────────────

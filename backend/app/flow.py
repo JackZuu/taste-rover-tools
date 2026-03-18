@@ -92,7 +92,14 @@ def run_flow(postcode: str, date: str, van_id: str = "van_alpha", region: str = 
             "inventory": [asdict(i) for i in supply_result.inventory],
         },
         "trends": {"trends": [asdict(t) for t in trends_result.trends]},
-        "historic": {"message": historic_result.message},
+        "historic": {
+            "daily_stats":       [asdict(d) for d in historic_result.daily_stats],
+            "top_meals":         [asdict(m) for m in historic_result.top_meals],
+            "total_revenue_gbp": historic_result.total_revenue_gbp,
+            "avg_daily_covers":  historic_result.avg_daily_covers,
+            "best_day":          historic_result.best_day,
+            "source":            historic_result.source,
+        },
         "seasonal": {
             "month": seasonal_result.month,
             "items": [asdict(i) for i in seasonal_result.items],

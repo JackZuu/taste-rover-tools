@@ -153,7 +153,7 @@ type Van            = {id:string; name:string; base_location:string; postcode:st
 type EqItem         = {name:string; available:boolean};
 type Supplier       = {name:string; distance_miles:number; lead_time_hours:number; categories:string[]; reliability_pct:number};
 type InvItem        = {name:string; category:string; status:"in_stock"|"low"|"out"};
-type TrendItem      = {label:string; direction:"up"|"down"|"stable"; category:string};
+type TrendItem      = {label:string; direction:"up"|"down"|"stable"; category:string; momentum_pct?:number; avg_interest?:number};
 type SeasonalItem   = {name:string; category:string};
 type Celebration    = {name:string; date:string; days_away:number; food_opportunity:string};
 type RegionalInsight= {insight:string; category:string};
@@ -518,12 +518,26 @@ export default function FlowScreen({
   onOpenBurgerKing,
   onOpenGreggs,
   onOpenNutrition,
+  onOpenTrends,
+  onOpenHistoric,
+  onOpenSeasonal,
+  onOpenCelebrations,
+  onOpenRegional,
+  onOpenEquipment,
+  onOpenSupply,
 }: {
   onOpenWeather: () => void;
   onOpenMcDonalds: () => void;
   onOpenBurgerKing: () => void;
   onOpenGreggs: () => void;
   onOpenNutrition: () => void;
+  onOpenTrends: () => void;
+  onOpenHistoric: () => void;
+  onOpenSeasonal: () => void;
+  onOpenCelebrations: () => void;
+  onOpenRegional: () => void;
+  onOpenEquipment: () => void;
+  onOpenSupply: () => void;
 }) {
   const [vans, setVans] = useState<Van[]>([]);
   const [selectedVan, setSelectedVan] = useState<string>("van_alpha");
@@ -566,10 +580,15 @@ export default function FlowScreen({
   const [supplyErr,        setSupplyErr]        = useState<string|null>(null);
 
   const [trendsStatus,     setTrendsStatus]     = useState<PS>("idle");
-  const [trendsResult,     setTrendsResult]     = useState<{trends:TrendItem[]}|null>(null);
+  const [trendsResult,     setTrendsResult]     = useState<{trends:TrendItem[];source:string}|null>(null);
 
+  type HistoricData = {
+    daily_stats:{date:string;total_covers:number;total_revenue_gbp:number;top_meal:string}[];
+    top_meals:{meal_name:string;category:string;total_qty:number;total_revenue_gbp:number;pct_of_total:number}[];
+    total_revenue_gbp:number; avg_daily_covers:number; best_day:string; source:string;
+  };
   const [historicStatus,   setHistoricStatus]   = useState<PS>("idle");
-  const [historicMsg,      setHistoricMsg]      = useState<string|null>(null);
+  const [historicData,     setHistoricData]     = useState<HistoricData|null>(null);
 
   const [seasonStatus,     setSeasonStatus]     = useState<PS>("idle");
   const [seasonResult,     setSeasonResult]     = useState<{month:string;items:SeasonalItem[]}|null>(null);
@@ -603,7 +622,7 @@ export default function FlowScreen({
     setEquipStatus("idle");      setEquipResult(null);   setEquipErr(null);
     setSupplyStatus("idle");     setSupplyResult(null);  setSupplyErr(null);
     setTrendsStatus("idle");     setTrendsResult(null);
-    setHistoricStatus("idle");   setHistoricMsg(null);
+    setHistoricStatus("idle");   setHistoricData(null);
     setSeasonStatus("idle");     setSeasonResult(null);
     setCelebStatus("idle");      setCelebResult(null);
     setRegionStatus("idle");     setRegionResult(null);
@@ -657,7 +676,7 @@ export default function FlowScreen({
     if (tr.status==="fulfilled")  { setTrendsResult(tr.value);  setTrendsStatus("done"); }
     else                           setTrendsStatus("error");
 
-    if (hi.status==="fulfilled")  { setHistoricMsg(hi.value.message); setHistoricStatus("done"); }
+    if (hi.status==="fulfilled")  { setHistoricData(hi.value); setHistoricStatus("done"); }
     else                           setHistoricStatus("error");
 
     if (sea.status==="fulfilled") { setSeasonResult(sea.value); setSeasonStatus("done"); }
@@ -842,7 +861,9 @@ export default function FlowScreen({
           )}
 
           {/* ① Equipment */}
-          <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="mock">
+          <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="mock"
+            titleAction={<button onClick={onOpenEquipment} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${equipStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:equipStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          >
             {equipStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{equipErr}</div>}
             {equipResult&&(
               <div>
@@ -864,7 +885,9 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ② Supply Chain */}
-          <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock">
+          <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock"
+            titleAction={<button onClick={onOpenSupply} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${supplyStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:supplyStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          >
             {supplyStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{supplyErr}</div>}
             {supplyResult&&(
               <div>
@@ -900,7 +923,10 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ③ Trends */}
-          <SectionCard step={3} title="High-Level Trends" status={trendsStatus} dataLabel="hardcoded">
+          <SectionCard step={3} title="High-Level Trends" status={trendsStatus}
+            dataLabel={trendsResult?.source==="google_trends"?"Google Trends":"hardcoded"}
+            titleAction={<button onClick={onOpenTrends} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${trendsStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:trendsStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          >
             {trendsResult&&(
               <div style={{display:"flex",flexWrap:"wrap",gap:"6px"}}>
                 {trendsResult.trends.map((t,i)=>{
@@ -918,17 +944,41 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ④ Historic */}
-          <SectionCard step={4} title="Tasterover Historic Data" status={historicStatus}>
-            {historicStatus==="done"&&(
-              <div style={{display:"flex",alignItems:"center",gap:"8px",padding:"10px 14px",background:"#f5f5f5",borderRadius:"8px"}}>
-                <span style={{fontSize:"18px"}}>📂</span>
-                <span style={{fontSize:"14px",color:"#888",fontStyle:"italic"}}>{historicMsg}</span>
+          <SectionCard step={4} title="Tasterover Historic Data" status={historicStatus} dataLabel="mock"
+            titleAction={<button onClick={onOpenHistoric} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${historicStatus==="idle"?G.green:historicStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:historicStatus==="idle"||historicStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          >
+            {historicStatus==="idle"&&(
+              <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
+                Click <strong style={{color:G.green}}>Open module →</strong> to view full historic sales data.
+              </div>
+            )}
+            {historicData&&(
+              <div>
+                <div style={{display:"flex",gap:"14px",flexWrap:"wrap",marginBottom:"10px"}}>
+                  <div style={{padding:"6px 12px",background:"#e6f4ee",borderRadius:"8px",textAlign:"center"}}>
+                    <div style={{fontSize:"10px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>30-day Revenue</div>
+                    <div style={{fontSize:"16px",fontWeight:"700",color:G.green}}>£{historicData.total_revenue_gbp.toLocaleString()}</div>
+                  </div>
+                  <div style={{padding:"6px 12px",background:"#e6f4ee",borderRadius:"8px",textAlign:"center"}}>
+                    <div style={{fontSize:"10px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>Avg Daily Covers</div>
+                    <div style={{fontSize:"16px",fontWeight:"700",color:G.green}}>{historicData.avg_daily_covers}</div>
+                  </div>
+                </div>
+                <div style={{fontSize:"12px",color:"#888",marginBottom:"6px",fontWeight:"600"}}>Top meals</div>
+                {historicData.top_meals.slice(0,3).map((m,i)=>(
+                  <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:i<2?"1px solid #f0f0f0":"none",fontSize:"12px"}}>
+                    <span style={{color:"#333"}}>{m.meal_name}</span>
+                    <span style={{color:G.green,fontWeight:"700"}}>£{m.total_revenue_gbp.toLocaleString()}</span>
+                  </div>
+                ))}
               </div>
             )}
           </SectionCard>
 
           {/* ⑤ Seasonal */}
-          <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel="hardcoded">
+          <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel="hardcoded"
+            titleAction={<button onClick={onOpenSeasonal} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${seasonStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:seasonStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          >
             {seasonResult&&(
               <div>
                 <div style={{fontSize:"12px",color:"#888",marginBottom:"8px"}}>Currently in season — <strong>{seasonResult.month}</strong></div>
@@ -944,7 +994,9 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ⑥ Celebrations */}
-          <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel="hardcoded">
+          <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel="OpenAI / hardcoded"
+            titleAction={<button onClick={onOpenCelebrations} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${celebStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:celebStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          >
             {celebResult&&(
               <div style={{display:"flex",flexDirection:"column",gap:"6px"}}>
                 {celebResult.upcoming.map((ev,i)=>(
@@ -961,7 +1013,9 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ⑦ Regional */}
-          <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel="hardcoded">
+          <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel="hardcoded"
+            titleAction={<button onClick={onOpenRegional} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${regionStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:regionStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
+          >
             {regionResult&&(
               <div>
                 <div style={{fontSize:"12px",color:"#888",marginBottom:"8px"}}>Insights for <strong>{regionResult.region}</strong></div>

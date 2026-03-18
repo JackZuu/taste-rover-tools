@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import FlowScreen from "./FlowScreen";
+import {
+  TrendsScreen, HistoricScreen, SeasonalScreen, CelebrationsScreen,
+  RegionalScreen, EquipmentScreen, SupplyScreen,
+} from "./ModuleScreens";
 
 type WeatherResponse = {
   postcode: string;
@@ -90,7 +94,12 @@ type GreggsProduct = {
   ingredients: string;
 };
 
-type Screen = "flow" | "weather" | "nutrition" | "mcdonalds" | "mcdonalds-detail" | "burgerking" | "burgerking-detail" | "greggs" | "greggs-detail";
+type Screen =
+  | "flow" | "weather" | "nutrition"
+  | "mcdonalds" | "mcdonalds-detail"
+  | "burgerking" | "burgerking-detail"
+  | "greggs" | "greggs-detail"
+  | "trends" | "historic" | "seasonal" | "celebrations" | "regional" | "equipment" | "supply";
 
 const getWeatherIcon = (condition: string) => {
   if (condition === "mainly sun") return "☀️";
@@ -333,6 +342,15 @@ export default function App() {
     }
   };
 
+  // MODULE SCREENS
+  if (screen === "trends")       return <TrendsScreen       onBack={() => setScreen("flow")} />;
+  if (screen === "historic")     return <HistoricScreen     onBack={() => setScreen("flow")} />;
+  if (screen === "seasonal")     return <SeasonalScreen     onBack={() => setScreen("flow")} />;
+  if (screen === "celebrations") return <CelebrationsScreen onBack={() => setScreen("flow")} />;
+  if (screen === "regional")     return <RegionalScreen     onBack={() => setScreen("flow")} />;
+  if (screen === "equipment")    return <EquipmentScreen    onBack={() => setScreen("flow")} />;
+  if (screen === "supply")       return <SupplyScreen       onBack={() => setScreen("flow")} />;
+
   // SMARTR FOOD (default / home)
   if (screen === "flow") {
     return (
@@ -342,6 +360,13 @@ export default function App() {
         onOpenBurgerKing={openBurgerKing}
         onOpenGreggs={openGreggs}
         onOpenNutrition={() => setScreen("nutrition")}
+        onOpenTrends={() => setScreen("trends")}
+        onOpenHistoric={() => setScreen("historic")}
+        onOpenSeasonal={() => setScreen("seasonal")}
+        onOpenCelebrations={() => setScreen("celebrations")}
+        onOpenRegional={() => setScreen("regional")}
+        onOpenEquipment={() => setScreen("equipment")}
+        onOpenSupply={() => setScreen("supply")}
       />
     );
   }

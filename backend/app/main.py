@@ -162,11 +162,20 @@ def get_supply_legacy(req: MealRequest):
 @app.get("/api/trends")
 def get_trends_endpoint():
     result = get_trends()
-    return {"trends": [asdict(t) for t in result.trends]}
+    return {"trends": [asdict(t) for t in result.trends], "source": result.source}
 
 @app.get("/api/historic")
 def get_historic_endpoint():
-    return {"message": get_historic().message}
+    result = get_historic()
+    return {
+        "daily_stats":       [asdict(d) for d in result.daily_stats],
+        "top_meals":         [asdict(m) for m in result.top_meals],
+        "total_revenue_gbp": result.total_revenue_gbp,
+        "avg_daily_covers":  result.avg_daily_covers,
+        "best_day":          result.best_day,
+        "source":            result.source,
+        "message":           result.message,
+    }
 
 @app.get("/api/seasonal")
 def get_seasonal_endpoint():
