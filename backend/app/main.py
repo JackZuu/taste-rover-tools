@@ -1,6 +1,6 @@
 from dataclasses import asdict
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -19,7 +19,7 @@ from app.supply import get_supply_chain, get_ingredient_supply
 from app.trends import get_trends, get_custom_trends
 from app.historic import get_historic
 from app.seasonal import get_seasonal
-from app.celebrations import get_celebrations
+from app.celebrations import get_celebrations, get_celebrations_for_month
 from app.regional import get_regional_demand
 from app.decision import get_decision_and_options, make_decision
 from app.menu_generator import generate_menu
@@ -186,19 +186,27 @@ def get_historic_endpoint():
     }
 
 @app.get("/api/seasonal")
-def get_seasonal_endpoint():
-    result = get_seasonal()
+def get_seasonal_endpoint(month: int | None = Query(default=None, ge=1, le=12)):
+    result = get_seasonal(month)
     return {"month": result.month, "items": [asdict(i) for i in result.items], "source": result.source}
 
 @app.get("/api/celebrations")
-def get_celebrations_endpoint():
-    result = get_celebrations()
+def get_celebrations_endpoint(month: int | None = Query(default=None, ge=1, le=12)):
+    if month is not None:
+        result = get_celebrations_for_month(month)
+    else:
+        result = get_celebrations()
     return {"upcoming": [asdict(e) for e in result.upcoming], "source": result.source}
 
 @app.post("/api/regional")
 def get_regional_endpoint(req: RegionRequest):
     result = get_regional_demand(req.region)
-    return {"region": result.region, "insights": [asdict(i) for i in result.insights], "source": result.source}
+    return {
+        "region": result.region,
+        "insights": [asdict(i) for i in result.insights],
+        "menu_suggestions": [asdict(s) for s in result.menu_suggestions],
+        "source": result.source,
+    }
 
 @app.post("/api/decision")
 def get_decision_endpoint(req: DecisionRequest):

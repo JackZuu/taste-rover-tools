@@ -182,8 +182,12 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Custom keyword search
+  // Custom keyword search — history persisted in localStorage
+  const LS_KEY = "tr_custom_trends_history";
   const [customInput, setCustomInput] = useState("");
+  const [savedSearches, setSavedSearches] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) ?? "[]"); } catch { return []; }
+  });
   const [customData, setCustomData] = useState<TrendsData | null>(null);
   const [customLoading, setCustomLoading] = useState(false);
   const [customError, setCustomError] = useState<string | null>(null);
@@ -198,8 +202,9 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
     finally { setLoading(false); }
   }
 
-  async function runCustom() {
-    const keywords = customInput.split(",").map(k => k.trim()).filter(Boolean);
+  async function runCustom(input?: string) {
+    const raw = input ?? customInput;
+    const keywords = raw.split(",").map(k => k.trim()).filter(Boolean);
     if (!keywords.length) return;
     setCustomLoading(true); setCustomError(null); setCustomData(null);
     try {
@@ -210,6 +215,13 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setCustomData(await r.json());
+      // Save to history (dedupe, newest first, max 10)
+      const entry = keywords.join(", ");
+      setSavedSearches(prev => {
+        const next = [entry, ...prev.filter(s => s !== entry)].slice(0, 10);
+        try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
+        return next;
+      });
     } catch (e: any) { setCustomError(e?.message ?? "Failed to load"); }
     finally { setCustomLoading(false); }
   }
@@ -245,6 +257,19 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
             />
             <RunBtn onClick={runCustom} loading={customLoading} label="Search" />
           </div>
+          {savedSearches.length > 0 && (
+            <div style={{ marginTop: "10px" }}>
+              <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Saved searches</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {savedSearches.map((s, i) => (
+                  <button key={i} onClick={() => { setCustomInput(s); runCustom(s); }}
+                    style={{ padding: "3px 10px", borderRadius: "20px", border: `1px solid #ddd`, background: "#f9f9f9", color: "#555", fontSize: "12px", cursor: "pointer", fontFamily: "'Georgia',serif", WebkitTapHighlightColor: "transparent" }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {customError && <ErrBox msg={customError} />}
           {customData && (
             <div style={{ marginTop: "14px" }}>
@@ -401,22 +426,26 @@ const CAT_EMOJI: Record<string, string> = {
   game: "🦌", beverage: "🍹", dairy: "🧀", grain: "🌾",
 };
 
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
 export function SeasonalScreen({ onBack }: { onBack: () => void }) {
+  const currentMonth = new Date().getMonth() + 1;
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [data, setData] = useState<SeasonalData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetch_() {
+  async function fetch_(month: number) {
     setLoading(true); setError(null);
     try {
-      const r = await fetch("/api/seasonal");
+      const r = await fetch(`/api/seasonal?month=${month}`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setData(await r.json());
     } catch (e: any) { setError(e?.message ?? "Failed to load"); }
     finally { setLoading(false); }
   }
 
-  useEffect(() => { fetch_(); }, []);
+  useEffect(() => { fetch_(currentMonth); }, []);
 
   const grouped = data
     ? data.items.reduce((acc, item) => {
@@ -430,10 +459,22 @@ export function SeasonalScreen({ onBack }: { onBack: () => void }) {
       <BackBtn onClick={onBack} />
       <PageTitle title="In-Season Foods" sub={data ? `Currently in season — ${data.month}` : "Seasonal ingredients by month"} />
       <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <RunBtn onClick={fetch_} loading={loading} />
-          {data && <SourceBadge source={data.source} />}
-        </div>
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+            <label style={{ fontSize: "13px", fontWeight: "600", color: G.green, flexShrink: 0 }}>Month:</label>
+            <select
+              value={selectedMonth}
+              onChange={e => { const m = Number(e.target.value); setSelectedMonth(m); fetch_(m); }}
+              style={{ flex: 1, minWidth: "140px", padding: "8px 10px", borderRadius: "8px", border: "1.5px solid #ddd", fontSize: "13px", fontFamily: "'Georgia',serif", outline: "none", color: "#333" }}
+            >
+              {MONTH_NAMES.map((name, i) => (
+                <option key={i + 1} value={i + 1}>{name}</option>
+              ))}
+            </select>
+            <RunBtn onClick={() => fetch_(selectedMonth)} loading={loading} />
+            {data && <SourceBadge source={data.source} />}
+          </div>
+        </Card>
         {error && <ErrBox msg={error} />}
         {data && Object.entries(grouped).map(([cat, names]) => (
           <Card key={cat}>
@@ -467,21 +508,23 @@ type CelebrationEvent = { name: string; date: string; days_away: number; food_op
 type CelebrationsData = { upcoming: CelebrationEvent[]; source: string };
 
 export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
+  const [filterMonth, setFilterMonth] = useState<number | null>(null);
   const [data, setData] = useState<CelebrationsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetch_() {
+  async function fetch_(month: number | null) {
     setLoading(true); setError(null);
     try {
-      const r = await fetch("/api/celebrations");
+      const url = month ? `/api/celebrations?month=${month}` : "/api/celebrations";
+      const r = await fetch(url);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setData(await r.json());
     } catch (e: any) { setError(e?.message ?? "Failed to load"); }
     finally { setLoading(false); }
   }
 
-  useEffect(() => { fetch_(); }, []);
+  useEffect(() => { fetch_(null); }, []);
 
   function fmtDate(iso: string) {
     return new Date(iso).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
@@ -498,10 +541,27 @@ export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
       <BackBtn onClick={onBack} />
       <PageTitle title="Upcoming Events" sub="UK celebrations & food opportunities" />
       <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <RunBtn onClick={fetch_} loading={loading} />
-          {data && <SourceBadge source={data.source} />}
-        </div>
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+            <label style={{ fontSize: "13px", fontWeight: "600", color: G.green, flexShrink: 0 }}>Month:</label>
+            <select
+              value={filterMonth ?? ""}
+              onChange={e => {
+                const m = e.target.value ? Number(e.target.value) : null;
+                setFilterMonth(m);
+                fetch_(m);
+              }}
+              style={{ flex: 1, minWidth: "140px", padding: "8px 10px", borderRadius: "8px", border: "1.5px solid #ddd", fontSize: "13px", fontFamily: "'Georgia',serif", outline: "none", color: "#333" }}
+            >
+              <option value="">Next 90 days</option>
+              {MONTH_NAMES.map((name, i) => (
+                <option key={i + 1} value={i + 1}>{name}</option>
+              ))}
+            </select>
+            <RunBtn onClick={() => fetch_(filterMonth)} loading={loading} />
+            {data && <SourceBadge source={data.source} />}
+          </div>
+        </Card>
         {error && <ErrBox msg={error} />}
         {data && data.upcoming.map((ev, i) => (
           <Card key={i} style={{ borderLeft: `4px solid ${urgencyColor(ev.days_away)}` }}>
@@ -561,7 +621,8 @@ export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type RegionalInsight = { insight: string; category: string };
-type RegionalData = { region: string; insights: RegionalInsight[]; source: string };
+type RegionalFoodSuggestion = { name: string; category: string };
+type RegionalData = { region: string; insights: RegionalInsight[]; menu_suggestions?: RegionalFoodSuggestion[]; source: string };
 
 export function RegionalScreen({ onBack }: { onBack: () => void }) {
   const [region, setRegion] = useState("London");
@@ -614,31 +675,58 @@ export function RegionalScreen({ onBack }: { onBack: () => void }) {
         </Card>
         {error && <ErrBox msg={error} />}
         {data && (
-          <Card>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
-              <div style={{ fontWeight: "700", color: G.green, fontSize: "15px" }}>
-                Insights for {data.region}
+          <>
+            <Card>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
+                <div style={{ fontWeight: "700", color: G.green, fontSize: "15px" }}>
+                  Insights for {data.region}
+                </div>
+                <SourceBadge source={data.source} />
               </div>
-              <SourceBadge source={data.source} />
-            </div>
-            {data.insights.map((ins, i) => (
-              <div key={i} style={{
-                display: "flex", gap: "10px", alignItems: "flex-start",
-                padding: "8px 0",
-                borderBottom: i < data.insights.length - 1 ? "1px solid #f0f0f0" : "none",
-              }}>
-                <span style={{
-                  padding: "2px 8px", borderRadius: "10px",
-                  background: catColor(ins.category),
-                  fontSize: "10px", fontWeight: "600", color: "#555",
-                  flexShrink: 0, marginTop: "2px",
+              {data.insights.map((ins, i) => (
+                <div key={i} style={{
+                  display: "flex", gap: "10px", alignItems: "flex-start",
+                  padding: "8px 0",
+                  borderBottom: i < data.insights.length - 1 ? "1px solid #f0f0f0" : "none",
                 }}>
-                  {catLabel(ins.category)}
-                </span>
-                <span style={{ fontSize: "13px", color: "#333", lineHeight: "1.5" }}>{ins.insight}</span>
-              </div>
-            ))}
-          </Card>
+                  <span style={{
+                    padding: "2px 8px", borderRadius: "10px",
+                    background: catColor(ins.category),
+                    fontSize: "10px", fontWeight: "600", color: "#555",
+                    flexShrink: 0, marginTop: "2px",
+                  }}>
+                    {catLabel(ins.category)}
+                  </span>
+                  <span style={{ fontSize: "13px", color: "#333", lineHeight: "1.5" }}>{ins.insight}</span>
+                </div>
+              ))}
+            </Card>
+            {data.menu_suggestions && data.menu_suggestions.length > 0 && (
+              <Card>
+                <div style={{ fontWeight: "700", color: G.green, marginBottom: "12px", fontSize: "15px" }}>
+                  Recommended Menu Items
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  {data.menu_suggestions.map((s, i) => {
+                    const catColors: Record<string, [string, string]> = {
+                      main:     ["#e6f4ee", G.green],
+                      snack:    ["#fdf3e6", "#a16207"],
+                      beverage: ["#e0f2fe", "#0369a1"],
+                      dessert:  ["#fce7f3", "#9d174d"],
+                      produce:  ["#f0fdf4", "#166534"],
+                    };
+                    const [bg2, col] = catColors[s.category] ?? ["#f0f0f0", "#555"];
+                    return (
+                      <span key={i} style={{ padding: "5px 12px", borderRadius: "20px", background: bg2, color: col, fontSize: "13px", fontWeight: "600" }}>
+                        {s.name}
+                        <span style={{ fontSize: "10px", opacity: 0.65, marginLeft: "5px" }}>{s.category}</span>
+                      </span>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
+          </>
         )}
       </div>
     </div>

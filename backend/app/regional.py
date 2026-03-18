@@ -9,7 +9,7 @@ DATA SOURCE: OpenAI gpt-4o-mini | hardcoded fallback
 """
 import os
 import json
-from app.models import RegionalInsight, RegionalResult
+from app.models import RegionalInsight, RegionalResult, FoodSuggestion
 
 # ---------------------------------------------------------------------------
 # OpenAI availability
@@ -26,6 +26,7 @@ _ai_cache: dict = {}
 
 # Valid insight categories (taxonomy)
 VALID_INSIGHT_CATS = {"demand", "preference", "trend"}
+VALID_FOOD_CATS = {"main", "snack", "beverage", "dessert", "produce"}
 
 # ---------------------------------------------------------------------------
 # Hardcoded fallback
@@ -104,6 +105,22 @@ _DEFAULT_INSIGHTS: list[dict] = [
     {"insight": "Health-conscious options increasingly expected",               "category": "preference"},
 ]
 
+# Hardcoded menu suggestions per region: (name, category)
+_REGIONAL_MENU: dict[str, list[tuple[str, str]]] = {
+    "London":          [("Smash Burger", "main"), ("Matcha Latte", "beverage"), ("Falafel Wrap", "main"), ("Korean Corn Dog", "snack")],
+    "South East":      [("Breakfast Roll", "main"), ("Fish & Chips", "main"), ("Crab Sandwich", "snack"), ("Iced Coffee", "beverage")],
+    "South West":      [("Cornish Pasty", "main"), ("Cream Tea Scone", "dessert"), ("Craft Cider", "beverage"), ("Crab Linguine", "main")],
+    "East of England": [("Sausage Roll", "snack"), ("Bacon Roll", "main"), ("Tea", "beverage"), ("Ploughman's Wrap", "main")],
+    "East Midlands":   [("Pork Pie", "snack"), ("Stilton Toastie", "main"), ("Chips & Gravy", "snack"), ("Hot Chocolate", "beverage")],
+    "West Midlands":   [("Balti Wrap", "main"), ("Samosa", "snack"), ("Mango Lassi", "beverage"), ("Veggie Bhaji Bun", "main")],
+    "Yorks & Humber":  [("Yorkshire Pudding Wrap", "main"), ("Henderson's Relish Dog", "main"), ("Parkin Slice", "dessert"), ("Tea", "beverage")],
+    "North West":      [("Butter Pie", "main"), ("Beef Barm", "main"), ("Craft Beer", "beverage"), ("Manchester Tart", "dessert")],
+    "North East":      [("Stottie Sandwich", "main"), ("Pease Pudding Roll", "snack"), ("Hot Dog", "main"), ("Tea", "beverage")],
+    "Wales":           [("Cawl Soup", "main"), ("Welsh Cake", "dessert"), ("Lamb Wrap", "main"), ("Apple Juice", "beverage")],
+    "Scotland":        [("Haggis Wrap", "main"), ("Deep Fried Mars Bar", "dessert"), ("Irn-Bru Slush", "beverage"), ("Scotch Pie", "snack")],
+    "N. Ireland":      [("Ulster Fry Roll", "main"), ("Soda Bread", "snack"), ("Wheaten Scone", "dessert"), ("Tea", "beverage")],
+}
+
 
 # ---------------------------------------------------------------------------
 # OpenAI fetch
@@ -125,12 +142,15 @@ def _get_ai_regional(region: str) -> RegionalResult | None:
         prompt = (
             f"UK region: {region}. "
             f"Provide 5 to 7 actionable consumer demand insights for a street food van operating in {region}. "
-            f"Cover: peak trading times, popular food preferences, local specialities that resonate, "
+            f"Cover: peak trading times, popular food preferences, local specialities, "
             f"emerging food and drink trends, and pricing sensitivity. "
+            f"Also suggest 4 to 6 specific menu items well-suited to this region. "
             f"Return a JSON object with: "
             f"\"region\" (string), "
             f"\"insights\" (array of objects each with \"insight\" (concise string, max 15 words) and "
-            f"\"category\" (one of: demand, preference, trend)). "
+            f"\"category\" (one of: demand, preference, trend)), "
+            f"\"menu_suggestions\" (array of objects each with \"name\" (title case string) and "
+            f"\"category\" (one of: main, snack, beverage, dessert, produce)). "
             f"Return JSON only."
         )
         response = client.chat.completions.create(
@@ -153,9 +173,19 @@ def _get_ai_regional(region: str) -> RegionalResult | None:
                 cat = "demand"
             insights.append(RegionalInsight(insight=it["insight"], category=cat))
 
+        suggestions_raw = parsed.get("menu_suggestions", [])
+        suggestions = []
+        if isinstance(suggestions_raw, list):
+            for s in suggestions_raw:
+                cat = s.get("category", "main")
+                if cat not in VALID_FOOD_CATS:
+                    cat = "main"
+                suggestions.append(FoodSuggestion(name=s.get("name", ""), category=cat))
+
         result = RegionalResult(
             region=parsed.get("region", region),
             insights=insights,
+            menu_suggestions=suggestions,
             source="openai",
         )
         _ai_cache[region] = result
@@ -182,7 +212,8 @@ def get_regional_demand(region: str) -> RegionalResult:
 
     raw = _REGIONAL_DATA.get(region, _DEFAULT_INSIGHTS)
     insights = [RegionalInsight(**i) for i in raw]
-    return RegionalResult(region=region, insights=insights, source="hardcoded")
+    suggestions = [FoodSuggestion(name=n, category=c) for n, c in _REGIONAL_MENU.get(region, [])]
+    return RegionalResult(region=region, insights=insights, menu_suggestions=suggestions, source="hardcoded")
 
 
 if __name__ == "__main__":

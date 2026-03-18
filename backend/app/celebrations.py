@@ -156,6 +156,37 @@ def _next_occurrence(month: int, day: int, today: date) -> date:
     return candidate
 
 
+def get_celebrations_for_month(month: int) -> CelebrationsResult:
+    """
+    Return all UK celebrations in the given calendar month (1–12).
+    Uses the hardcoded annual events list (no AI — month-specific view).
+    """
+    month = max(1, min(12, month))
+    today = date.today()
+    events: list[CelebrationEvent] = []
+
+    for ev_month, day, name, food_opp, suggestions_raw in _ANNUAL_EVENTS:
+        if ev_month != month:
+            continue
+        try:
+            # Use current year, fall back to next year if date is past
+            ev_date = _next_occurrence(ev_month, day, date(today.year, ev_month, 1))
+        except ValueError:
+            continue
+        days_away = (ev_date - today).days
+        suggestions = [FoodSuggestion(name=n, category=c) for n, c in suggestions_raw]
+        events.append(CelebrationEvent(
+            name=name,
+            date=ev_date.isoformat(),
+            days_away=days_away,
+            food_opportunity=food_opp,
+            menu_suggestions=suggestions,
+        ))
+
+    events.sort(key=lambda e: e.days_away)
+    return CelebrationsResult(upcoming=events, source="hardcoded")
+
+
 def get_celebrations(window_days: int = 90) -> CelebrationsResult:
     """
     Return upcoming UK celebrations within the next `window_days` days.

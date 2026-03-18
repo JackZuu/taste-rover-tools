@@ -182,6 +182,7 @@ class RegionalInsight:
 class RegionalResult:
     region: str
     insights: list[RegionalInsight] = field(default_factory=list)
+    menu_suggestions: list = field(default_factory=list)  # list[FoodSuggestion]
     source: str = "hardcoded"   # "openai" | "hardcoded"
 
 
