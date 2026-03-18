@@ -180,6 +180,36 @@ def get_trends(geo: str = "GB") -> TrendsResult:
     )
 
 
+def get_custom_trends(keywords: list[str], geo: str = "GB") -> TrendsResult:
+    """
+    Fetch Google Trends data for an arbitrary list of keywords.
+    Groups them under category 'custom'. Falls back to a stub result if
+    pytrends is unavailable or rate-limited.
+    """
+    if not _PYTRENDS_AVAILABLE or not keywords:
+        stubs = [
+            TrendItem(label=kw.title(), direction="stable", category="custom",
+                      momentum_pct=0.0, avg_interest=0.0)
+            for kw in keywords
+        ]
+        return TrendsResult(trends=stubs, source="unavailable")
+
+    try:
+        pt = TrendReq(hl=LANGUAGE, tz=TIMEZONE, timeout=(10, 30), retries=2, backoff_factor=1.0)
+        items = _fetch_category(pt, "custom", keywords[:5], geo)
+        if items:
+            return TrendsResult(trends=items, source="google_trends")
+    except Exception:
+        pass
+
+    stubs = [
+        TrendItem(label=kw.title(), direction="stable", category="custom",
+                  momentum_pct=0.0, avg_interest=0.0)
+        for kw in keywords
+    ]
+    return TrendsResult(trends=stubs, source="unavailable")
+
+
 if __name__ == "__main__":
     result = get_trends()
     icons = {"up": "📈", "down": "📉", "stable": "➡️"}

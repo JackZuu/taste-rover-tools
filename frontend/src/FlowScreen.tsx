@@ -591,10 +591,10 @@ export default function FlowScreen({
   const [historicData,     setHistoricData]     = useState<HistoricData|null>(null);
 
   const [seasonStatus,     setSeasonStatus]     = useState<PS>("idle");
-  const [seasonResult,     setSeasonResult]     = useState<{month:string;items:SeasonalItem[]}|null>(null);
+  const [seasonResult,     setSeasonResult]     = useState<{month:string;items:SeasonalItem[];source:string}|null>(null);
 
   const [celebStatus,      setCelebStatus]      = useState<PS>("idle");
-  const [celebResult,      setCelebResult]      = useState<{upcoming:Celebration[]}|null>(null);
+  const [celebResult,      setCelebResult]      = useState<{upcoming:Celebration[];source:string}|null>(null);
 
   const [regionStatus,     setRegionStatus]     = useState<PS>("idle");
   const [regionResult,     setRegionResult]     = useState<{region:string;insights:RegionalInsight[]}|null>(null);
@@ -976,7 +976,7 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ⑤ Seasonal */}
-          <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel="hardcoded"
+          <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
             titleAction={<button onClick={onOpenSeasonal} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${seasonStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:seasonStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
           >
             {seasonResult&&(
@@ -994,7 +994,7 @@ export default function FlowScreen({
           </SectionCard>
 
           {/* ⑥ Celebrations */}
-          <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel="OpenAI / hardcoded"
+          <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":"hardcoded"}
             titleAction={<button onClick={onOpenCelebrations} style={{marginLeft:"auto",padding:"4px 10px",border:`1.5px solid ${celebStatus==="done"?G.green:"rgba(255,255,255,0.6)"}`,borderRadius:"20px",background:"transparent",color:celebStatus==="done"?G.green:"#fff",fontSize:"11px",fontWeight:"600",cursor:"pointer",fontFamily:"'Georgia',serif",WebkitTapHighlightColor:"transparent",flexShrink:0}}>Open module →</button>}
           >
             {celebResult&&(

@@ -116,10 +116,77 @@ const UK_REGIONS = [
 type TrendItem = { label: string; direction: "up" | "down" | "stable"; category: string; momentum_pct?: number; avg_interest?: number };
 type TrendsData = { trends: TrendItem[]; source: string };
 
+function TrendBadge({ t }: { t: TrendItem }) {
+  const icon = t.direction === "up" ? "📈" : t.direction === "down" ? "📉" : "➡️";
+  const bg2 = t.direction === "up" ? "#e6f4ee" : t.direction === "down" ? "#fdecea" : "#f0f0f0";
+  const col = t.direction === "up" ? G.green   : t.direction === "down" ? G.red     : "#555";
+  return (
+    <div style={{ padding: "10px 14px", borderRadius: "10px", background: bg2, marginBottom: "8px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: "14px", fontWeight: "700", color: col }}>{icon} {t.label}</span>
+        {t.momentum_pct !== undefined && (
+          <span style={{ fontSize: "12px", fontWeight: "600", color: col }}>
+            {t.momentum_pct > 0 ? "+" : ""}{t.momentum_pct}%
+          </span>
+        )}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
+        <span style={{ fontSize: "11px", color: "#888", textTransform: "capitalize" }}>{t.category}</span>
+        {t.avg_interest !== undefined && (
+          <span style={{ fontSize: "11px", color: "#aaa" }}>Interest: {t.avg_interest}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TrendsGrid({ data }: { data: TrendsData }) {
+  const rising  = data.trends.filter(t => t.direction === "up");
+  const stable  = data.trends.filter(t => t.direction === "stable");
+  const falling = data.trends.filter(t => t.direction === "down");
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "16px" }}>
+      {rising.length > 0 && (
+        <Card>
+          <div style={{ fontWeight: "700", color: G.green, marginBottom: "12px", fontSize: "14px" }}>
+            📈 Rising ({rising.length})
+          </div>
+          {rising.map((t, i) => <TrendBadge key={i} t={t} />)}
+        </Card>
+      )}
+      {stable.length > 0 && (
+        <Card>
+          <div style={{ fontWeight: "700", color: "#555", marginBottom: "12px", fontSize: "14px" }}>
+            ➡️ Stable ({stable.length})
+          </div>
+          {stable.map((t, i) => <TrendBadge key={i} t={t} />)}
+        </Card>
+      )}
+      {falling.length > 0 && (
+        <Card>
+          <div style={{ fontWeight: "700", color: G.red, marginBottom: "12px", fontSize: "14px" }}>
+            📉 Declining ({falling.length})
+          </div>
+          {falling.map((t, i) => <TrendBadge key={i} t={t} />)}
+        </Card>
+      )}
+      {rising.length === 0 && stable.length === 0 && falling.length === 0 && (
+        <Card><div style={{ color: "#aaa", fontStyle: "italic", textAlign: "center" }}>No trend data returned.</div></Card>
+      )}
+    </div>
+  );
+}
+
 export function TrendsScreen({ onBack }: { onBack: () => void }) {
   const [data, setData] = useState<TrendsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Custom keyword search
+  const [customInput, setCustomInput] = useState("");
+  const [customData, setCustomData] = useState<TrendsData | null>(null);
+  const [customLoading, setCustomLoading] = useState(false);
+  const [customError, setCustomError] = useState<string | null>(null);
 
   async function fetch_() {
     setLoading(true); setError(null);
@@ -131,74 +198,75 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
     finally { setLoading(false); }
   }
 
-  useEffect(() => { fetch_(); }, []);
-
-  const rising  = data?.trends.filter(t => t.direction === "up")     ?? [];
-  const stable  = data?.trends.filter(t => t.direction === "stable") ?? [];
-  const falling = data?.trends.filter(t => t.direction === "down")   ?? [];
-
-  function TrendBadge({ t }: { t: TrendItem }) {
-    const icon = t.direction === "up" ? "📈" : t.direction === "down" ? "📉" : "➡️";
-    const bg2 = t.direction === "up" ? "#e6f4ee" : t.direction === "down" ? "#fdecea" : "#f0f0f0";
-    const col = t.direction === "up" ? G.green   : t.direction === "down" ? G.red     : "#555";
-    return (
-      <div style={{ padding: "10px 14px", borderRadius: "10px", background: bg2, marginBottom: "8px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: "14px", fontWeight: "700", color: col }}>{icon} {t.label}</span>
-          {t.momentum_pct !== undefined && (
-            <span style={{ fontSize: "12px", fontWeight: "600", color: col }}>
-              {t.momentum_pct > 0 ? "+" : ""}{t.momentum_pct}%
-            </span>
-          )}
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
-          <span style={{ fontSize: "11px", color: "#888", textTransform: "capitalize" }}>{t.category}</span>
-          {t.avg_interest !== undefined && (
-            <span style={{ fontSize: "11px", color: "#aaa" }}>Interest: {t.avg_interest}</span>
-          )}
-        </div>
-      </div>
-    );
+  async function runCustom() {
+    const keywords = customInput.split(",").map(k => k.trim()).filter(Boolean);
+    if (!keywords.length) return;
+    setCustomLoading(true); setCustomError(null); setCustomData(null);
+    try {
+      const r = await fetch("/api/trends/custom", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keywords }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      setCustomData(await r.json());
+    } catch (e: any) { setCustomError(e?.message ?? "Failed to load"); }
+    finally { setCustomLoading(false); }
   }
+
+  useEffect(() => { fetch_(); }, []);
 
   return (
     <div style={bg}>
       <BackBtn onClick={onBack} />
       <PageTitle title="Food & Drink Trends" sub="UK consumer search interest" />
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <RunBtn onClick={fetch_} loading={loading} />
-          {data && <SourceBadge source={data.source} />}
+
+        {/* Custom keyword search */}
+        <Card>
+          <div style={{ fontWeight: "700", color: G.green, marginBottom: "10px", fontSize: "14px" }}>
+            🔍 Custom Keyword Search
+          </div>
+          <div style={{ fontSize: "12px", color: "#888", marginBottom: "10px" }}>
+            Enter up to 5 keywords separated by commas to see their Google Trends performance.
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <input
+              type="text"
+              value={customInput}
+              onChange={e => setCustomInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && runCustom()}
+              placeholder="e.g. birria tacos, smash burger, matcha"
+              style={{
+                flex: 1, minWidth: "200px", padding: "9px 12px",
+                border: "1.5px solid #ddd", borderRadius: "8px",
+                fontSize: "13px", fontFamily: "'Georgia',serif", outline: "none",
+              }}
+            />
+            <RunBtn onClick={runCustom} loading={customLoading} label="Search" />
+          </div>
+          {customError && <ErrBox msg={customError} />}
+          {customData && (
+            <div style={{ marginTop: "14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                <div style={{ fontSize: "13px", fontWeight: "600", color: "#555" }}>Results</div>
+                <SourceBadge source={customData.source} />
+              </div>
+              <TrendsGrid data={customData} />
+            </div>
+          )}
+        </Card>
+
+        {/* Pre-built trend categories */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "4px 0 16px" }}>
+          <div style={{ fontSize: "14px", fontWeight: "700", color: G.cream }}>Category Trends</div>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            {data && <SourceBadge source={data.source} />}
+            <RunBtn onClick={fetch_} loading={loading} />
+          </div>
         </div>
         {error && <ErrBox msg={error} />}
-        {data && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "16px" }}>
-            {rising.length > 0 && (
-              <Card>
-                <div style={{ fontWeight: "700", color: G.green, marginBottom: "12px", fontSize: "14px" }}>
-                  📈 Rising ({rising.length})
-                </div>
-                {rising.map((t, i) => <TrendBadge key={i} t={t} />)}
-              </Card>
-            )}
-            {stable.length > 0 && (
-              <Card>
-                <div style={{ fontWeight: "700", color: "#555", marginBottom: "12px", fontSize: "14px" }}>
-                  ➡️ Stable ({stable.length})
-                </div>
-                {stable.map((t, i) => <TrendBadge key={i} t={t} />)}
-              </Card>
-            )}
-            {falling.length > 0 && (
-              <Card>
-                <div style={{ fontWeight: "700", color: G.red, marginBottom: "12px", fontSize: "14px" }}>
-                  📉 Declining ({falling.length})
-                </div>
-                {falling.map((t, i) => <TrendBadge key={i} t={t} />)}
-              </Card>
-            )}
-          </div>
-        )}
+        {data && <TrendsGrid data={data} />}
       </div>
     </div>
   );
@@ -326,7 +394,7 @@ export function HistoricScreen({ onBack }: { onBack: () => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type SeasonalItem = { name: string; category: string };
-type SeasonalData = { month: string; items: SeasonalItem[] };
+type SeasonalData = { month: string; items: SeasonalItem[]; source: string };
 
 const CAT_EMOJI: Record<string, string> = {
   produce: "🥦", protein: "🥩", dessert: "🍮", seafood: "🐟",
@@ -362,8 +430,9 @@ export function SeasonalScreen({ onBack }: { onBack: () => void }) {
       <BackBtn onClick={onBack} />
       <PageTitle title="In-Season Foods" sub={data ? `Currently in season — ${data.month}` : "Seasonal ingredients by month"} />
       <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <RunBtn onClick={fetch_} loading={loading} />
+          {data && <SourceBadge source={data.source} />}
         </div>
         {error && <ErrBox msg={error} />}
         {data && Object.entries(grouped).map(([cat, names]) => (
@@ -394,7 +463,7 @@ export function SeasonalScreen({ onBack }: { onBack: () => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type CelebrationEvent = { name: string; date: string; days_away: number; food_opportunity: string };
-type CelebrationsData = { upcoming: CelebrationEvent[] };
+type CelebrationsData = { upcoming: CelebrationEvent[]; source: string };
 
 export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
   const [data, setData] = useState<CelebrationsData | null>(null);
@@ -428,8 +497,9 @@ export function CelebrationsScreen({ onBack }: { onBack: () => void }) {
       <BackBtn onClick={onBack} />
       <PageTitle title="Upcoming Events" sub="UK celebrations & food opportunities" />
       <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <RunBtn onClick={fetch_} loading={loading} />
+          {data && <SourceBadge source={data.source} />}
         </div>
         {error && <ErrBox msg={error} />}
         {data && data.upcoming.map((ev, i) => (

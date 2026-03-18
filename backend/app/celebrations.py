@@ -137,7 +137,7 @@ def get_celebrations(window_days: int = 90) -> CelebrationsResult:
     # Try live AI data first
     ai_events = _get_ai_celebrations(today, window_days)
     if ai_events:
-        return CelebrationsResult(upcoming=ai_events)
+        return CelebrationsResult(upcoming=ai_events, source="openai")
     cutoff = today + timedelta(days=window_days)
     events: list[CelebrationEvent] = []
 
@@ -173,7 +173,7 @@ def get_celebrations(window_days: int = 90) -> CelebrationsResult:
                 ))
 
     events.sort(key=lambda e: e.days_away)
-    return CelebrationsResult(upcoming=events[:6])
+    return CelebrationsResult(upcoming=events[:6], source="hardcoded")
 
 
 if __name__ == "__main__":

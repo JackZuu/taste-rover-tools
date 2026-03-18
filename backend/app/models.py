@@ -144,6 +144,7 @@ class SeasonalItem:
 class SeasonalResult:
     month: str
     items: list[SeasonalItem] = field(default_factory=list)
+    source: str = "hardcoded"   # "openai" | "hardcoded"
 
 
 # ─── Celebrations ─────────────────────────────────────────────────────────────
@@ -159,6 +160,7 @@ class CelebrationEvent:
 @dataclass
 class CelebrationsResult:
     upcoming: list[CelebrationEvent] = field(default_factory=list)
+    source: str = "hardcoded"   # "openai" | "hardcoded"
 
 
 # ─── Regional demand ──────────────────────────────────────────────────────────

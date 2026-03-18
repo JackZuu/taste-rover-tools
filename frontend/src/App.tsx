@@ -342,32 +342,37 @@ export default function App() {
     }
   };
 
-  // MODULE SCREENS
-  if (screen === "trends")       return <TrendsScreen       onBack={() => setScreen("flow")} />;
-  if (screen === "historic")     return <HistoricScreen     onBack={() => setScreen("flow")} />;
-  if (screen === "seasonal")     return <SeasonalScreen     onBack={() => setScreen("flow")} />;
-  if (screen === "celebrations") return <CelebrationsScreen onBack={() => setScreen("flow")} />;
-  if (screen === "regional")     return <RegionalScreen     onBack={() => setScreen("flow")} />;
-  if (screen === "equipment")    return <EquipmentScreen    onBack={() => setScreen("flow")} />;
-  if (screen === "supply")       return <SupplyScreen       onBack={() => setScreen("flow")} />;
-
-  // SMARTR FOOD (default / home)
-  if (screen === "flow") {
+  // SMARTR FOOD + MODULE SCREENS
+  // FlowScreen is always kept mounted so pipeline results survive navigation to/from modules.
+  // Module screens render on top; FlowScreen is hidden (not unmounted) while a module is open.
+  const MODULE_SCREENS = ["trends","historic","seasonal","celebrations","regional","equipment","supply"];
+  if (screen === "flow" || MODULE_SCREENS.includes(screen)) {
     return (
-      <FlowScreen
-        onOpenWeather={() => setScreen("weather")}
-        onOpenMcDonalds={openMcDonalds}
-        onOpenBurgerKing={openBurgerKing}
-        onOpenGreggs={openGreggs}
-        onOpenNutrition={() => setScreen("nutrition")}
-        onOpenTrends={() => setScreen("trends")}
-        onOpenHistoric={() => setScreen("historic")}
-        onOpenSeasonal={() => setScreen("seasonal")}
-        onOpenCelebrations={() => setScreen("celebrations")}
-        onOpenRegional={() => setScreen("regional")}
-        onOpenEquipment={() => setScreen("equipment")}
-        onOpenSupply={() => setScreen("supply")}
-      />
+      <>
+        {screen === "trends"       && <TrendsScreen       onBack={() => setScreen("flow")} />}
+        {screen === "historic"     && <HistoricScreen     onBack={() => setScreen("flow")} />}
+        {screen === "seasonal"     && <SeasonalScreen     onBack={() => setScreen("flow")} />}
+        {screen === "celebrations" && <CelebrationsScreen onBack={() => setScreen("flow")} />}
+        {screen === "regional"     && <RegionalScreen     onBack={() => setScreen("flow")} />}
+        {screen === "equipment"    && <EquipmentScreen    onBack={() => setScreen("flow")} />}
+        {screen === "supply"       && <SupplyScreen       onBack={() => setScreen("flow")} />}
+        <div style={{display: MODULE_SCREENS.includes(screen) ? "none" : undefined}}>
+          <FlowScreen
+            onOpenWeather={() => setScreen("weather")}
+            onOpenMcDonalds={openMcDonalds}
+            onOpenBurgerKing={openBurgerKing}
+            onOpenGreggs={openGreggs}
+            onOpenNutrition={() => setScreen("nutrition")}
+            onOpenTrends={() => setScreen("trends")}
+            onOpenHistoric={() => setScreen("historic")}
+            onOpenSeasonal={() => setScreen("seasonal")}
+            onOpenCelebrations={() => setScreen("celebrations")}
+            onOpenRegional={() => setScreen("regional")}
+            onOpenEquipment={() => setScreen("equipment")}
+            onOpenSupply={() => setScreen("supply")}
+          />
+        </div>
+      </>
     );
   }
 

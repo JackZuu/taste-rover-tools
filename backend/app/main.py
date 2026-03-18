@@ -16,7 +16,7 @@ from app.burgerking import get_burgerking_menu
 from app.greggs import get_greggs_menu
 from app.equipment import list_vans, get_van_equipment, get_equipment
 from app.supply import get_supply_chain, get_ingredient_supply
-from app.trends import get_trends
+from app.trends import get_trends, get_custom_trends
 from app.historic import get_historic
 from app.seasonal import get_seasonal
 from app.celebrations import get_celebrations
@@ -159,9 +159,17 @@ def get_supply_legacy(req: MealRequest):
 
 # ─── New modules ──────────────────────────────────────────────────────────────
 
+class CustomTrendsRequest(BaseModel):
+    keywords: list[str]
+
 @app.get("/api/trends")
 def get_trends_endpoint():
     result = get_trends()
+    return {"trends": [asdict(t) for t in result.trends], "source": result.source}
+
+@app.post("/api/trends/custom")
+def get_custom_trends_endpoint(req: CustomTrendsRequest):
+    result = get_custom_trends(req.keywords)
     return {"trends": [asdict(t) for t in result.trends], "source": result.source}
 
 @app.get("/api/historic")
@@ -180,12 +188,12 @@ def get_historic_endpoint():
 @app.get("/api/seasonal")
 def get_seasonal_endpoint():
     result = get_seasonal()
-    return {"month": result.month, "items": [asdict(i) for i in result.items]}
+    return {"month": result.month, "items": [asdict(i) for i in result.items], "source": result.source}
 
 @app.get("/api/celebrations")
 def get_celebrations_endpoint():
     result = get_celebrations()
-    return {"upcoming": [asdict(e) for e in result.upcoming]}
+    return {"upcoming": [asdict(e) for e in result.upcoming], "source": result.source}
 
 @app.post("/api/regional")
 def get_regional_endpoint(req: RegionRequest):
