@@ -540,7 +540,7 @@ interface MenuItem {
   enriched: boolean;
   enrichment?: {
     ingredients: string[];
-    nutrition: { calories: number; protein: number; carbs: number; fat: number };
+    nutrition: { cal?: number; calories?: number; protein_g?: number; protein?: number; carbs_g?: number; carbs?: number; fat_g?: number; fat?: number; fibre_g?: number };
     tags: string[];
   };
 }
@@ -891,7 +891,7 @@ function MenuModule() {
                       )}
                       <div style={{ fontSize: "11px", color: "#555", marginBottom: "8px" }}>
                         <span style={{ fontWeight: "700", color: "#333" }}>Nutrition: </span>
-                        {item.enrichment.nutrition.calories} kcal · {item.enrichment.nutrition.protein}g protein · {item.enrichment.nutrition.carbs}g carbs · {item.enrichment.nutrition.fat}g fat
+                        {item.enrichment.nutrition.cal ?? item.enrichment.nutrition.calories ?? "—"} kcal · {item.enrichment.nutrition.protein_g ?? item.enrichment.nutrition.protein ?? "—"}g protein · {item.enrichment.nutrition.carbs_g ?? item.enrichment.nutrition.carbs ?? "—"}g carbs · {item.enrichment.nutrition.fat_g ?? item.enrichment.nutrition.fat ?? "—"}g fat
                       </div>
                       {item.enrichment.tags.length > 0 && (
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
@@ -983,7 +983,7 @@ const ALLERGEN_OPTIONS = [
   "contains_fish", "contains_shellfish", "contains_soy", "contains_sesame",
 ];
 
-function FrameworkConfigPanel({ decisionResult }: { decisionResult: { primary_meal: string; primary_reason: string; menu_options: MenuOption[] } | null }) {
+function FrameworkConfigPanel() {
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState<FrameworkConfig>({
     weather_weight: 1.0,
@@ -1207,6 +1207,11 @@ function MenuProposalSection({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Auto-generate when weather result arrives (final required input)
+  useEffect(() => {
+    if (weatherResult) generateProposal();
+  }, [weatherResult, activeRegion]);
+
   async function generateProposal() {
     setLoading(true); setError(null); setProposal(null);
     try {
@@ -1266,15 +1271,14 @@ function MenuProposalSection({
           onClick={generateProposal}
           disabled={loading}
           style={{
-            background: loading ? "#ccc" : G.green, color: "#fff",
-            border: "none", borderRadius: "10px",
-            padding: "10px 18px", fontSize: "13px", fontWeight: "700",
+            background: "transparent", color: G.green,
+            border: `1.5px solid ${G.green}`, borderRadius: "8px",
+            padding: "6px 12px", fontSize: "11px", fontWeight: "700",
             cursor: loading ? "not-allowed" : "pointer",
-            fontFamily: "'Georgia',serif",
-            flexShrink: 0,
+            fontFamily: "'Georgia',serif", flexShrink: 0, opacity: loading ? 0.5 : 1,
           }}
         >
-          {loading ? "Generating…" : "Generate Proposal"}
+          {loading ? "…" : "↻ Refresh"}
         </button>
       </div>
 
@@ -1286,7 +1290,7 @@ function MenuProposalSection({
 
       {!proposal && !loading && (
         <div style={{ fontSize: "12px", color: "#aaa", fontStyle: "italic", textAlign: "center", padding: "16px 0" }}>
-          Press Generate Proposal to create an AI menu recommendation based on weather, trends, seasonal ingredients, events and region.
+          Proposal generates automatically after ▶ Run SmarTR completes.
         </div>
       )}
 
@@ -1327,31 +1331,43 @@ function MenuProposalSection({
             </div>
           )}
 
-          {/* Full categories */}
+          {/* All items by category — visual food cards */}
           {proposal.categories && Object.keys(proposal.categories).length > 0 && (
             <div>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: G.green, marginBottom: "10px" }}>
-                Full Menu by Category
-              </div>
-              {Object.entries(proposal.categories).map(([cat, catItems]) => (
-                <div key={cat} style={{ marginBottom: "12px" }}>
-                  <div style={{ fontSize: "11px", fontWeight: "700", color: "#888", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "5px", borderBottom: "1px solid #f0f0f0", paddingBottom: "3px" }}>
-                    {cat.replace("_", " ")}
-                  </div>
-                  {[...catItems].sort((a, b) => b.score - a.score).map((item, i) => (
-                    <div key={i} style={{
-                      display: "flex", alignItems: "center", gap: "8px",
-                      padding: "5px 0", borderBottom: "1px solid #f9f9f9",
-                    }}>
-                      <span style={{ flex: 1, fontSize: "12px", color: "#333" }}>{item.name}</span>
-                      <div style={{ width: "60px", height: "4px", background: "#e0e0e0", borderRadius: "2px", overflow: "hidden", flexShrink: 0 }}>
-                        <div style={{ height: "100%", background: G.greenLight, width: `${Math.min(100, Math.round(item.score * 100))}%` }} />
-                      </div>
-                      <span style={{ fontSize: "11px", fontWeight: "700", color: G.green, flexShrink: 0 }}>£{item.price.toFixed(2)}</span>
+              {Object.entries(proposal.categories).map(([cat, catItems]) => {
+                const sorted = [...catItems].sort((a, b) => b.score - a.score);
+                const catLabel = CATEGORY_DISPLAY[cat] ?? cat.replace(/_/g," ");
+                return (
+                  <div key={cat} style={{ marginBottom: "16px" }}>
+                    <div style={{ fontSize: "12px", fontWeight: "700", color: G.green, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "8px", borderBottom: `2px solid #e6f4ee`, paddingBottom: "4px" }}>
+                      {catLabel}
                     </div>
-                  ))}
-                </div>
-              ))}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(120px,1fr))", gap: "8px" }}>
+                      {sorted.map((item, i) => {
+                        const isFeatured = (item as any).featured || (i === 0 && (item.score ?? 0) > 1);
+                        const emoji = ITEM_EMOJIS[item.name] ?? CAT_DEFAULT_EMOJI[cat] ?? "🍽️";
+                        const scoreW = Math.min(100, Math.round(((item.score ?? 0) / 6) * 100));
+                        return (
+                          <div key={i} style={{
+                            background: isFeatured ? "#f0f9f4" : "#fafafa",
+                            border: `1.5px solid ${isFeatured ? G.green : "#e8e8e8"}`,
+                            borderRadius: "12px", padding: "10px 10px 8px",
+                            position: "relative",
+                          }}>
+                            {isFeatured && <div style={{ position: "absolute", top: 5, right: 7, fontSize: "10px" }}>⭐</div>}
+                            <div style={{ fontSize: "24px", marginBottom: "4px", lineHeight: 1 }}>{emoji}</div>
+                            <div style={{ fontSize: "11px", fontWeight: "700", color: "#222", marginBottom: "2px", lineHeight: "1.3" }}>{item.name}</div>
+                            <div style={{ fontSize: "11px", fontWeight: "700", color: G.green, marginBottom: "5px" }}>£{(item.price ?? 0).toFixed(2)}</div>
+                            <div style={{ height: "3px", background: "#e0e0e0", borderRadius: "2px", overflow: "hidden" }}>
+                              <div style={{ height: "100%", background: isFeatured ? G.green : "#b2d8c5", width: `${scoreW}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </>
@@ -1499,10 +1515,19 @@ export default function FlowScreen({
     setSeasonStatus("loading"); setCelebStatus("loading");
     setRegionStatus("loading"); setCompetitorStatus("loading");
 
+    // Fetch menu item names to use as trend keywords
+    let menuKeywords: string[] = [];
+    try {
+      const md = await fetchJson("/api/menu-items");
+      menuKeywords = (md.items ?? []).map((i: any) => i.name).slice(0, 20);
+    } catch {}
+
     const [eq, sup, tr, hi, sea, cel, reg] = await Promise.allSettled([
       post("/api/equipment/van", {van_id: selectedVan}),
       fetchJson("/api/supply/chain"),
-      fetchJson("/api/trends"),
+      menuKeywords.length > 0
+        ? post("/api/trends/custom", {keywords: menuKeywords})
+        : fetchJson("/api/trends"),
       fetchJson("/api/historic"),
       fetchJson("/api/seasonal"),
       fetchJson("/api/celebrations"),
@@ -1610,7 +1635,7 @@ export default function FlowScreen({
       {/* Header */}
       <div style={{display:"flex",alignItems:"baseline",gap:"10px",marginBottom:"20px"}}>
         <div style={{fontSize:"clamp(22px,5vw,30px)",fontWeight:"bold",color:G.cream,letterSpacing:"1px"}}>
-          <em>SmarTR</em><span style={{fontStyle:"normal"}}> by TasteRover</span>
+          <em>SmarTR</em><span style={{fontStyle:"italic",fontWeight:"400",fontSize:"clamp(13px,3vw,18px)",opacity:0.8,marginLeft:"6px"}}> by TasteRover</span>
         </div>
       </div>
 
@@ -1677,6 +1702,8 @@ export default function FlowScreen({
               ))}
             </div>
           </div>
+
+          <FrameworkConfigPanel />
 
           <button onClick={runFlow} disabled={!canRun}
             style={{width:"100%",padding:"13px",background:canRun?G.green:"#ccc",color:"#fff",border:"none",borderRadius:"10px",fontSize:"15px",fontWeight:"700",cursor:canRun?"pointer":"not-allowed",fontFamily:"'Georgia',serif",letterSpacing:"1px",transition:"background 0.2s",WebkitTapHighlightColor:"transparent"}}>
@@ -2072,10 +2099,6 @@ export default function FlowScreen({
             </SectionCard>
           </ModuleGroup>
 
-          {/* ══ FRAMEWORK & CONFIG PANEL ═══════════════════════════════════ */}
-          <FrameworkConfigPanel
-            decisionResult={decisionResult}
-          />
 
           {/* ══ PIPELINE OUTPUTS ════════════════════════════════════════════ */}
 
