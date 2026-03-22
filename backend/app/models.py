@@ -217,3 +217,38 @@ class MenuProposal:
     pct_vegan: int = 0
     pct_gluten_free: int = 0
     influences: list[str] = field(default_factory=list)
+
+
+# ─── Menu items (DB-backed) ───────────────────────────────────────────────────
+
+@dataclass
+class MenuItem:
+    id:         int
+    name:       str
+    category:   str    # grill / sides / snacks / desserts / cold_drinks / hot_drinks
+    price_gbp:  float
+    user_added: bool   = False
+    active:     bool   = True
+
+
+@dataclass
+class MenuItemEnrichment:
+    item_id:     int
+    ingredients: list   # list[str]
+    nutrition:   dict   # {cal, protein_g, carbs_g, fat_g, fibre_g}
+    tags:        list   # list[str]
+    enriched_at: str    = ""
+
+
+@dataclass
+class FrameworkConfig:
+    weather_weight:          float = 1.0
+    trends_weight:           float = 1.0
+    seasonal_weight:         float = 1.0
+    events_weight:           float = 1.0
+    regional_weight:         float = 1.0
+    target_pct_veggie:       int   = 30
+    target_pct_vegan:        int   = 15
+    target_pct_gluten_free:  int   = 20
+    avg_price_target_gbp:    float = 7.0
+    exclude_allergens:       list  = field(default_factory=list)

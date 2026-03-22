@@ -24,7 +24,7 @@ function BackBtn({ onClick }: { onClick: () => void }) {
       fontSize: "clamp(12px,3vw,14px)", fontWeight: "600", marginBottom: "16px",
       WebkitTapHighlightColor: "transparent",
     }}>
-      ← Back to SmarTR Food
+      ← Back to SmarTR
     </button>
   );
 }
@@ -928,6 +928,14 @@ function StatusDot({ status }: { status: string }) {
   );
 }
 
+const BIDFOOD_SUPPLIER: Supplier = {
+  name: "Bidfood Direct",
+  distance_miles: 12,
+  lead_time_hours: 24,
+  categories: ["produce", "meat", "poultry", "seafood", "dairy", "bread", "pantry", "frozen", "beverages", "packaging"],
+  reliability_pct: 97,
+};
+
 export function SupplyScreen({ onBack }: { onBack: () => void }) {
   const [data, setData] = useState<SupplyData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -938,17 +946,35 @@ export function SupplyScreen({ onBack }: { onBack: () => void }) {
     try {
       const r = await fetch("/api/supply/chain");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      setData(await r.json());
+      const raw = await r.json();
+      // Override suppliers with Bidfood Direct only
+      setData({ ...raw, suppliers: [BIDFOOD_SUPPLIER] });
     } catch (e: any) { setError(e?.message ?? "Failed to load"); }
     finally { setLoading(false); }
   }
 
   useEffect(() => { fetch_(); }, []);
 
+  // Category colour mapping using new taxonomy
+  const catColors: Record<string, string> = {
+    produce: "#e6f4ee", meat: "#fdecea", poultry: "#fff3e0",
+    seafood: "#e0f2fe", dairy: "#fce7f3", bread: "#fef9e7",
+    pantry: "#f0f0f0", frozen: "#e8f4fd", beverages: "#e0f7fa",
+    packaging: "#f5f5f5",
+  };
+
+  const groupedInventory = data
+    ? data.inventory.reduce((acc, item) => {
+        const cat = item.category || "pantry";
+        (acc[cat] = acc[cat] ?? []).push(item);
+        return acc;
+      }, {} as Record<string, InvItem[]>)
+    : {};
+
   return (
     <div style={bg}>
       <BackBtn onClick={onBack} />
-      <PageTitle title="Supply Chain & Inventory" sub="Suppliers and ingredient stock levels" />
+      <PageTitle title="Supply Chain & Inventory" sub="Bidfood Direct — ingredient stock levels" />
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
         <div style={{ marginBottom: "16px" }}>
           <RunBtn onClick={fetch_} loading={loading} />
@@ -956,43 +982,78 @@ export function SupplyScreen({ onBack }: { onBack: () => void }) {
         {error && <ErrBox msg={error} />}
         {data && (
           <>
-            <Card>
-              <div style={{ fontWeight: "700", color: G.green, marginBottom: "14px", fontSize: "15px" }}>Nearby Suppliers</div>
-              {data.suppliers.map((s, i) => (
-                <div key={i} style={{
-                  padding: "10px 12px", background: "#f9f9f9", borderRadius: "10px",
-                  marginBottom: "8px", display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-start",
-                }}>
-                  <div style={{ flex: 1, minWidth: "140px" }}>
-                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#222" }}>{s.name}</div>
-                    <div style={{ fontSize: "11px", color: "#888", marginTop: "2px" }}>{s.categories.join(" · ")}</div>
+            {/* Bidfood Direct supplier card */}
+            <Card style={{ borderLeft: `4px solid ${G.green}` }}>
+              <div style={{ fontWeight: "700", color: G.green, marginBottom: "14px", fontSize: "15px" }}>Primary Supplier</div>
+              <div style={{
+                padding: "14px 16px", background: "#f0f9f4", borderRadius: "10px",
+                display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "flex-start",
+              }}>
+                <div style={{ flex: 1, minWidth: "140px" }}>
+                  <div style={{ fontSize: "16px", fontWeight: "700", color: G.green, marginBottom: "4px" }}>
+                    🚚 {BIDFOOD_SUPPLIER.name}
                   </div>
-                  <div style={{ display: "flex", gap: "14px", fontSize: "12px", color: "#666", flexShrink: 0, alignItems: "center" }}>
-                    <span>📍 {s.distance_miles} mi</span>
-                    <span>⏱ {s.lead_time_hours}h</span>
-                    <span style={{
-                      fontWeight: "700",
-                      color: s.reliability_pct >= 90 ? G.green : s.reliability_pct >= 75 ? G.amber : G.red,
-                    }}>
-                      ⭐ {s.reliability_pct}%
-                    </span>
+                  <div style={{ fontSize: "12px", color: "#666", marginBottom: "6px" }}>
+                    UK wholesale food distributor — next-day delivery nationwide
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                    {BIDFOOD_SUPPLIER.categories.map((cat, i) => (
+                      <span key={i} style={{
+                        padding: "2px 8px", borderRadius: "10px",
+                        background: catColors[cat] ?? "#f0f0f0",
+                        fontSize: "10px", fontWeight: "600", color: "#444",
+                        textTransform: "capitalize",
+                      }}>{cat}</span>
+                    ))}
                   </div>
                 </div>
-              ))}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", color: "#555", flexShrink: 0 }}>
+                  <span>📍 {BIDFOOD_SUPPLIER.distance_miles} mi depot</span>
+                  <span>⏱ {BIDFOOD_SUPPLIER.lead_time_hours}h lead time</span>
+                  <span style={{ fontWeight: "700", color: G.green }}>⭐ {BIDFOOD_SUPPLIER.reliability_pct}% reliability</span>
+                </div>
+              </div>
             </Card>
+
+            {/* Inventory grouped by new taxonomy categories */}
             <Card>
               <div style={{ fontWeight: "700", color: G.green, marginBottom: "14px", fontSize: "15px" }}>Ingredient Inventory</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: "6px" }}>
-                {data.inventory.map((item, i) => (
-                  <div key={i} style={{
-                    padding: "6px 10px", background: "#f9f9f9", borderRadius: "8px",
-                    display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px",
-                  }}>
-                    <span style={{ fontSize: "12px", color: "#333" }}>{item.name}</span>
-                    <StatusDot status={item.status} />
+              {Object.entries(groupedInventory).length > 0
+                ? Object.entries(groupedInventory).map(([cat, items]) => (
+                  <div key={cat} style={{ marginBottom: "12px" }}>
+                    <div style={{
+                      fontSize: "11px", fontWeight: "700", color: "#666",
+                      textTransform: "uppercase", letterSpacing: "0.5px",
+                      marginBottom: "6px", padding: "2px 0",
+                      borderBottom: "1px solid #f0f0f0",
+                    }}>{cat}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: "5px" }}>
+                      {items.map((item, i) => (
+                        <div key={i} style={{
+                          padding: "6px 10px", background: catColors[cat] ?? "#f9f9f9", borderRadius: "8px",
+                          display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px",
+                        }}>
+                          <span style={{ fontSize: "12px", color: "#333" }}>{item.name}</span>
+                          <StatusDot status={item.status} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
+                ))
+                : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: "6px" }}>
+                    {data.inventory.map((item, i) => (
+                      <div key={i} style={{
+                        padding: "6px 10px", background: "#f9f9f9", borderRadius: "8px",
+                        display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px",
+                      }}>
+                        <span style={{ fontSize: "12px", color: "#333" }}>{item.name}</span>
+                        <StatusDot status={item.status} />
+                      </div>
+                    ))}
+                  </div>
+                )
+              }
             </Card>
           </>
         )}

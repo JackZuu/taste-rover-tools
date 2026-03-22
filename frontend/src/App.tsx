@@ -417,7 +417,7 @@ export default function App() {
             WebkitTapHighlightColor: "transparent"
           }}
         >
-          ← Back to SmarTR Food
+          ← Back to SmarTR
         </button>
 
         <div style={{
@@ -783,7 +783,7 @@ export default function App() {
             WebkitTapHighlightColor: "transparent"
           }}
         >
-          ← Back to SmarTR Food
+          ← Back to SmarTR
         </button>
 
         <div style={{
@@ -1143,7 +1143,7 @@ export default function App() {
             WebkitTapHighlightColor: "transparent"
           }}
         >
-          ← Back to SmarTR Food
+          ← Back to SmarTR
         </button>
 
         <div style={{
@@ -1484,7 +1484,7 @@ export default function App() {
             WebkitTapHighlightColor: "transparent"
           }}
         >
-          ← Back to SmarTR Food
+          ← Back to SmarTR
         </button>
 
         <div style={{
@@ -1719,7 +1719,7 @@ export default function App() {
           WebkitTapHighlightColor: "transparent"
         }}
       >
-        ← Back to SmarTR Food
+        ← Back to SmarTR
       </button>
 
       <div style={{

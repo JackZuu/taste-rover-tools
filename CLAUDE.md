@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**SmarTR Food** (by Taste Rover) — a food-truck operations tool. Given a UK postcode/region and date it runs a 12-step pipeline: equipment → supply → trends → historic → seasonal → celebrations → regional demand → weather → meal decision → nutrition → menu proposal. Results are shown progressively in the **Meal Flow** UI.
+**SmarTR by TasteRover** — a food-truck operations tool. The UI is organised into 3 module groups (INPUT / SUPPLY / DEMAND) plus a Framework & Config panel and scored Menu Proposal.
 
-The app is branded "SmarTR Food" in the UI and deployed on Railway.app.
+The app is branded "SmarTR by TasteRover" and deployed on Railway.app.
 
 ## Development Setup
 
