@@ -180,30 +180,91 @@ def get_trends(geo: str = "GB") -> TrendsResult:
     )
 
 
-def get_custom_trends(keywords: list[str], geo: str = "GB") -> TrendsResult:
-    """
-    Fetch Google Trends data for an arbitrary list of keywords.
-    Groups them under category 'custom'. Falls back to a stub result if
-    pytrends is unavailable or rate-limited.
-    """
-    if not _PYTRENDS_AVAILABLE or not keywords:
-        stubs = [
-            TrendItem(label=kw.title(), direction="stable", category="custom",
-                      momentum_pct=0.0, avg_interest=0.0)
-            for kw in keywords
-        ]
-        return TrendsResult(trends=stubs, source="unavailable")
+_custom_cache: dict = {}
+_CUSTOM_CACHE_TTL_S = 86400  # 24 hours — menu items don't change frequently
+
+
+def _openai_trends(keywords: list[str]) -> list[TrendItem] | None:
+    """Use OpenAI to assess trend direction for menu item keywords."""
+    import os, json
+    try:
+        from openai import OpenAI
+        from app.prompts import menu_trends_prompt
+    except ImportError:
+        return None
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return None
 
     try:
-        pt = TrendReq(hl=LANGUAGE, tz=TIMEZONE, timeout=(10, 30), retries=2, backoff_factor=1.0)
-        items = _fetch_category(pt, "custom", keywords[:5], geo)
-        if items:
-            return TrendsResult(trends=items, source="google_trends")
+        client = OpenAI(api_key=api_key)
+        prompt = menu_trends_prompt(keywords)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            max_tokens=1200,
+            temperature=0.3,
+        )
+        raw = json.loads(response.choices[0].message.content or "{}")
+        trends_list = raw.get("trends", [])
+        items: list[TrendItem] = []
+        for t in trends_list:
+            direction = t.get("direction", "stable")
+            if direction not in ("up", "down", "stable"):
+                direction = "stable"
+            items.append(TrendItem(
+                label=t.get("label", ""),
+                direction=direction,
+                category=t.get("category", "main"),
+                momentum_pct=round(float(t.get("momentum_pct", 0.0)), 1),
+                avg_interest=round(float(t.get("avg_interest", 0.0)), 1),
+            ))
+        return items if items else None
     except Exception:
-        pass
+        return None
 
+
+def get_custom_trends(keywords: list[str], geo: str = "GB") -> TrendsResult:
+    """
+    Assess trend direction for a list of menu item keywords.
+    Primary: OpenAI analysis (cached 24 hrs per keyword set).
+    Secondary: pytrends for first 5 keywords if available.
+    DATA SOURCE: OpenAI gpt-4o-mini | pytrends | unavailable stubs
+    """
+    if not keywords:
+        return TrendsResult(trends=[], source="unavailable")
+
+    # Cache key: sorted keywords joined
+    cache_key = "|".join(sorted(k.lower() for k in keywords))
+    now = datetime.utcnow()
+    cached = _custom_cache.get(cache_key)
+    if cached and (now - cached["at"]).total_seconds() < _CUSTOM_CACHE_TTL_S:
+        return cached["result"]
+
+    # Try OpenAI first (handles all keywords at once)
+    items = _openai_trends(keywords)
+    if items:
+        result = TrendsResult(trends=items, source="openai")
+        _custom_cache[cache_key] = {"result": result, "at": now}
+        return result
+
+    # Try pytrends for first 5 keywords
+    if _PYTRENDS_AVAILABLE:
+        try:
+            pt = TrendReq(hl=LANGUAGE, tz=TIMEZONE, timeout=(10, 30), retries=2, backoff_factor=1.0)
+            items = _fetch_category(pt, "custom", keywords[:5], geo)
+            if items:
+                result = TrendsResult(trends=items, source="google_trends")
+                _custom_cache[cache_key] = {"result": result, "at": now}
+                return result
+        except Exception:
+            pass
+
+    # Fallback stubs
     stubs = [
-        TrendItem(label=kw.title(), direction="stable", category="custom",
+        TrendItem(label=kw, direction="stable", category="main",
                   momentum_pct=0.0, avg_interest=0.0)
         for kw in keywords
     ]

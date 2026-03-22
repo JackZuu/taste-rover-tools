@@ -206,9 +206,29 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
   async function fetch_() {
     setLoading(true); setError(null);
     try {
-      const r = await fetch("/api/trends");
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      setData(await r.json());
+      // Load menu items and use them as trend keywords (OpenAI-powered)
+      let keywords: string[] = [];
+      try {
+        const md = await fetch("/api/menu-items");
+        if (md.ok) {
+          const mj = await md.json();
+          keywords = (mj.items ?? []).map((i: any) => i.name);
+        }
+      } catch {}
+
+      if (keywords.length > 0) {
+        const r = await fetch("/api/trends/custom", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keywords }),
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        setData(await r.json());
+      } else {
+        const r = await fetch("/api/trends");
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        setData(await r.json());
+      }
     } catch (e: any) { setError(e?.message ?? "Failed to load"); }
     finally { setLoading(false); }
   }
@@ -253,7 +273,7 @@ export function TrendsScreen({ onBack }: { onBack: () => void }) {
   return (
     <div style={bg}>
       <BackBtn onClick={onBack} />
-      <PageTitle title="Food & Drink Trends" sub="UK consumer search interest" />
+      <PageTitle title="Food & Drink Trends" sub="Your menu items assessed against UK market trends" />
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
 
         {/* Custom keyword search input */}

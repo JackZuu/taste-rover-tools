@@ -66,6 +66,30 @@ Return a JSON object with key "items" — an array of objects each with:
 Include 8–12 items. Return JSON only."""
 
 
+def menu_trends_prompt(items: list[str]) -> str:
+    """
+    Prompt to assess UK trend direction for a list of menu item names.
+    Returns JSON with key "trends" — array of objects per item.
+    """
+    items_str = "\n".join(f"- {name}" for name in items)
+    return f"""You are a UK food & beverage market analyst with up-to-date knowledge of consumer trends.
+
+For each of the following menu items, assess their current trend direction in the UK street-food and casual dining market.
+
+Items:
+{items_str}
+
+Return a JSON object with key "trends" containing an array. Each element must have:
+  "label" — the item name exactly as provided
+  "direction" — one of: "up", "stable", "down"
+  "momentum_pct" — estimated momentum as a float (positive = growing, negative = declining). Range roughly -30 to +60.
+  "avg_interest" — estimated relative consumer interest score 0–100
+  "category" — one of: main, snack, beverage, dessert, side, pizza, pasta
+
+Base your assessment on UK food culture, social media trends, restaurant/street-food popularity, and seasonal factors for the current time of year (March 2026).
+Return JSON only."""
+
+
 def regional_prompt(region: str) -> str:
     """Prompt to fetch regional food demand insights for a UK region."""
     return f"""You are a UK street-food market analyst.
