@@ -546,16 +546,16 @@ interface MenuItem {
 }
 
 interface FrameworkConfig {
-  weather_influence: number;
-  trends_influence: number;
-  seasonal_influence: number;
-  events_influence: number;
-  regional_influence: number;
-  target_pct_vegetarian: number;
+  weather_weight: number;
+  trends_weight: number;
+  seasonal_weight: number;
+  events_weight: number;
+  regional_weight: number;
+  target_pct_veggie: number;
   target_pct_vegan: number;
   target_pct_gluten_free: number;
-  avg_price_target: number;
-  allergen_exclusions: string[];
+  avg_price_target_gbp: number;
+  exclude_allergens: string[];
 }
 
 interface ProposalFeaturedItem {
@@ -651,14 +651,31 @@ function tagPillStyle(tag: string): React.CSSProperties {
   return { background: "#f0f0f0", color: "#555" };
 }
 
-// ─── CurrentMenuModule ────────────────────────────────────────────────────────
+// ─── MenuModule (combined menu management + enrichment) ───────────────────────
 
 const MENU_CATEGORIES = ["grill", "sides", "snacks", "desserts", "cold_drinks", "hot_drinks"];
 
-function CurrentMenuModule() {
+const CATEGORY_DISPLAY: Record<string, string> = {
+  grill: "🔥 Grill",
+  sides: "🥗 Sides",
+  snacks: "🍝 Snacks",
+  desserts: "🍰 Desserts",
+  cold_drinks: "🧃 Cold Drinks",
+  hot_drinks: "☕ Hot Drinks",
+};
+
+const CAT_DEFAULT_EMOJI: Record<string, string> = {
+  grill: "🔥", sides: "🥗", snacks: "🍝",
+  desserts: "🍰", cold_drinks: "🧃", hot_drinks: "☕",
+};
+
+function MenuModule() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [enrichingAll, setEnrichingAll] = useState(false);
+  const [enrichingId, setEnrichingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [addName, setAddName] = useState("");
   const [addCat, setAddCat] = useState("grill");
   const [addPrice, setAddPrice] = useState("");
@@ -671,9 +688,21 @@ function CurrentMenuModule() {
       const r = await fetch("/api/menu-items");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const d = await r.json();
-      setItems((d.items ?? []).map((i: any) => ({
-        ...i, price: i.price_gbp ?? i.price ?? 0, is_base: !i.user_added, enriched: false,
-      })));
+      const baseItems: MenuItem[] = (d.items ?? []).map((i: any) => ({
+        ...i, price: i.price_gbp ?? i.price ?? 0, is_base: !i.user_added, enriched: !!i.enrichment,
+      }));
+      // Load enrichment for each item
+      const enriched = await Promise.all(baseItems.map(async item => {
+        try {
+          const re = await fetch(`/api/menu-items/${item.id}/enrichment`);
+          if (re.ok) {
+            const enr = await re.json();
+            if (enr && enr.ingredients) return { ...item, enriched: true, enrichment: enr };
+          }
+        } catch {}
+        return item;
+      }));
+      setItems(enriched);
     } catch (e: any) { setError(e?.message ?? "Failed to load menu items"); }
     finally { setLoading(false); }
   }
@@ -701,6 +730,28 @@ function CurrentMenuModule() {
     } catch {}
   }
 
+  async function enrichAll() {
+    setEnrichingAll(true); setError(null);
+    try {
+      const r = await fetch("/api/menu-items/enrich-all", { method: "POST" });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      loadItems();
+    } catch (e: any) { setError(e?.message ?? "Failed to enrich all"); }
+    finally { setEnrichingAll(false); }
+  }
+
+  async function enrichOne(id: string) {
+    setEnrichingId(id);
+    try {
+      const r = await fetch(`/api/menu-items/${id}/enrich`, { method: "POST" });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json();
+      setItems(prev => prev.map(i => i.id === id ? { ...i, enriched: true, enrichment: d.enrichment ?? d } : i));
+      setExpandedId(id);
+    } catch (e: any) { setError(e?.message ?? "Failed to enrich item"); }
+    finally { setEnrichingId(null); }
+  }
+
   useEffect(() => { loadItems(); }, []);
 
   const grouped = items.reduce((acc, item) => {
@@ -708,12 +759,15 @@ function CurrentMenuModule() {
     return acc;
   }, {} as Record<string, MenuItem[]>);
 
+  const unenriched = items.filter(i => !i.enriched).length;
+
   return (
     <div style={{
       background: G.card, borderRadius: "16px", border: "2px solid #e8e8e8",
       padding: "18px 22px", marginBottom: "14px",
       boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
     }}>
+      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
         <div style={{
           width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
@@ -722,9 +776,24 @@ function CurrentMenuModule() {
           fontSize: "12px", fontWeight: "700",
         }}>M</div>
         <div style={{ fontSize: "clamp(14px,3.2vw,16px)", fontWeight: "700", flex: 1, color: G.green, letterSpacing: "0.4px" }}>
-          Current Menu Options
+          Menu Options
         </div>
         {loading && <span style={{ fontSize: "11px", color: G.greenLight, fontStyle: "italic" }}>Loading…</span>}
+        <button
+          onClick={enrichAll}
+          disabled={enrichingAll || unenriched === 0}
+          style={{
+            padding: "5px 12px", borderRadius: "20px",
+            border: `1.5px solid ${G.green}`,
+            background: enrichingAll || unenriched === 0 ? "#ccc" : "#e6f4ee",
+            color: enrichingAll || unenriched === 0 ? "#fff" : G.green,
+            fontSize: "11px", fontWeight: "700",
+            cursor: enrichingAll || unenriched === 0 ? "not-allowed" : "pointer",
+            fontFamily: "'Georgia',serif", flexShrink: 0,
+          }}
+        >
+          {enrichingAll ? "Enriching…" : `Enrich All (${unenriched})`}
+        </button>
       </div>
 
       {error && (
@@ -738,37 +807,110 @@ function CurrentMenuModule() {
         const catItems = grouped[cat] ?? [];
         if (catItems.length === 0) return null;
         return (
-          <div key={cat} style={{ marginBottom: "10px" }}>
-            <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "5px" }}>
-              {cat.replace("_", " ")}
+          <div key={cat} style={{ marginBottom: "12px" }}>
+            <div style={{ fontSize: "11px", fontWeight: "700", color: G.green, marginBottom: "6px", letterSpacing: "0.3px" }}>
+              {CATEGORY_DISPLAY[cat] ?? cat.replace("_", " ")}
             </div>
-            {catItems.map(item => (
-              <div key={item.id} style={{
-                display: "flex", alignItems: "center", gap: "8px",
-                padding: "6px 8px", background: "#f9f9f9", borderRadius: "8px", marginBottom: "4px",
-              }}>
-                <span style={{
-                  width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-                  background: item.enriched ? G.green : "#ccc",
-                  display: "inline-block",
-                }} title={item.enriched ? "Enriched" : "Not enriched"} />
-                <span style={{ flex: 1, fontSize: "13px", fontWeight: "600", color: "#333" }}>{item.name}</span>
-                <span style={{ fontSize: "12px", color: G.green, fontWeight: "700" }}>£{item.price.toFixed(2)}</span>
-                <span style={{
-                  padding: "1px 6px", borderRadius: "8px", fontSize: "9px", fontWeight: "600",
-                  background: item.is_base ? "#e6f4ee" : "#fef3c7",
-                  color: item.is_base ? G.green : "#92400e",
-                  flexShrink: 0,
-                }}>{item.is_base ? "Base menu" : "Added by you"}</span>
-                {!item.is_base && (
-                  <button onClick={() => removeItem(item.id)} style={{
-                    background: "#fdecea", border: "none", borderRadius: "6px",
-                    color: G.red, fontSize: "10px", fontWeight: "700", cursor: "pointer",
-                    padding: "2px 6px", flexShrink: 0,
-                  }}>✕</button>
-                )}
-              </div>
-            ))}
+            {catItems.map(item => {
+              const emoji = ITEM_EMOJIS[item.name] ?? CAT_DEFAULT_EMOJI[item.category] ?? "🍽️";
+              const expanded = expandedId === item.id;
+              return (
+                <div key={item.id} style={{
+                  background: "#f9f9f9", borderRadius: "10px", marginBottom: "6px",
+                  border: item.enriched ? `1.5px solid ${G.green}` : "1.5px solid #eee",
+                  overflow: "hidden",
+                }}>
+                  {/* Item row */}
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", cursor: item.enriched ? "pointer" : "default" }}
+                    onClick={() => item.enriched && setExpandedId(expanded ? null : item.id)}
+                  >
+                    <span style={{ fontSize: "18px", flexShrink: 0 }}>{emoji}</span>
+                    <span style={{ flex: 1, fontSize: "13px", fontWeight: "600", color: "#333" }}>{item.name}</span>
+                    <span style={{ fontSize: "12px", color: G.green, fontWeight: "700", flexShrink: 0 }}>£{item.price.toFixed(2)}</span>
+                    {/* Dietary tags */}
+                    {item.enrichment?.tags && item.enrichment.tags.filter(t => t === "vegetarian" || t === "vegan").map((t, ti) => (
+                      <span key={ti} style={{ padding: "1px 6px", borderRadius: "8px", fontSize: "9px", fontWeight: "600", background: "#dcfce7", color: "#15803d", flexShrink: 0 }}>
+                        {t}
+                      </span>
+                    ))}
+                    {item.enrichment?.tags && item.enrichment.tags.filter(t => t.startsWith("contains_")).slice(0, 2).map((t, ti) => (
+                      <span key={ti} style={{ padding: "1px 6px", borderRadius: "8px", fontSize: "9px", fontWeight: "600", background: "#fee2e2", color: "#dc2626", flexShrink: 0 }}>
+                        {t.replace("contains_", "")}
+                      </span>
+                    ))}
+                    {/* Enrichment dot */}
+                    <span style={{
+                      width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                      background: item.enriched ? G.green : "#ccc", display: "inline-block",
+                    }} title={item.enriched ? "Enriched" : "Not enriched"} />
+                    {/* Enrich button */}
+                    {!item.enriched && (
+                      <button
+                        onClick={e => { e.stopPropagation(); enrichOne(item.id); }}
+                        disabled={enrichingId === item.id}
+                        style={{
+                          padding: "3px 10px", borderRadius: "8px",
+                          border: `1px solid ${G.green}`, background: "#e6f4ee",
+                          color: G.green, fontSize: "11px", fontWeight: "600",
+                          cursor: enrichingId === item.id ? "not-allowed" : "pointer",
+                          fontFamily: "'Georgia',serif", flexShrink: 0,
+                        }}
+                      >
+                        {enrichingId === item.id ? "…" : "Enrich"}
+                      </button>
+                    )}
+                    {/* Remove button */}
+                    {!item.is_base && (
+                      <button
+                        onClick={e => { e.stopPropagation(); removeItem(item.id); }}
+                        style={{
+                          background: "#fdecea", border: "none", borderRadius: "6px",
+                          color: G.red, fontSize: "10px", fontWeight: "700", cursor: "pointer",
+                          padding: "2px 6px", flexShrink: 0,
+                        }}
+                      >✕</button>
+                    )}
+                  </div>
+
+                  {/* Enriching indicator */}
+                  {enrichingId === item.id && (
+                    <div style={{ fontSize: "11px", color: G.greenLight, fontStyle: "italic", padding: "4px 10px 8px" }}>
+                      Enriching via OpenAI…
+                    </div>
+                  )}
+
+                  {/* Enrichment detail (collapsible) */}
+                  {expanded && item.enriched && item.enrichment && (
+                    <div style={{ padding: "0 10px 10px", borderTop: "1px solid #e8e8e8" }}>
+                      {item.enrichment.ingredients.length > 0 && (
+                        <div style={{ fontSize: "11px", color: "#555", marginBottom: "6px", marginTop: "8px" }}>
+                          <span style={{ fontWeight: "700", color: "#333" }}>Ingredients: </span>
+                          {item.enrichment.ingredients.join(", ")}
+                        </div>
+                      )}
+                      <div style={{ fontSize: "11px", color: "#555", marginBottom: "8px" }}>
+                        <span style={{ fontWeight: "700", color: "#333" }}>Nutrition: </span>
+                        {item.enrichment.nutrition.calories} kcal · {item.enrichment.nutrition.protein}g protein · {item.enrichment.nutrition.carbs}g carbs · {item.enrichment.nutrition.fat}g fat
+                      </div>
+                      {item.enrichment.tags.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                          <span style={{ fontSize: "11px", fontWeight: "700", color: "#333", marginRight: "2px" }}>Tags:</span>
+                          {item.enrichment.tags.map((tag, ti) => (
+                            <span key={ti} style={{
+                              padding: "2px 8px", borderRadius: "10px", fontSize: "10px", fontWeight: "600",
+                              ...tagPillStyle(tag),
+                            }}>
+                              {tag.replace(/_/g, " ")}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         );
       })}
@@ -801,7 +943,7 @@ function CurrentMenuModule() {
             onChange={e => setAddCat(e.target.value)}
             style={{ flex: 1, minWidth: "90px", padding: "7px 8px", border: "1.5px solid #ddd", borderRadius: "8px", fontSize: "12px", fontFamily: "'Georgia',serif", outline: "none" }}
           >
-            {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c.replace("_"," ")}</option>)}
+            {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c.replace("_", " ")}</option>)}
           </select>
           <input
             type="number"
@@ -834,181 +976,6 @@ function CurrentMenuModule() {
   );
 }
 
-// ─── MenuEnrichmentModule ─────────────────────────────────────────────────────
-
-function MenuEnrichmentModule() {
-  const [items, setItems] = useState<MenuItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [enrichingAll, setEnrichingAll] = useState(false);
-  const [enrichingId, setEnrichingId] = useState<string | null>(null);
-
-  async function loadItems() {
-    setLoading(true); setError(null);
-    try {
-      const r = await fetch("/api/menu-items");
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const d = await r.json();
-      setItems((d.items ?? []).map((i: any) => ({
-        ...i, price: i.price_gbp ?? i.price ?? 0, is_base: !i.user_added, enriched: false,
-      })));
-    } catch (e: any) { setError(e?.message ?? "Failed to load items"); }
-    finally { setLoading(false); }
-  }
-
-  async function enrichAll() {
-    setEnrichingAll(true); setError(null);
-    try {
-      const r = await fetch("/api/menu-items/enrich-all", { method: "POST" });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      loadItems();
-    } catch (e: any) { setError(e?.message ?? "Failed to enrich"); }
-    finally { setEnrichingAll(false); }
-  }
-
-  async function enrichOne(id: string) {
-    setEnrichingId(id);
-    try {
-      const r = await fetch(`/api/menu-items/${id}/enrich`, { method: "POST" });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const d = await r.json();
-      setItems(prev => prev.map(i => i.id === id ? { ...i, ...d } : i));
-    } catch (e: any) { setError(e?.message ?? "Failed to enrich item"); }
-    finally { setEnrichingId(null); }
-  }
-
-  useEffect(() => { loadItems(); }, []);
-
-  const unenriched = items.filter(i => !i.enriched).length;
-
-  return (
-    <div style={{
-      background: G.card, borderRadius: "16px", border: "2px solid #e8e8e8",
-      padding: "18px 22px", marginBottom: "14px",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-        <div style={{
-          width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-          background: G.green, color: "#fff",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "12px", fontWeight: "700",
-        }}>E</div>
-        <div style={{ fontSize: "clamp(14px,3.2vw,16px)", fontWeight: "700", flex: 1, color: G.green, letterSpacing: "0.4px" }}>
-          Menu Enrichment
-        </div>
-        <button
-          onClick={enrichAll}
-          disabled={enrichingAll || unenriched === 0}
-          style={{
-            padding: "5px 12px", borderRadius: "20px",
-            border: `1.5px solid ${G.green}`,
-            background: enrichingAll || unenriched === 0 ? "#ccc" : "#e6f4ee",
-            color: enrichingAll || unenriched === 0 ? "#fff" : G.green,
-            fontSize: "11px", fontWeight: "700",
-            cursor: enrichingAll || unenriched === 0 ? "not-allowed" : "pointer",
-            fontFamily: "'Georgia',serif",
-          }}
-        >
-          {enrichingAll ? "Enriching…" : `Enrich All (${unenriched})`}
-        </button>
-      </div>
-
-      {error && (
-        <div style={{ background: "#fdecea", border: `1px solid ${G.red}`, borderRadius: "8px", padding: "8px 12px", color: G.red, fontSize: "12px", marginBottom: "10px" }}>
-          {error}
-        </div>
-      )}
-
-      {loading && <div style={{ fontSize: "12px", color: "#aaa", fontStyle: "italic" }}>Loading items…</div>}
-
-      {items.map(item => (
-        <div key={item.id} style={{
-          padding: "10px 12px", background: "#f9f9f9", borderRadius: "10px",
-          marginBottom: "8px", border: item.enriched ? `1.5px solid ${G.green}` : "1.5px solid #eee",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: item.enriched ? "8px" : "0" }}>
-            <span style={{
-              width: 10, height: 10, borderRadius: "50%",
-              background: item.enriched ? G.green : "#ddd",
-              display: "inline-block", flexShrink: 0,
-            }} />
-            <span style={{ flex: 1, fontSize: "13px", fontWeight: "700", color: "#333" }}>{item.name}</span>
-            <span style={{ fontSize: "11px", color: "#888" }}>{item.category}</span>
-            <span style={{ fontSize: "12px", fontWeight: "700", color: G.green }}>£{item.price.toFixed(2)}</span>
-            {!item.enriched && (
-              <button
-                onClick={() => enrichOne(item.id)}
-                disabled={enrichingId === item.id}
-                style={{
-                  padding: "3px 10px", borderRadius: "8px",
-                  border: `1px solid ${G.green}`, background: "#e6f4ee",
-                  color: G.green, fontSize: "11px", fontWeight: "600",
-                  cursor: enrichingId === item.id ? "not-allowed" : "pointer",
-                  fontFamily: "'Georgia',serif",
-                }}
-              >
-                {enrichingId === item.id ? "…" : "Enrich"}
-              </button>
-            )}
-          </div>
-
-          {enrichingId === item.id && (
-            <div style={{ fontSize: "11px", color: G.greenLight, fontStyle: "italic", marginTop: "4px" }}>
-              Enriching via OpenAI…
-            </div>
-          )}
-
-          {item.enriched && item.enrichment && (
-            <div style={{ paddingTop: "4px" }}>
-              {/* Ingredients */}
-              {item.enrichment.ingredients.length > 0 && (
-                <div style={{ fontSize: "11px", color: "#555", marginBottom: "6px" }}>
-                  <span style={{ fontWeight: "700", color: "#333" }}>Ingredients: </span>
-                  {item.enrichment.ingredients.join(", ")}
-                </div>
-              )}
-              {/* Nutrition */}
-              <div style={{ display: "flex", gap: "6px", marginBottom: "6px", flexWrap: "wrap" }}>
-                {[
-                  { label: "Cal", val: `${item.enrichment.nutrition.calories}` },
-                  { label: "Protein", val: `${item.enrichment.nutrition.protein}g` },
-                  { label: "Carbs", val: `${item.enrichment.nutrition.carbs}g` },
-                  { label: "Fat", val: `${item.enrichment.nutrition.fat}g` },
-                ].map(n => (
-                  <div key={n.label} style={{ padding: "3px 8px", background: "#e6f4ee", borderRadius: "6px", textAlign: "center" }}>
-                    <div style={{ fontSize: "9px", color: "#888", textTransform: "uppercase" }}>{n.label}</div>
-                    <div style={{ fontSize: "11px", fontWeight: "700", color: G.green }}>{n.val}</div>
-                  </div>
-                ))}
-              </div>
-              {/* Tags */}
-              {item.enrichment.tags.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                  {item.enrichment.tags.map((tag, ti) => (
-                    <span key={ti} style={{
-                      padding: "2px 8px", borderRadius: "10px", fontSize: "10px", fontWeight: "600",
-                      ...tagPillStyle(tag),
-                    }}>
-                      {tag.replace(/_/g, " ")}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      ))}
-
-      {items.length === 0 && !loading && (
-        <div style={{ fontSize: "12px", color: "#aaa", fontStyle: "italic" }}>
-          No items found. Add items in Current Menu Options above.
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── FrameworkConfigPanel ─────────────────────────────────────────────────────
 
 const ALLERGEN_OPTIONS = [
@@ -1019,16 +986,16 @@ const ALLERGEN_OPTIONS = [
 function FrameworkConfigPanel({ decisionResult }: { decisionResult: { primary_meal: string; primary_reason: string; menu_options: MenuOption[] } | null }) {
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState<FrameworkConfig>({
-    weather_influence: 1.0,
-    trends_influence: 1.0,
-    seasonal_influence: 1.0,
-    events_influence: 1.0,
-    regional_influence: 1.0,
-    target_pct_vegetarian: 30,
+    weather_weight: 1.0,
+    trends_weight: 1.0,
+    seasonal_weight: 1.0,
+    events_weight: 1.0,
+    regional_weight: 1.0,
+    target_pct_veggie: 30,
     target_pct_vegan: 15,
     target_pct_gluten_free: 20,
-    avg_price_target: 10,
-    allergen_exclusions: [],
+    avg_price_target_gbp: 7.0,
+    exclude_allergens: [],
   });
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -1059,15 +1026,15 @@ function FrameworkConfigPanel({ decisionResult }: { decisionResult: { primary_me
   useEffect(() => { loadConfig(); }, []);
 
   const sliders = [
-    { key: "weather_influence" as const, label: "Weather influence" },
-    { key: "trends_influence" as const, label: "Trends influence" },
-    { key: "seasonal_influence" as const, label: "Seasonal influence" },
-    { key: "events_influence" as const, label: "Events influence" },
-    { key: "regional_influence" as const, label: "Regional influence" },
+    { key: "weather_weight" as const, label: "Weather influence" },
+    { key: "trends_weight" as const, label: "Trends influence" },
+    { key: "seasonal_weight" as const, label: "Seasonal influence" },
+    { key: "events_weight" as const, label: "Events influence" },
+    { key: "regional_weight" as const, label: "Regional influence" },
   ];
 
   const targets = [
-    { key: "target_pct_vegetarian" as const, label: "Target % vegetarian" },
+    { key: "target_pct_veggie" as const, label: "Target % vegetarian" },
     { key: "target_pct_vegan" as const, label: "Target % vegan" },
     { key: "target_pct_gluten_free" as const, label: "Target % gluten-free" },
   ];
@@ -1110,11 +1077,11 @@ function FrameworkConfigPanel({ decisionResult }: { decisionResult: { primary_me
               <div key={s.key} style={{ marginBottom: "10px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
                   <label style={{ fontSize: "12px", color: "#555" }}>{s.label}</label>
-                  <span style={{ fontSize: "12px", fontWeight: "700", color: G.green }}>{config[s.key].toFixed(1)}</span>
+                  <span style={{ fontSize: "12px", fontWeight: "700", color: G.green }}>{(config[s.key] ?? 1.0).toFixed(1)}</span>
                 </div>
                 <input
                   type="range" min="0" max="2" step="0.1"
-                  value={config[s.key]}
+                  value={config[s.key] ?? 1.0}
                   onChange={e => setConfig(prev => ({ ...prev, [s.key]: parseFloat(e.target.value) }))}
                   style={{ width: "100%", accentColor: G.green }}
                 />
@@ -1147,8 +1114,8 @@ function FrameworkConfigPanel({ decisionResult }: { decisionResult: { primary_me
               <label style={{ fontSize: "10px", color: "#888", display: "block", marginBottom: "3px" }}>Average price target (£)</label>
               <input
                 type="number" min="0" step="0.50"
-                value={config.avg_price_target}
-                onChange={e => setConfig(prev => ({ ...prev, avg_price_target: parseFloat(e.target.value) || 0 }))}
+                value={config.avg_price_target_gbp}
+                onChange={e => setConfig(prev => ({ ...prev, avg_price_target_gbp: parseFloat(e.target.value) || 0 }))}
                 style={{ width: "100px", padding: "6px 8px", border: "1.5px solid #ddd", borderRadius: "7px", fontSize: "13px", fontFamily: "'Georgia',serif", outline: "none" }}
               />
             </div>
@@ -1161,7 +1128,7 @@ function FrameworkConfigPanel({ decisionResult }: { decisionResult: { primary_me
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
               {ALLERGEN_OPTIONS.map(a => {
-                const checked = config.allergen_exclusions.includes(a);
+                const checked = config.exclude_allergens.includes(a);
                 return (
                   <label key={a} style={{
                     display: "flex", alignItems: "center", gap: "5px",
@@ -1176,9 +1143,9 @@ function FrameworkConfigPanel({ decisionResult }: { decisionResult: { primary_me
                       type="checkbox" checked={checked}
                       onChange={e => setConfig(prev => ({
                         ...prev,
-                        allergen_exclusions: e.target.checked
-                          ? [...prev.allergen_exclusions, a]
-                          : prev.allergen_exclusions.filter(x => x !== a),
+                        exclude_allergens: e.target.checked
+                          ? [...prev.exclude_allergens, a]
+                          : prev.exclude_allergens.filter(x => x !== a),
                       }))}
                       style={{ display: "none" }}
                     />
@@ -1491,10 +1458,6 @@ export default function FlowScreen({
   const [decisionStatus,   setDecisionStatus]   = useState<PS>("idle");
   const [decisionResult,   setDecisionResult]   = useState<{primary_meal:string;primary_reason:string;menu_options:MenuOption[]}|null>(null);
 
-  const [nutritionStatus,  setNutritionStatus]  = useState<PS>("idle");
-  const [nutritionResult,  setNutritionResult]  = useState<{items:NutritionItem[];total_calories_kcal:number}|null>(null);
-  const [nutritionErr,     setNutritionErr]     = useState<string|null>(null);
-
   const [menuStatus,       setMenuStatus]       = useState<PS>("idle");
   const [menuResult,       setMenuResult]       = useState<any|null>(null);
   const [menuErr,          setMenuErr]          = useState<string|null>(null);
@@ -1512,7 +1475,6 @@ export default function FlowScreen({
     setCompetitorStatus("idle");
     setWeatherStatus("idle");    setWeatherResult(null); setWeatherErr(null);
     setDecisionStatus("idle");   setDecisionResult(null);
-    setNutritionStatus("idle");  setNutritionResult(null); setNutritionErr(null);
     setMenuStatus("idle");       setMenuResult(null);    setMenuErr(null);
   }
 
@@ -1591,18 +1553,7 @@ export default function FlowScreen({
     const dec = decideAndOptions(wr.avg_temp, wr.is_rainy, wr.condition);
     setDecisionResult(dec); setDecisionStatus("done");
 
-    // ── Step 11: Nutrition — always smash burger ───────────────────────────
-    setNutritionStatus("loading");
-    try {
-      const data = await post("/api/nutrition", {ingredients:["1 smash burger"]});
-      if (data.error) throw new Error(data.error);
-      setNutritionResult(data); setNutritionStatus("done");
-    } catch(e:any) {
-      setNutritionErr(e?.message??"Failed to fetch nutrition");
-      setNutritionStatus("error");
-    }
-
-    // ── Step 12: Menu proposal ─────────────────────────────────────────────
+    // ── Step 11: Menu proposal ─────────────────────────────────────────────
     setMenuStatus("loading");
     try {
       // Read from settled results directly to avoid stale-closure issues
@@ -1635,7 +1586,7 @@ export default function FlowScreen({
   const allDone = [
     equipStatus,supplyStatus,trendsStatus,historicStatus,
     seasonStatus,celebStatus,regionStatus,competitorStatus,
-    weatherStatus,decisionStatus,nutritionStatus,menuStatus,
+    weatherStatus,decisionStatus,menuStatus,
   ].every(s=>s==="done"||s==="error");
 
   const tabBtn = (active:boolean): React.CSSProperties => ({
@@ -1746,14 +1697,11 @@ export default function FlowScreen({
           <ModuleGroup
             title="INPUT"
             borderColor="#2563eb"
-            itemCount={3}
+            itemCount={2}
             defaultOpen={true}
           >
-            {/* Current Menu Options */}
-            <CurrentMenuModule />
-
-            {/* Menu Enrichment */}
-            <MenuEnrichmentModule />
+            {/* Menu Options (combined menu management + enrichment) */}
+            <MenuModule />
 
             {/* Competitor Menus */}
             <div style={{
@@ -2109,7 +2057,7 @@ export default function FlowScreen({
               {weatherStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{weatherErr}</div>}
               {weatherResult&&(
                 <div>
-                  <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap",marginBottom:decisionResult?"12px":"0"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
                     <div style={{fontSize:"48px"}}>{condIcon(weatherResult.condition)}</div>
                     <div>
                       <div style={{fontSize:"36px",fontWeight:"bold",color:G.green,lineHeight:"1"}}>{weatherResult.avg_temp.toFixed(1)}°C</div>
@@ -2119,16 +2067,6 @@ export default function FlowScreen({
                       <StatusBadge ok={!weatherResult.is_rainy} labelOk="Not rainy" labelNo="Rainy"/>
                     </div>
                   </div>
-                  {decisionResult&&(
-                    <div style={{padding:"10px 12px",background:"#e6f4ee",borderRadius:"8px",display:"flex",alignItems:"center",gap:"10px"}}>
-                      <span style={{fontSize:"22px"}}>{decisionResult.primary_meal==="strawberry ice cream"?"🍓":"🍅"}</span>
-                      <div>
-                        <div style={{fontSize:"11px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>Recommended</div>
-                        <div style={{fontSize:"13px",fontWeight:"700",color:G.green,textTransform:"capitalize"}}>{decisionResult.primary_meal}</div>
-                        <div style={{fontSize:"11px",color:"#555",fontStyle:"italic"}}>{decisionResult.primary_reason}</div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </SectionCard>
@@ -2141,59 +2079,7 @@ export default function FlowScreen({
 
           {/* ══ PIPELINE OUTPUTS ════════════════════════════════════════════ */}
 
-          {/* ⑩ Nutrition — burger sample only */}
-          <SectionCard step={10} title="Nutrition Sample" status={nutritionStatus==="idle"?"done":nutritionStatus} dataLabel={nutritionResult?"OpenAI":undefined}
-            titleAction={
-              <button onClick={onOpenNutrition}
-                style={{
-                  marginLeft:"auto", padding:"4px 10px",
-                  border:`1.5px solid ${nutritionStatus==="idle"?G.green:"rgba(255,255,255,0.6)"}`, borderRadius:"20px",
-                  background:"transparent", color:nutritionStatus==="idle"?G.green:"#fff",
-                  fontSize:"11px", fontWeight:"600", cursor:"pointer",
-                  fontFamily:"'Georgia',serif", WebkitTapHighlightColor:"transparent",
-                  flexShrink:0,
-                }}>
-                Open tool →
-              </button>
-            }
-          >
-            {nutritionStatus==="idle"&&(
-              <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
-                Click <strong style={{color:G.green}}>Open tool →</strong> to calculate nutrition for custom ingredients, or run the full flow for a Smash Burger sample.
-              </div>
-            )}
-            {nutritionStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{nutritionErr}</div>}
-            {nutritionResult&&(
-              <div>
-                <div style={{fontSize:"12px",color:"#888",marginBottom:"8px",fontStyle:"italic"}}>
-                  Calorie estimate for a Smash Burger (example item)
-                </div>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"#e6f4ee",borderRadius:"8px",marginBottom:"10px"}}>
-                  <span style={{fontWeight:"600",color:G.green,fontSize:"13px"}}>🍔 Smash Burger</span>
-                  <span style={{fontSize:"20px",fontWeight:"bold",color:G.green}}>{nutritionResult.total_calories_kcal} kcal</span>
-                </div>
-                {nutritionResult.items.map((item,i)=>(
-                  <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",padding:"6px 0",borderBottom:i<nutritionResult.items.length-1?"1px solid #f0f0f0":"none",gap:"10px"}}>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:"13px",fontWeight:"600",color:"#333"}}>{item.ingredient}</div>
-                      <div style={{fontSize:"11px",color:"#888",fontStyle:"italic"}}>{item.assumed_amount}</div>
-                    </div>
-                    <div style={{fontSize:"14px",fontWeight:"bold",color:G.green,whiteSpace:"nowrap"}}>{item.calories_kcal} kcal</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-
-          {/* ⑪ Pipeline Menu Proposal — TR styled */}
-          <SectionCard step={11} title="Pipeline Menu Proposal" status={menuStatus} dataLabel="hardcoded logic">
-            {menuStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{menuErr}</div>}
-            {menuResult&&(
-              <TRMenuDisplay menuResult={menuResult} primaryMeal={decisionResult?.primary_meal ?? ""} />
-            )}
-          </SectionCard>
-
-          {/* ══ NEW MENU PROPOSAL SECTION ═══════════════════════════════════ */}
+          {/* ══ MENU PROPOSAL SECTION ═══════════════════════════════════════ */}
           <MenuProposalSection
             weatherResult={weatherResult}
             trendsResult={trendsResult}
