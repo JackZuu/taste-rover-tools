@@ -562,13 +562,14 @@ interface ProposalFeaturedItem {
   name: string;
   category: string;
   price: number;
+  price_gbp?: number;
   score: number;
   reason: string;
 }
 
 interface MenuProposalResult {
   featured_items: ProposalFeaturedItem[];
-  categories: Record<string, Array<{name: string; score: number; price: number}>>;
+  categories: Record<string, Array<{name: string; score: number; price: number; price_gbp?: number}>>;
 }
 
 // ─── ModuleGroup component ────────────────────────────────────────────────────
@@ -670,7 +671,9 @@ function CurrentMenuModule() {
       const r = await fetch("/api/menu-items");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const d = await r.json();
-      setItems(d.items ?? []);
+      setItems((d.items ?? []).map((i: any) => ({
+        ...i, price: i.price_gbp ?? i.price ?? 0, is_base: !i.user_added, enriched: false,
+      })));
     } catch (e: any) { setError(e?.message ?? "Failed to load menu items"); }
     finally { setLoading(false); }
   }
@@ -682,7 +685,7 @@ function CurrentMenuModule() {
       const r = await fetch("/api/menu-items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: addName.trim(), category: addCat, price: parseFloat(addPrice) }),
+        body: JSON.stringify({ name: addName.trim(), category: addCat, price_gbp: parseFloat(addPrice) }),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setAddName(""); setAddPrice("");
@@ -846,7 +849,9 @@ function MenuEnrichmentModule() {
       const r = await fetch("/api/menu-items");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const d = await r.json();
-      setItems(d.items ?? []);
+      setItems((d.items ?? []).map((i: any) => ({
+        ...i, price: i.price_gbp ?? i.price ?? 0, is_base: !i.user_added, enriched: false,
+      })));
     } catch (e: any) { setError(e?.message ?? "Failed to load items"); }
     finally { setLoading(false); }
   }
@@ -1262,7 +1267,17 @@ function MenuProposalSection({
         body: JSON.stringify(body),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      setProposal(await r.json());
+      const raw = await r.json();
+      // Normalise price_gbp → price throughout the proposal response
+      if (raw.featured_items) {
+        raw.featured_items = raw.featured_items.map((i: any) => ({ ...i, price: i.price_gbp ?? i.price ?? 0 }));
+      }
+      if (raw.categories) {
+        Object.keys(raw.categories).forEach(cat => {
+          raw.categories[cat] = raw.categories[cat].map((i: any) => ({ ...i, price: i.price_gbp ?? i.price ?? 0 }));
+        });
+      }
+      setProposal(raw);
     } catch (e: any) { setError(e?.message ?? "Failed to generate proposal"); }
     finally { setLoading(false); }
   }
