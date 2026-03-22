@@ -669,7 +669,7 @@ const CAT_DEFAULT_EMOJI: Record<string, string> = {
   desserts: "🍰", cold_drinks: "🧃", hot_drinks: "☕",
 };
 
-function MenuModule() {
+function MenuModule({ refreshTrigger = 0 }: { refreshTrigger?: number }) {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -752,7 +752,7 @@ function MenuModule() {
     finally { setEnrichingId(null); }
   }
 
-  useEffect(() => { loadItems(); }, []);
+  useEffect(() => { loadItems(); }, [refreshTrigger]);
 
   const grouped = items.reduce((acc, item) => {
     (acc[item.category] = acc[item.category] ?? []).push(item);
@@ -1156,12 +1156,6 @@ function FrameworkConfigPanel() {
             </div>
           </div>
 
-          {/* Decision result info */}
-          {decisionResult && (
-            <div style={{ padding: "8px 12px", background: "#f0f0f0", borderRadius: "8px", fontSize: "11px", color: "#777", fontStyle: "italic", marginBottom: "12px" }}>
-              Menu options pool: {decisionResult.menu_options.length} weather-matched items ready for selection
-            </div>
-          )}
 
           {error && <div style={{ fontSize: "12px", color: G.red, marginBottom: "8px" }}>{error}</div>}
 
@@ -1407,6 +1401,7 @@ export default function FlowScreen({
 }) {
   const [vans, setVans] = useState<Van[]>([]);
   const [selectedVan, setSelectedVan] = useState<string>("van_alpha");
+  const [menuRefresh, setMenuRefresh] = useState(0);
   const [inputMode, setInputMode] = useState<"postcode"|"region">("postcode");
   const [postcodeInput, setPostcodeInput] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string|null>(null);
@@ -1543,7 +1538,7 @@ export default function FlowScreen({
     if (sup.status==="fulfilled") { setSupplyResult(sup.value); setSupplyStatus("done"); }
     else                          { setSupplyErr(String(sup.reason)); setSupplyStatus("error"); }
 
-    if (tr.status==="fulfilled")  { setTrendsResult(tr.value);  setTrendsStatus("done"); }
+    if (tr.status==="fulfilled")  { setTrendsResult({...tr.value, source: menuKeywords.length > 0 ? "menu_items" : tr.value.source});  setTrendsStatus("done"); }
     else                           setTrendsStatus("error");
 
     if (hi.status==="fulfilled")  { setHistoricData(hi.value); setHistoricStatus("done"); }
@@ -1557,6 +1552,11 @@ export default function FlowScreen({
 
     if (reg.status==="fulfilled") { setRegionResult(reg.value); setRegionStatus("done"); }
     else                           setRegionStatus("error");
+
+    // ── Enrich any unenriched menu items (background, non-blocking) ────────
+    fetch("/api/menu-items/enrich-all", { method: "POST" })
+      .then(() => setMenuRefresh(n => n + 1))
+      .catch(() => {});
 
     // ── Step 9: Weather ────────────────────────────────────────────────────
     setWeatherStatus("loading");
@@ -1728,7 +1728,7 @@ export default function FlowScreen({
             defaultOpen={true}
           >
             {/* Menu Options (combined menu management + enrichment) */}
-            <MenuModule />
+            <MenuModule refreshTrigger={menuRefresh} />
 
             {/* Competitor Menus */}
             <div style={{
@@ -1894,7 +1894,7 @@ export default function FlowScreen({
           >
             {/* ③ Trends */}
             <SectionCard step={3} title="High-Level Trends" status={trendsStatus}
-              dataLabel={trendsResult?.source==="google_trends"?"Google Trends":"hardcoded"}
+              dataLabel={trendsResult?.source==="google_trends"?"Google Trends":trendsResult?.source==="menu_items"?"Menu Items · Trends":"hardcoded"}
               titleAction={<button onClick={onOpenTrends} style={openModBtn}>Open module →</button>}
             >
               {trendsResult&&(
