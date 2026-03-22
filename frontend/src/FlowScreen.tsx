@@ -1510,19 +1510,10 @@ export default function FlowScreen({
     setSeasonStatus("loading"); setCelebStatus("loading");
     setRegionStatus("loading"); setCompetitorStatus("loading");
 
-    // Fetch menu item names to use as trend keywords
-    let menuKeywords: string[] = [];
-    try {
-      const md = await fetchJson("/api/menu-items");
-      menuKeywords = (md.items ?? []).map((i: any) => i.name).slice(0, 20);
-    } catch {}
-
     const [eq, sup, tr, hi, sea, cel, reg] = await Promise.allSettled([
       post("/api/equipment/van", {van_id: selectedVan}),
       fetchJson("/api/supply/chain"),
-      menuKeywords.length > 0
-        ? post("/api/trends/custom", {keywords: menuKeywords})
-        : fetchJson("/api/trends"),
+      fetchJson("/api/trends"),
       fetchJson("/api/historic"),
       fetchJson("/api/seasonal"),
       fetchJson("/api/celebrations"),
@@ -1538,7 +1529,7 @@ export default function FlowScreen({
     if (sup.status==="fulfilled") { setSupplyResult(sup.value); setSupplyStatus("done"); }
     else                          { setSupplyErr(String(sup.reason)); setSupplyStatus("error"); }
 
-    if (tr.status==="fulfilled")  { setTrendsResult({...tr.value, source: menuKeywords.length > 0 ? "menu_items" : tr.value.source});  setTrendsStatus("done"); }
+    if (tr.status==="fulfilled")  { setTrendsResult(tr.value);  setTrendsStatus("done"); }
     else                           setTrendsStatus("error");
 
     if (hi.status==="fulfilled")  { setHistoricData(hi.value); setHistoricStatus("done"); }
@@ -1894,7 +1885,7 @@ export default function FlowScreen({
           >
             {/* ③ Trends */}
             <SectionCard step={3} title="High-Level Trends" status={trendsStatus}
-              dataLabel={trendsResult?.source==="google_trends"?"Google Trends":trendsResult?.source==="menu_items"?"Menu Items · Trends":"hardcoded"}
+              dataLabel={trendsResult?.source==="google_trends"?"Google Trends":trendsResult?.source==="hardcoded"?"hardcoded":"Trends"}
               titleAction={<button onClick={onOpenTrends} style={openModBtn}>Open module →</button>}
             >
               {trendsResult&&(
