@@ -173,9 +173,18 @@ class SeasonalItem:
 
 
 @dataclass
+class SeasonalMeal:
+    name: str
+    category: str               # from MENU_CATEGORIES
+    linked_ingredient: str      # seasonal ingredient this meal uses
+    estimated_price_gbp: float = 7.00
+
+
+@dataclass
 class SeasonalResult:
     month: str
-    items: list[SeasonalItem] = field(default_factory=list)
+    items: list[SeasonalItem] = field(default_factory=list)       # ingredients
+    meals: list[SeasonalMeal] = field(default_factory=list)       # meal suggestions
     source: str = "hardcoded"   # "openai" | "hardcoded"
 
 

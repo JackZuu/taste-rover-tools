@@ -1,6 +1,10 @@
 """
 Seasonal foods module — what's in season in the UK by month.
 
+Returns two things:
+  1. In-season ingredients (for display only — not directly addable to menu)
+  2. Seasonal meal suggestions using those ingredients (addable to menu)
+
 Tries OpenAI (gpt-4o-mini) first for richer, context-aware seasonal data.
 Falls back to the hardcoded monthly list if OpenAI is unavailable.
 AI results are cached per calendar month.
@@ -10,7 +14,8 @@ DATA SOURCE: OpenAI gpt-4o-mini | hardcoded fallback
 import os
 import json
 from datetime import date
-from app.models import SeasonalItem, SeasonalResult
+from app.models import SeasonalItem, SeasonalMeal, SeasonalResult
+from app.taxonomy import MENU_CATEGORIES
 
 # ---------------------------------------------------------------------------
 # OpenAI availability
@@ -25,11 +30,11 @@ except ImportError:
 # Month-keyed cache: {month_int: SeasonalResult}
 _ai_cache: dict = {}
 
-# Valid category values for the taxonomy
-VALID_CATEGORIES = {"produce", "protein", "seafood", "game", "herb", "dairy", "dessert", "beverage", "grain"}
+# Valid category values for ingredients
+VALID_INGREDIENT_CATS = {"produce", "protein", "seafood", "game", "herb", "dairy", "dessert", "beverage", "grain"}
 
 # ---------------------------------------------------------------------------
-# Hardcoded fallback
+# Hardcoded fallback (ingredients only — meals generated from these)
 # ---------------------------------------------------------------------------
 _SEASONAL: dict[int, list[dict]] = {
     1:  [
@@ -118,13 +123,40 @@ _SEASONAL: dict[int, list[dict]] = {
     ],
 }
 
+# Hardcoded fallback meals (simple mapping from key ingredients)
+_FALLBACK_MEALS: dict[int, list[dict]] = {
+    1:  [{"name": "Leek & Potato Soup", "category": "snacks", "linked_ingredient": "Leeks", "estimated_price_gbp": 5.50},
+         {"name": "Parsnip Fries", "category": "sides", "linked_ingredient": "Parsnips", "estimated_price_gbp": 4.50}],
+    2:  [{"name": "Rhubarb Crumble", "category": "desserts", "linked_ingredient": "Forced Rhubarb", "estimated_price_gbp": 5.50}],
+    3:  [{"name": "Rhubarb Crumble", "category": "desserts", "linked_ingredient": "Forced Rhubarb", "estimated_price_gbp": 5.50},
+         {"name": "Sea Trout Wrap", "category": "grill", "linked_ingredient": "Sea Trout", "estimated_price_gbp": 9.00}],
+    4:  [{"name": "Asparagus & Halloumi Wrap", "category": "grill", "linked_ingredient": "Asparagus", "estimated_price_gbp": 8.50},
+         {"name": "Lamb Skewer", "category": "grill", "linked_ingredient": "Lamb", "estimated_price_gbp": 9.50}],
+    5:  [{"name": "Elderflower Lemonade", "category": "cold_drinks", "linked_ingredient": "Elderflower", "estimated_price_gbp": 3.50},
+         {"name": "Mackerel Wrap", "category": "grill", "linked_ingredient": "Mackerel", "estimated_price_gbp": 8.50}],
+    6:  [{"name": "Strawberries & Cream", "category": "desserts", "linked_ingredient": "Strawberries", "estimated_price_gbp": 5.00},
+         {"name": "Crab Sandwich", "category": "snacks", "linked_ingredient": "Crab", "estimated_price_gbp": 8.50}],
+    7:  [{"name": "Caprese Salad", "category": "sides", "linked_ingredient": "Tomatoes", "estimated_price_gbp": 5.50},
+         {"name": "Raspberry Sorbet", "category": "desserts", "linked_ingredient": "Raspberries", "estimated_price_gbp": 4.50}],
+    8:  [{"name": "Corn on the Cob", "category": "sides", "linked_ingredient": "Sweetcorn", "estimated_price_gbp": 4.00},
+         {"name": "Blackberry Crumble", "category": "desserts", "linked_ingredient": "Blackberries", "estimated_price_gbp": 5.50}],
+    9:  [{"name": "Squash Soup", "category": "snacks", "linked_ingredient": "Squash", "estimated_price_gbp": 5.50},
+         {"name": "Wild Mushroom Toastie", "category": "snacks", "linked_ingredient": "Wild Mushrooms", "estimated_price_gbp": 7.00}],
+    10: [{"name": "Pumpkin Soup", "category": "snacks", "linked_ingredient": "Pumpkin", "estimated_price_gbp": 5.50},
+         {"name": "Chestnut Brownie", "category": "desserts", "linked_ingredient": "Chestnuts", "estimated_price_gbp": 5.00}],
+    11: [{"name": "Parsnip Soup", "category": "snacks", "linked_ingredient": "Parsnips", "estimated_price_gbp": 5.50},
+         {"name": "Cranberry Hot Chocolate", "category": "hot_drinks", "linked_ingredient": "Cranberries", "estimated_price_gbp": 4.00}],
+    12: [{"name": "Turkey Wrap", "category": "grill", "linked_ingredient": "Turkey", "estimated_price_gbp": 8.50},
+         {"name": "Chestnut Roast Bun", "category": "snacks", "linked_ingredient": "Chestnuts", "estimated_price_gbp": 7.00}],
+}
+
 # ---------------------------------------------------------------------------
 # OpenAI fetch
 # ---------------------------------------------------------------------------
 
 def _get_ai_seasonal(month: int, month_name: str) -> SeasonalResult | None:
     """
-    Use OpenAI to fetch UK seasonal foods for the given month.
+    Use OpenAI to fetch UK seasonal ingredients + meal suggestions.
     Results are cached per calendar month.
     """
     if not _OPENAI_AVAILABLE or not os.getenv("OPENAI_API_KEY"):
@@ -134,40 +166,47 @@ def _get_ai_seasonal(month: int, month_name: str) -> SeasonalResult | None:
         return _ai_cache[month]
 
     try:
+        from app.prompts import seasonal_prompt
         client = _OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        prompt = (
-            f"Month: {month_name}. "
-            f"List 8 to 12 UK-grown or UK-available seasonal foods and ingredients that are at their best in {month_name}. "
-            f"Focus on ingredients a street food van could realistically use or highlight. "
-            f"Return a JSON object with: "
-            f"\"month\" (string, the month name), "
-            f"\"items\" (array of objects each with \"name\" (title case string) and "
-            f"\"category\" (one of: produce, protein, seafood, game, herb, dairy, dessert, beverage, grain)). "
-            f"Return JSON only."
-        )
+        prompt = seasonal_prompt(month_name, month)
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
-            max_tokens=600,
+            max_tokens=1200,
             temperature=0.2,
         )
         raw = response.choices[0].message.content or "{}"
         parsed = json.loads(raw)
-        items_raw = parsed.get("items", [])
-        if not isinstance(items_raw, list) or not items_raw:
-            return None
 
+        # Parse ingredients
+        items_raw = parsed.get("ingredients", parsed.get("items", []))
         items = []
         for it in items_raw:
             cat = it.get("category", "produce")
-            if cat not in VALID_CATEGORIES:
+            if cat not in VALID_INGREDIENT_CATS:
                 cat = "produce"
-            items.append(SeasonalItem(name=it["name"], category=cat))
+            items.append(SeasonalItem(name=it.get("name", ""), category=cat))
+
+        # Parse meals
+        valid_menu_cats = set(MENU_CATEGORIES)
+        meals_raw = parsed.get("meals", [])
+        meals = []
+        for m in meals_raw:
+            cat = m.get("category", "snacks")
+            if cat not in valid_menu_cats:
+                cat = "snacks"
+            meals.append(SeasonalMeal(
+                name=m.get("name", ""),
+                category=cat,
+                linked_ingredient=m.get("linked_ingredient", ""),
+                estimated_price_gbp=round(float(m.get("estimated_price_gbp", 7.0)), 2),
+            ))
 
         result = SeasonalResult(
-            month=parsed.get("month", month_name),
+            month=month_name,
             items=items,
+            meals=meals,
             source="openai",
         )
         _ai_cache[month] = result
@@ -184,7 +223,7 @@ def _get_ai_seasonal(month: int, month_name: str) -> SeasonalResult | None:
 
 def get_seasonal(month: int | None = None) -> SeasonalResult:
     """
-    Return in-season UK foods for the given month (1–12).
+    Return in-season UK ingredients + meal suggestions for the given month.
     Defaults to the current calendar month.
     Tries OpenAI first, falls back to hardcoded list.
     DATA SOURCE: OpenAI gpt-4o-mini | hardcoded fallback
@@ -199,11 +238,16 @@ def get_seasonal(month: int | None = None) -> SeasonalResult:
         return ai_result
 
     items = [SeasonalItem(**i) for i in _SEASONAL.get(month, [])]
-    return SeasonalResult(month=month_name, items=items, source="hardcoded")
+    meals = [SeasonalMeal(**m) for m in _FALLBACK_MEALS.get(month, [])]
+    return SeasonalResult(month=month_name, items=items, meals=meals, source="hardcoded")
 
 
 if __name__ == "__main__":
     result = get_seasonal()
     print(f"Source: {result.source}  |  In season — {result.month}:")
+    print("Ingredients:")
     for item in result.items:
         print(f"  • {item.name} ({item.category})")
+    print("Meal suggestions:")
+    for meal in result.meals:
+        print(f"  • {meal.name} [{meal.category}] — uses {meal.linked_ingredient} (~£{meal.estimated_price_gbp:.2f})")

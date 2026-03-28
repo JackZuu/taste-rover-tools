@@ -3,6 +3,22 @@ Prompts — centralised store for all OpenAI prompt templates.
 
 Each prompt is a plain string or a callable that accepts parameters and
 returns a formatted string.  No OpenAI imports here — this is just text.
+
+Business context is loaded from context.md and injected into all
+suggestion prompts so OpenAI understands what TasteRover is.
+"""
+from pathlib import Path
+
+_CONTEXT_PATH = Path(__file__).parent / "context.md"
+_CONTEXT: str = ""
+if _CONTEXT_PATH.exists():
+    _CONTEXT = _CONTEXT_PATH.read_text(encoding="utf-8").strip()
+
+
+def _biz_context() -> str:
+    """Return the TasteRover business context block for prompt injection."""
+    return f"""## Business Context
+{_CONTEXT}
 """
 
 
@@ -42,9 +58,12 @@ Return JSON only. No explanation."""
 
 def celebrations_prompt(today_iso: str, cutoff_iso: str) -> str:
     """Prompt to fetch upcoming UK food-relevant events."""
-    return f"""Today is {today_iso}.
+    return f"""{_biz_context()}
+
+Today is {today_iso}.
 List the next 6 upcoming UK public holidays, festivals, or food-relevant cultural events
 between now and {cutoff_iso}.
+For each event, suggest menu items that TasteRover could serve from a food truck.
 Return a JSON object with key "events" containing an array.
 Each element must have:
   "name" (string),
@@ -56,12 +75,25 @@ Only include events with known fixed UK dates. Return JSON only."""
 
 
 def seasonal_prompt(month_name: str, month_num: int) -> str:
-    """Prompt to fetch UK seasonal foods for a given month."""
-    return f"""List seasonal foods available in the UK in {month_name} (month {month_num}).
-Return a JSON object with key "items" — an array of objects each with:
-  "name" (string, Title Case),
-  "category" (one of: produce, protein, seafood, game, herb, dairy, dessert, beverage, grain).
-Include 8–12 items. Return JSON only."""
+    """Prompt to fetch UK seasonal ingredients and meal suggestions for a given month."""
+    return f"""{_biz_context()}
+
+List seasonal ingredients available in the UK in {month_name} (month {month_num}),
+then suggest street-food meals that TasteRover could serve using those ingredients.
+
+Return a JSON object with two keys:
+
+1. "ingredients" — array of 8–12 objects each with:
+   "name" (string, Title Case — the raw ingredient),
+   "category" (one of: produce, protein, seafood, game, herb, dairy, dessert, beverage, grain).
+
+2. "meals" — array of 6–10 objects each with:
+   "name" (string, Title Case — a street-food dish/drink name),
+   "category" (one of: grill, sides, snacks, desserts, cold_drinks, hot_drinks),
+   "linked_ingredient" (string — the seasonal ingredient this meal uses, must match a name from the ingredients list),
+   "estimated_price_gbp" (float — typical UK street food price).
+
+Return JSON only."""
 
 
 def menu_trends_prompt(items: list[str]) -> str:
@@ -90,8 +122,10 @@ Return JSON only."""
 
 def regional_prompt(region: str) -> str:
     """Prompt to fetch regional food demand insights for a UK region."""
-    return f"""You are a UK street-food market analyst.
-Describe food demand for a street-food van operating in {region}, UK.
+    return f"""{_biz_context()}
+
+Describe food demand for TasteRover's street-food van operating in {region}, UK.
+Suggest menu items that would sell well in this region, suitable for serving from a food truck.
 Return a JSON object with two keys:
   "insights": array of 4–6 objects each with "insight" (string) and
     "category" (one of: demand, preference, trend).
@@ -102,10 +136,11 @@ Return JSON only."""
 
 def trending_discovery_prompt(month_name: str, season: str) -> str:
     """Prompt to discover trending UK street food items for the current period."""
-    return f"""You are a UK street-food market analyst with up-to-date knowledge of food trends.
+    return f"""{_biz_context()}
 
-What are the top 12 trending street food items in the UK right now ({month_name}, {season})?
-Include a mix of mains, snacks, drinks, and desserts that a food truck could realistically serve.
+What are the top 12 trending street food items in the UK right now ({month_name}, {season})
+that TasteRover could realistically serve from a food truck?
+Include a mix of mains, snacks, drinks, and desserts.
 Focus on items gaining popularity on social media, at food festivals, and in the casual dining scene.
 
 Return a JSON object with key "items" — an array of objects each with:
@@ -122,13 +157,14 @@ def weather_meal_suggestions_prompt(avg_temp: float, condition: str, is_rainy: b
     weather_desc = f"{avg_temp:.1f}°C, {condition}"
     if is_rainy:
         weather_desc += ", rainy"
-    return f"""You are a UK street-food menu planner.
+    return f"""{_biz_context()}
 
 The weather forecast is: {weather_desc}.
 
-Suggest 8–10 meals, snacks, and drinks that a food truck should serve in this weather.
-Consider what customers crave in these conditions — warming comfort food for cold/wet,
-refreshing light options for warm/dry.
+Suggest 8–10 meals, snacks, and drinks that TasteRover should serve from its food truck
+in this weather. Consider what customers crave in these conditions — warming comfort food
+for cold/wet, refreshing light options for warm/dry. All items must be feasible from a
+food truck with standard equipment (grill, fryer, coffee machine, etc).
 
 Return a JSON object with key "suggestions" — an array of objects each with:
   "name" (Title Case string — the dish/drink name),

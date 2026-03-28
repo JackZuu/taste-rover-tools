@@ -1926,31 +1926,49 @@ export default function FlowScreen({
               )}
             </SectionCard>
 
-            {/* ⑤ Seasonal — with + buttons */}
+            {/* ⑤ Seasonal — ingredients (no +) then meals (with +) */}
             <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
               titleAction={<button onClick={onOpenSeasonal} style={openModBtn}>Open module →</button>}
             >
               {seasonResult&&(
                 <div>
-                  <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>In season — <strong style={{color:G.green}}>{seasonResult.month}</strong> — add to menu with +</div>
-                  {seasonResult.items.map((item,i)=>{
-                    const catColors: Record<string,[string,string]> = {
-                      produce:["#e6f4ee",G.green], protein:["#fdf3e6","#a16207"],
-                      seafood:["#e0f2fe","#0369a1"], game:["#fdf3e6","#92400e"],
-                      dairy:["#fce7f3","#9d174d"], dessert:["#fce7f3","#9d174d"],
-                      beverage:["#e0f2fe","#0369a1"], grain:["#fefce8","#92400e"],
-                    };
-                    const [bg,col] = catColors[item.category]??["#e6f4ee",G.green];
-                    return(
-                      <div key={i} style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"4px 10px",borderRadius:"20px",background:bg,margin:"0 5px 5px 0"}}>
-                        <span style={{color:col,fontSize:"12px",fontWeight:"600"}}>{item.name}</span>
-                        <span style={{fontSize:"10px",opacity:0.65,color:col}}>{item.category}</span>
-                        <AddToMenuButton name={item.name} category={item.category}
-                          estimatedPrice={7.00}
-                          onAdded={()=>setMenuRefresh(n=>n+1)} />
-                      </div>
-                    );
-                  })}
+                  {/* Ingredients — display only */}
+                  <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>In-season ingredients — <strong style={{color:G.green}}>{seasonResult.month}</strong></div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"14px"}}>
+                    {seasonResult.items.map((item,i)=>{
+                      const catColors: Record<string,[string,string]> = {
+                        produce:["#e6f4ee",G.green], protein:["#fdf3e6","#a16207"],
+                        seafood:["#e0f2fe","#0369a1"], game:["#fdf3e6","#92400e"],
+                        dairy:["#fce7f3","#9d174d"], dessert:["#fce7f3","#9d174d"],
+                        beverage:["#e0f2fe","#0369a1"], grain:["#fefce8","#92400e"],
+                      };
+                      const [bg,col] = catColors[item.category]??["#e6f4ee",G.green];
+                      return(
+                        <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600"}}>
+                          {item.name}
+                          <span style={{fontSize:"10px",opacity:0.65,marginLeft:"4px"}}>{item.category}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* Seasonal meal suggestions — with + */}
+                  {(seasonResult as any).meals && (seasonResult as any).meals.length > 0 && (
+                    <div>
+                      <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>Seasonal meals — add to menu with +</div>
+                      {(seasonResult as any).meals.map((meal:any,i:number)=>(
+                        <div key={i} style={{display:"flex",alignItems:"center",gap:"8px",
+                          padding:"7px 10px",background:i%2===0?"#f9f9f9":"#fff",borderRadius:"8px",marginBottom:"3px"}}>
+                          <span style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#333"}}>{meal.name}</span>
+                          <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic"}}>uses {meal.linked_ingredient}</span>
+                          <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{meal.estimated_price_gbp.toFixed(2)}</span>
+                          <AddToMenuButton name={meal.name} category={meal.category}
+                            estimatedPrice={meal.estimated_price_gbp}
+                            onAdded={()=>setMenuRefresh(n=>n+1)} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </SectionCard>
@@ -2015,9 +2033,9 @@ export default function FlowScreen({
               )}
             </SectionCard>
 
-            {/* ⑧ Weather */}
+            {/* ⑧ Weather + Meal Suggestions (combined) */}
             <SectionCard
-              step={8} title="Weather" status={weatherStatus==="idle"?"done":weatherStatus}
+              step={8} title="Weather & Suggestions" status={weatherStatus==="idle"?"done":weatherStatus}
               titleAction={<button onClick={onOpenWeather} style={openModBtn}>Open module →</button>}
             >
               {weatherStatus==="idle"&&(
@@ -2028,7 +2046,7 @@ export default function FlowScreen({
               {weatherStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{weatherErr}</div>}
               {weatherResult&&(
                 <div>
-                  <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap",marginBottom:weatherSuggestions&&weatherSuggestions.length>0?"14px":"0"}}>
                     <div style={{fontSize:"48px"}}>{condIcon(weatherResult.condition)}</div>
                     <div>
                       <div style={{fontSize:"36px",fontWeight:"bold",color:G.green,lineHeight:"1"}}>{weatherResult.avg_temp.toFixed(1)}°C</div>
@@ -2038,29 +2056,30 @@ export default function FlowScreen({
                       <StatusBadge ok={!weatherResult.is_rainy} labelOk="Not rainy" labelNo="Rainy"/>
                     </div>
                   </div>
-                </div>
-              )}
-            </SectionCard>
 
-            {/* ⑨ Weather Meal Suggestions — with + buttons */}
-            <SectionCard step={9} title="Weather Meal Suggestions" status={weatherSugStatus} dataLabel="OpenAI">
-              {weatherSuggestions&&weatherSuggestions.length>0&&(
-                <div>
-                  <div style={{fontSize:"11px",color:"#888",marginBottom:"8px",textTransform:"uppercase",letterSpacing:"0.4px"}}>
-                    Suggested for the forecast — add to your menu with +
-                  </div>
-                  {weatherSuggestions.map((s,i)=>(
-                    <div key={i} style={{display:"flex",alignItems:"center",gap:"8px",
-                      padding:"7px 10px",background:i%2===0?"#f9f9f9":"#fff",borderRadius:"8px",marginBottom:"3px"}}>
-                      <span style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#333"}}>{s.name}</span>
-                      <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic",maxWidth:"180px",
-                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.reason}</span>
-                      <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{s.estimated_price_gbp.toFixed(2)}</span>
-                      <AddToMenuButton name={s.name} category={s.category}
-                        estimatedPrice={s.estimated_price_gbp}
-                        onAdded={()=>setMenuRefresh(n=>n+1)} />
+                  {/* Weather meal suggestions inline */}
+                  {weatherSuggestions&&weatherSuggestions.length>0&&(
+                    <div>
+                      <div style={{fontSize:"11px",color:"#888",marginBottom:"8px",textTransform:"uppercase",letterSpacing:"0.4px"}}>
+                        Suggested for this forecast — add to your menu with +
+                      </div>
+                      {weatherSuggestions.map((s,i)=>(
+                        <div key={i} style={{display:"flex",alignItems:"center",gap:"8px",
+                          padding:"7px 10px",background:i%2===0?"#f9f9f9":"#fff",borderRadius:"8px",marginBottom:"3px"}}>
+                          <span style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#333"}}>{s.name}</span>
+                          <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic",maxWidth:"180px",
+                            overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.reason}</span>
+                          <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{s.estimated_price_gbp.toFixed(2)}</span>
+                          <AddToMenuButton name={s.name} category={s.category}
+                            estimatedPrice={s.estimated_price_gbp}
+                            onAdded={()=>setMenuRefresh(n=>n+1)} />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  {weatherSugStatus==="loading"&&(
+                    <div style={{fontSize:"11px",color:G.greenLight,fontStyle:"italic",marginTop:"8px"}}>Loading meal suggestions…</div>
+                  )}
                 </div>
               )}
             </SectionCard>

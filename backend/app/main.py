@@ -243,7 +243,12 @@ def get_historic_endpoint():
 @app.get("/api/seasonal")
 def get_seasonal_endpoint(month: int | None = Query(default=None, ge=1, le=12)):
     result = get_seasonal(month)
-    return {"month": result.month, "items": [asdict(i) for i in result.items], "source": result.source}
+    return {
+        "month": result.month,
+        "items": [asdict(i) for i in result.items],
+        "meals": [asdict(m) for m in result.meals],
+        "source": result.source,
+    }
 
 @app.get("/api/celebrations")
 def get_celebrations_endpoint(month: int | None = Query(default=None, ge=1, le=12)):
