@@ -425,6 +425,14 @@ def enrich_all_menu_items():
 
     return {"processed": len(results), "results": results}
 
+@app.post("/api/menu-items/re-enrich-all")
+def re_enrich_all_menu_items():
+    """Delete all existing enrichment and re-enrich every active menu item."""
+    with SessionLocal() as session:
+        session.query(MenuItemEnrichmentDB).delete()
+        session.commit()
+    return enrich_all_menu_items()
+
 # ─── Framework config ─────────────────────────────────────────────────────────
 
 @app.get("/api/framework-config")

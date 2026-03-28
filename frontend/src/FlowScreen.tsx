@@ -639,6 +639,7 @@ function MenuModule({ refreshTrigger = 0 }: { refreshTrigger?: number }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enrichingAll, setEnrichingAll] = useState(false);
+  const [reEnrichingAll, setReEnrichingAll] = useState(false);
   const [enrichingId, setEnrichingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [addName, setAddName] = useState("");
@@ -705,6 +706,16 @@ function MenuModule({ refreshTrigger = 0 }: { refreshTrigger?: number }) {
     finally { setEnrichingAll(false); }
   }
 
+  async function reEnrichAll() {
+    setReEnrichingAll(true); setError(null);
+    try {
+      const r = await fetch("/api/menu-items/re-enrich-all", { method: "POST" });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      loadItems();
+    } catch (e: any) { setError(e?.message ?? "Failed to re-enrich"); }
+    finally { setReEnrichingAll(false); }
+  }
+
   async function enrichOne(id: string) {
     setEnrichingId(id);
     try {
@@ -758,6 +769,21 @@ function MenuModule({ refreshTrigger = 0 }: { refreshTrigger?: number }) {
           }}
         >
           {enrichingAll ? "Enriching…" : `Enrich All (${unenriched})`}
+        </button>
+        <button
+          onClick={reEnrichAll}
+          disabled={reEnrichingAll || enrichingAll || items.length === 0}
+          style={{
+            padding: "5px 12px", borderRadius: "20px",
+            border: `1.5px solid ${G.amber}`,
+            background: reEnrichingAll || items.length === 0 ? "#ccc" : "#fef9ee",
+            color: reEnrichingAll || items.length === 0 ? "#fff" : G.amber,
+            fontSize: "11px", fontWeight: "700",
+            cursor: reEnrichingAll || items.length === 0 ? "not-allowed" : "pointer",
+            fontFamily: "'Georgia',serif", flexShrink: 0,
+          }}
+        >
+          {reEnrichingAll ? "Re-enriching…" : "Re-enrich All"}
         </button>
       </div>
 
