@@ -163,6 +163,8 @@ type EqItem         = {name:string; available:boolean};
 type Supplier       = {name:string; distance_miles:number; lead_time_hours:number; categories:string[]; reliability_pct:number};
 type InvItem        = {name:string; category:string; status:"in_stock"|"low"|"out"};
 type TrendItem      = {label:string; direction:"up"|"down"|"stable"; category:string; momentum_pct?:number; avg_interest?:number};
+type TrendDiscoveryItem = {name:string; category:string; why_trending:string; estimated_price_gbp:number};
+type WeatherSuggestion  = {name:string; category:string; reason:string; estimated_price_gbp:number};
 type SeasonalItem   = {name:string; category:string};
 type FoodSuggestion = {name:string; category:string};
 type Celebration    = {name:string; date:string; days_away:number; food_opportunity:string; menu_suggestions?:FoodSuggestion[]};
@@ -209,6 +211,51 @@ function autoSelectVan(vans: Van[], postcode: string, region: string): string {
 }
 
 // ─── Decision logic — handled by POST /api/decision (uses DB items + framework config) ──
+
+// ─── AddToMenuButton — reusable "+" button for adding suggestions to menu ────
+
+function AddToMenuButton({name,category,estimatedPrice,onAdded}:{
+  name:string; category:string; estimatedPrice:number; onAdded:()=>void;
+}) {
+  const [adding,setAdding] = useState(false);
+  const [added,setAdded] = useState(false);
+
+  async function handleAdd() {
+    setAdding(true);
+    try {
+      const catMap: Record<string,string> = {
+        main:"grill", snack:"snacks", beverage:"cold_drinks",
+        dessert:"desserts", side:"sides", produce:"snacks",
+      };
+      const validCats = ["grill","sides","snacks","desserts","cold_drinks","hot_drinks"];
+      const menuCat = catMap[category] ?? category;
+      const finalCat = validCats.includes(menuCat) ? menuCat : "snacks";
+
+      const r = await fetch("/api/menu-items", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({name, category:finalCat, price_gbp:estimatedPrice}),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const newItem = await r.json();
+      fetch(`/api/menu-items/${newItem.id}/enrich`, {method:"POST"}).catch(()=>{});
+      setAdded(true);
+      onAdded();
+    } catch {}
+    finally { setAdding(false); }
+  }
+
+  return (
+    <button onClick={handleAdd} disabled={adding||added}
+      style={{
+        padding:"2px 8px", borderRadius:"12px", border:`1.5px solid ${G.green}`,
+        background:added?G.green:"transparent", color:added?"#fff":G.green,
+        fontSize:"11px", fontWeight:"700", cursor:added?"default":"pointer",
+        fontFamily:"'Georgia',serif", flexShrink:0, minWidth:"28px",
+      }}>
+      {added ? "✓" : adding ? "…" : "+"}
+    </button>
+  );
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -1182,17 +1229,17 @@ function MenuProposalSection({
   weatherResult, trendsResult, seasonResult, celebResult, regionResult, activeRegion,
 }: {
   weatherResult: { avg_temp: number; condition: string; is_rainy: boolean } | null;
-  trendsResult: { trends: TrendItem[]; source: string } | null;
+  trendsResult: { items: TrendDiscoveryItem[]; trend_names: string[]; source: string } | null;
   seasonResult: { month: string; items: SeasonalItem[]; source: string } | null;
   celebResult: { upcoming: Celebration[]; source: string } | null;
   regionResult: { region: string; insights: RegionalInsight[]; menu_suggestions?: FoodSuggestion[]; source: string } | null;
   activeRegion: string;
 }) {
-  const [proposal, setProposal] = useState<MenuProposalResult | null>(null);
+  const [proposal, setProposal] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  // Auto-generate when weather result arrives (final required input)
   useEffect(() => {
     if (weatherResult) generateProposal();
   }, [weatherResult, activeRegion]);
@@ -1200,17 +1247,23 @@ function MenuProposalSection({
   async function generateProposal() {
     setLoading(true); setError(null); setProposal(null);
     try {
-      const activeTrends = trendsResult
-        ? trendsResult.trends.filter(t => t.direction === "up").map(t => t.label)
-        : [];
+      const activeTrends = trendsResult ? (trendsResult.trend_names ?? []) : [];
       const seasonalNames = seasonResult ? seasonResult.items.map(i => i.name) : [];
       const nextCeleb = celebResult ? (celebResult.upcoming?.[0]?.name ?? "") : "";
+      const celebSuggestions = celebResult
+        ? (celebResult.upcoming ?? []).flatMap(ev => (ev.menu_suggestions ?? []).map(s => s.name))
+        : [];
+      const regionalSuggestions = regionResult
+        ? (regionResult.menu_suggestions ?? []).map(s => s.name)
+        : [];
 
       const body: Record<string, unknown> = {
         region: activeRegion,
         active_trends: activeTrends,
         seasonal_items: seasonalNames,
         upcoming_celebration: nextCeleb,
+        celebration_suggestions: celebSuggestions,
+        regional_suggestions: regionalSuggestions,
       };
       if (weatherResult) {
         body.avg_temp = weatherResult.avg_temp;
@@ -1225,7 +1278,6 @@ function MenuProposalSection({
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const raw = await r.json();
-      // Normalise price_gbp → price throughout the proposal response
       if (raw.featured_items) {
         raw.featured_items = raw.featured_items.map((i: any) => ({ ...i, price: i.price_gbp ?? i.price ?? 0 }));
       }
@@ -1239,6 +1291,15 @@ function MenuProposalSection({
     finally { setLoading(false); }
   }
 
+  const breakdownLabels: Record<string,string> = {
+    weather:"Weather", trending:"Trending", seasonal:"Seasonal",
+    celebration:"Events", regional:"Regional", price:"Price Fit",
+  };
+  const breakdownColors: Record<string,string> = {
+    weather:"#0369a1", trending:"#7c3aed", seasonal:"#16a34a",
+    celebration:"#d97706", regional:"#be185d", price:"#555",
+  };
+
   return (
     <div style={{
       background: G.card, borderRadius: "16px",
@@ -1250,19 +1311,16 @@ function MenuProposalSection({
         <div style={{ fontSize: "20px" }}>🍽️</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: "16px", fontWeight: "700", color: G.green, letterSpacing: "0.4px" }}>Menu Proposal</div>
-          <div style={{ fontSize: "11px", color: "#888" }}>AI-powered menu based on all signals</div>
+          <div style={{ fontSize: "11px", color: "#888" }}>Scored menu based on all demand signals</div>
         </div>
-        <button
-          onClick={generateProposal}
-          disabled={loading}
+        <button onClick={generateProposal} disabled={loading}
           style={{
             background: "transparent", color: G.green,
             border: `1.5px solid ${G.green}`, borderRadius: "8px",
             padding: "6px 12px", fontSize: "11px", fontWeight: "700",
             cursor: loading ? "not-allowed" : "pointer",
             fontFamily: "'Georgia',serif", flexShrink: 0, opacity: loading ? 0.5 : 1,
-          }}
-        >
+          }}>
           {loading ? "…" : "↻ Refresh"}
         </button>
       </div>
@@ -1287,7 +1345,7 @@ function MenuProposalSection({
               <div style={{ fontSize: "13px", fontWeight: "700", color: G.green, marginBottom: "10px" }}>
                 ⭐ Featured Items
               </div>
-              {proposal.featured_items.map((item, i) => (
+              {proposal.featured_items.map((item: any, i: number) => (
                 <div key={i} style={{
                   padding: "10px 12px", background: "#f0f9f4",
                   borderRadius: "10px", marginBottom: "8px",
@@ -1299,13 +1357,9 @@ function MenuProposalSection({
                     <span style={{ fontSize: "11px", color: "#888", textTransform: "capitalize" }}>{item.category}</span>
                     <span style={{ fontSize: "13px", fontWeight: "700", color: G.green }}>£{item.price.toFixed(2)}</span>
                   </div>
-                  {/* Score bar */}
                   <div style={{ height: "6px", background: "#e0e0e0", borderRadius: "3px", marginBottom: "6px", overflow: "hidden" }}>
-                    <div style={{
-                      height: "100%", borderRadius: "3px",
-                      background: G.green,
-                      width: `${Math.min(100, Math.round(item.score * 100))}%`,
-                      transition: "width 0.5s ease",
+                    <div style={{ height: "100%", borderRadius: "3px", background: G.green,
+                      width: `${Math.min(100, Math.round((item.score / 8) * 100))}%`, transition: "width 0.5s ease",
                     }} />
                   </div>
                   {item.reason && (
@@ -1316,10 +1370,10 @@ function MenuProposalSection({
             </div>
           )}
 
-          {/* All items by category — visual food cards */}
+          {/* All items by category — clickable cards with expandable detail */}
           {proposal.categories && Object.keys(proposal.categories).length > 0 && (
             <div>
-              {Object.entries(proposal.categories).map(([cat, catItems]) => {
+              {Object.entries(proposal.categories).map(([cat, catItems]: [string, any[]]) => {
                 const sorted = [...catItems].sort((a, b) => b.score - a.score);
                 const catLabel = CATEGORY_DISPLAY[cat] ?? cat.replace(/_/g," ");
                 return (
@@ -1327,29 +1381,98 @@ function MenuProposalSection({
                     <div style={{ fontSize: "12px", fontWeight: "700", color: G.green, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "8px", borderBottom: `2px solid #e6f4ee`, paddingBottom: "4px" }}>
                       {catLabel}
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(120px,1fr))", gap: "8px" }}>
-                      {sorted.map((item, i) => {
-                        const isFeatured = (item as any).featured || (i === 0 && (item.score ?? 0) > 1);
-                        const emoji = ITEM_EMOJIS[item.name] ?? CAT_DEFAULT_EMOJI[cat] ?? "🍽️";
-                        const scoreW = Math.min(100, Math.round(((item.score ?? 0) / 6) * 100));
-                        return (
-                          <div key={i} style={{
-                            background: isFeatured ? "#f0f9f4" : "#fafafa",
-                            border: `1.5px solid ${isFeatured ? G.green : "#e8e8e8"}`,
-                            borderRadius: "12px", padding: "10px 10px 8px",
-                            position: "relative",
-                          }}>
-                            {isFeatured && <div style={{ position: "absolute", top: 5, right: 7, fontSize: "10px" }}>⭐</div>}
-                            <div style={{ fontSize: "24px", marginBottom: "4px", lineHeight: 1 }}>{emoji}</div>
-                            <div style={{ fontSize: "11px", fontWeight: "700", color: "#222", marginBottom: "2px", lineHeight: "1.3" }}>{item.name}</div>
-                            <div style={{ fontSize: "11px", fontWeight: "700", color: G.green, marginBottom: "5px" }}>£{(item.price ?? 0).toFixed(2)}</div>
-                            <div style={{ height: "3px", background: "#e0e0e0", borderRadius: "2px", overflow: "hidden" }}>
+                    {sorted.map((item, i) => {
+                      const isFeatured = item.featured || (i === 0 && (item.score ?? 0) > 1);
+                      const emoji = ITEM_EMOJIS[item.name] ?? CAT_DEFAULT_EMOJI[cat] ?? "🍽️";
+                      const scoreW = Math.min(100, Math.round(((item.score ?? 0) / 8) * 100));
+                      const isExpanded = expandedId === item.id;
+                      const bd = item.score_breakdown ?? {};
+                      return (
+                        <div key={item.id ?? i} style={{ marginBottom: "6px" }}>
+                          {/* Item row */}
+                          <div onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                            style={{
+                              display: "flex", alignItems: "center", gap: "8px",
+                              padding: "8px 10px", cursor: "pointer",
+                              background: isFeatured ? "#f0f9f4" : "#fafafa",
+                              border: `1.5px solid ${isFeatured ? G.green : "#e8e8e8"}`,
+                              borderRadius: isExpanded ? "10px 10px 0 0" : "10px",
+                            }}>
+                            <span style={{ fontSize: "20px" }}>{emoji}</span>
+                            {isFeatured && <span style={{ fontSize: "10px" }}>⭐</span>}
+                            <span style={{ flex: 1, fontSize: "12px", fontWeight: "700", color: "#222" }}>{item.name}</span>
+                            <span style={{ fontSize: "12px", fontWeight: "700", color: G.green }}>£{(item.price ?? 0).toFixed(2)}</span>
+                            <div style={{ width: "60px", height: "4px", background: "#e0e0e0", borderRadius: "2px", overflow: "hidden", flexShrink: 0 }}>
                               <div style={{ height: "100%", background: isFeatured ? G.green : "#b2d8c5", width: `${scoreW}%` }} />
                             </div>
+                            <span style={{ fontSize: "10px", color: "#888", width: "30px", textAlign: "right" }}>{(item.score ?? 0).toFixed(1)}</span>
+                            <span style={{ fontSize: "10px", color: "#aaa" }}>{isExpanded ? "▲" : "▼"}</span>
                           </div>
-                        );
-                      })}
-                    </div>
+
+                          {/* Expanded detail */}
+                          {isExpanded && (
+                            <div style={{
+                              padding: "12px 14px",
+                              background: "#fff", border: `1.5px solid ${isFeatured ? G.green : "#e8e8e8"}`,
+                              borderTop: "none", borderRadius: "0 0 10px 10px",
+                            }}>
+                              {/* Ingredients */}
+                              {item.ingredients && item.ingredients.length > 0 && (
+                                <div style={{ marginBottom: "10px" }}>
+                                  <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", marginBottom: "4px" }}>Ingredients</div>
+                                  <div style={{ fontSize: "12px", color: "#444" }}>{item.ingredients.join(", ")}</div>
+                                </div>
+                              )}
+
+                              {/* Nutrition */}
+                              {item.nutrition && item.nutrition.cal && (
+                                <div style={{ marginBottom: "10px" }}>
+                                  <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", marginBottom: "4px" }}>Nutrition (per serving)</div>
+                                  <div style={{ display: "flex", gap: "12px", fontSize: "11px", flexWrap: "wrap" }}>
+                                    <span><strong>{item.nutrition.cal}</strong> kcal</span>
+                                    <span><strong>{item.nutrition.protein_g}g</strong> protein</span>
+                                    <span><strong>{item.nutrition.carbs_g}g</strong> carbs</span>
+                                    <span><strong>{item.nutrition.fat_g}g</strong> fat</span>
+                                    <span><strong>{item.nutrition.fibre_g}g</strong> fibre</span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Tags */}
+                              {item.tags && item.tags.length > 0 && (
+                                <div style={{ marginBottom: "10px" }}>
+                                  <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", marginBottom: "4px" }}>Tags</div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                                    {item.tags.map((tag: string, ti: number) => (
+                                      <span key={ti} style={tagPillStyle(tag)}>{tag.replace(/_/g," ")}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Score breakdown */}
+                              <div>
+                                <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", marginBottom: "6px" }}>Score Breakdown (total: {(bd.total ?? item.score ?? 0).toFixed(2)})</div>
+                                {Object.entries(breakdownLabels).map(([key, label]) => {
+                                  const val = bd[key] ?? 0;
+                                  const maxVal = 4;
+                                  const pct = Math.min(100, Math.round((val / maxVal) * 100));
+                                  return (
+                                    <div key={key} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                                      <span style={{ fontSize: "11px", color: "#555", width: "65px", textAlign: "right" }}>{label}</span>
+                                      <div style={{ flex: 1, height: "6px", background: "#f0f0f0", borderRadius: "3px", overflow: "hidden" }}>
+                                        <div style={{ height: "100%", borderRadius: "3px", background: breakdownColors[key] ?? "#888", width: `${pct}%`, transition: "width 0.3s" }} />
+                                      </div>
+                                      <span style={{ fontSize: "11px", fontWeight: "600", color: val > 0 ? breakdownColors[key] : "#ccc", width: "30px" }}>{val.toFixed(1)}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
@@ -1432,7 +1555,7 @@ export default function FlowScreen({
   const [supplyErr,        setSupplyErr]        = useState<string|null>(null);
 
   const [trendsStatus,     setTrendsStatus]     = useState<PS>("idle");
-  const [trendsResult,     setTrendsResult]     = useState<{trends:TrendItem[];source:string}|null>(null);
+  const [trendsResult,     setTrendsResult]     = useState<{items:TrendDiscoveryItem[];trend_names:string[];source:string}|null>(null);
 
   type HistoricData = {
     daily_stats:{date:string;total_covers:number;total_revenue_gbp:number;top_meal:string}[];
@@ -1457,6 +1580,9 @@ export default function FlowScreen({
   const [weatherResult,    setWeatherResult]    = useState<{avg_temp:number;condition:string;is_rainy:boolean}|null>(null);
   const [weatherErr,       setWeatherErr]       = useState<string|null>(null);
 
+  const [weatherSugStatus, setWeatherSugStatus] = useState<PS>("idle");
+  const [weatherSuggestions, setWeatherSuggestions] = useState<WeatherSuggestion[]|null>(null);
+
   const [decisionStatus,   setDecisionStatus]   = useState<PS>("idle");
   const [decisionResult,   setDecisionResult]   = useState<{primary_meal:string;primary_reason:string;menu_options:MenuOption[]}|null>(null);
 
@@ -1476,6 +1602,7 @@ export default function FlowScreen({
     setRegionStatus("idle");     setRegionResult(null);
     setCompetitorStatus("idle");
     setWeatherStatus("idle");    setWeatherResult(null); setWeatherErr(null);
+    setWeatherSugStatus("idle"); setWeatherSuggestions(null);
     setDecisionStatus("idle");   setDecisionResult(null);
     setMenuStatus("idle");       setMenuResult(null);    setMenuErr(null);
   }
@@ -1555,9 +1682,18 @@ export default function FlowScreen({
       setWeatherStatus("error"); setRunning(false); return;
     }
 
+    // ── Step 9b: Weather-based meal suggestions ──────────────────────────
+    setWeatherSugStatus("loading");
+    post("/api/weather-suggestions", {
+      avg_temp:wr.avg_temp, condition:wr.condition, is_rainy:wr.is_rainy,
+    }).then((data:any) => {
+      setWeatherSuggestions(data.suggestions ?? []);
+      setWeatherSugStatus("done");
+    }).catch(() => setWeatherSugStatus("error"));
+
     // ── Gather pipeline signals for decision + menu ──────────────────────
     const activeTrends = tr.status==="fulfilled"
-      ? tr.value.trends.filter((t:any)=>t.direction==="up").map((t:any)=>t.label)
+      ? (tr.value.trend_names ?? [])
       : [];
     const seasonalNames = sea.status==="fulfilled"
       ? sea.value.items.map((i:any)=>i.name)
@@ -1565,6 +1701,13 @@ export default function FlowScreen({
     const nextCeleb = cel.status==="fulfilled"
       ? (cel.value.upcoming?.[0]?.name ?? "")
       : "";
+    const celebSuggestionNames = cel.status==="fulfilled"
+      ? (cel.value.upcoming ?? []).flatMap((ev:any) =>
+          (ev.menu_suggestions ?? []).map((s:any) => s.name))
+      : [];
+    const regionalSuggestionNames = reg.status==="fulfilled"
+      ? (reg.value.menu_suggestions ?? []).map((s:any) => s.name)
+      : [];
 
     // ── Step 10: Decision (backend — scored from DB + framework config) ──
     setDecisionStatus("loading");
@@ -1572,10 +1715,10 @@ export default function FlowScreen({
     try {
       dec = await post("/api/decision", {
         avg_temp:wr.avg_temp, is_rainy:wr.is_rainy, condition:wr.condition,
-        region:activeRegion, active_trends:activeTrends,
-        seasonal_items:seasonalNames, upcoming_celebration:nextCeleb,
+        active_trends:activeTrends, seasonal_items:seasonalNames,
+        celebration_suggestions:celebSuggestionNames,
+        regional_suggestions:regionalSuggestionNames,
       });
-      // Add emojis from the frontend map (cosmetic)
       if (dec?.menu_options) {
         dec.menu_options = dec.menu_options.map(o => ({...o, emoji: o.emoji || getItemEmoji(o.name)}));
       }
@@ -1587,11 +1730,12 @@ export default function FlowScreen({
     // ── Step 11: Menu proposal ─────────────────────────────────────────────
     setMenuStatus("loading");
     try {
-      const data = await post("/api/menu",{
+      const data = await post("/api/menu-proposal",{
         avg_temp:wr.avg_temp, is_rainy:wr.is_rainy, condition:wr.condition,
-        primary_meal:dec?.primary_meal ?? "", region:activeRegion,
-        active_trends:activeTrends, seasonal_items:seasonalNames,
-        upcoming_celebration:nextCeleb,
+        region:activeRegion, active_trends:activeTrends,
+        seasonal_items:seasonalNames, upcoming_celebration:nextCeleb,
+        celebration_suggestions:celebSuggestionNames,
+        regional_suggestions:regionalSuggestionNames,
       });
       setMenuResult(data); setMenuStatus("done");
     } catch(e:any) {
@@ -1607,7 +1751,7 @@ export default function FlowScreen({
   const allDone = [
     equipStatus,supplyStatus,trendsStatus,historicStatus,
     seasonStatus,celebStatus,regionStatus,competitorStatus,
-    weatherStatus,decisionStatus,menuStatus,
+    weatherStatus,weatherSugStatus,decisionStatus,menuStatus,
   ].every(s=>s==="done"||s==="error");
 
   const tabBtn = (active:boolean): React.CSSProperties => ({
@@ -1716,7 +1860,213 @@ export default function FlowScreen({
             </div>
           )}
 
-          {/* ══ GROUP 1: INPUT ══════════════════════════════════════════════ */}
+          {/* ══ GROUP 1: DEMAND ═════════════════════════════════════════════ */}
+          <ModuleGroup
+            title="DEMAND"
+            borderColor="#1a5f3f"
+            itemCount={7}
+            defaultOpen={true}
+          >
+            {/* ③ Trends — discovery items with + buttons */}
+            <SectionCard step={3} title="Trending Items" status={trendsStatus}
+              dataLabel={trendsResult?.source==="openai"?"OpenAI":"fallback"}
+              titleAction={<button onClick={onOpenTrends} style={openModBtn}>Open module →</button>}
+            >
+              {trendsResult&&(
+                <div>
+                  <div style={{fontSize:"11px",color:"#888",marginBottom:"8px",textTransform:"uppercase",letterSpacing:"0.4px"}}>
+                    Trending UK street food — add to your menu with +
+                  </div>
+                  {trendsResult.items.map((item,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:"8px",
+                      padding:"7px 10px",background:i%2===0?"#f9f9f9":"#fff",borderRadius:"8px",marginBottom:"3px"}}>
+                      <span style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#333"}}>{item.name}</span>
+                      <span style={{fontSize:"10px",color:"#888",background:"#f0f0f0",padding:"2px 6px",borderRadius:"4px"}}>{item.category}</span>
+                      <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic",maxWidth:"180px",
+                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.why_trending}</span>
+                      <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{item.estimated_price_gbp.toFixed(2)}</span>
+                      <AddToMenuButton name={item.name} category={item.category}
+                        estimatedPrice={item.estimated_price_gbp}
+                        onAdded={()=>setMenuRefresh(n=>n+1)} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+
+            {/* ④ Historic */}
+            <SectionCard step={4} title="Historic Data" status={historicStatus} dataLabel="mock"
+              titleAction={<button onClick={onOpenHistoric} style={openModBtn}>Open module →</button>}
+            >
+              {historicStatus==="idle"&&(
+                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
+                  Click <strong style={{color:G.green}}>Open module →</strong> to view full historic sales data.
+                </div>
+              )}
+              {historicData&&(
+                <div>
+                  <div style={{display:"flex",gap:"14px",flexWrap:"wrap",marginBottom:"10px"}}>
+                    <div style={{padding:"6px 12px",background:"#e6f4ee",borderRadius:"8px",textAlign:"center"}}>
+                      <div style={{fontSize:"10px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>30-day Revenue</div>
+                      <div style={{fontSize:"16px",fontWeight:"700",color:G.green}}>£{historicData.total_revenue_gbp.toLocaleString()}</div>
+                    </div>
+                    <div style={{padding:"6px 12px",background:"#e6f4ee",borderRadius:"8px",textAlign:"center"}}>
+                      <div style={{fontSize:"10px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>Avg Daily Covers</div>
+                      <div style={{fontSize:"16px",fontWeight:"700",color:G.green}}>{historicData.avg_daily_covers}</div>
+                    </div>
+                  </div>
+                  <div style={{fontSize:"12px",color:"#888",marginBottom:"6px",fontWeight:"600"}}>Top meals</div>
+                  {historicData.top_meals.slice(0,3).map((m,i)=>(
+                    <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:i<2?"1px solid #f0f0f0":"none",fontSize:"12px"}}>
+                      <span style={{color:"#333"}}>{m.meal_name}</span>
+                      <span style={{color:G.green,fontWeight:"700"}}>£{m.total_revenue_gbp.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+
+            {/* ⑤ Seasonal — with + buttons */}
+            <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
+              titleAction={<button onClick={onOpenSeasonal} style={openModBtn}>Open module →</button>}
+            >
+              {seasonResult&&(
+                <div>
+                  <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>In season — <strong style={{color:G.green}}>{seasonResult.month}</strong> — add to menu with +</div>
+                  {seasonResult.items.map((item,i)=>{
+                    const catColors: Record<string,[string,string]> = {
+                      produce:["#e6f4ee",G.green], protein:["#fdf3e6","#a16207"],
+                      seafood:["#e0f2fe","#0369a1"], game:["#fdf3e6","#92400e"],
+                      dairy:["#fce7f3","#9d174d"], dessert:["#fce7f3","#9d174d"],
+                      beverage:["#e0f2fe","#0369a1"], grain:["#fefce8","#92400e"],
+                    };
+                    const [bg,col] = catColors[item.category]??["#e6f4ee",G.green];
+                    return(
+                      <div key={i} style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"4px 10px",borderRadius:"20px",background:bg,margin:"0 5px 5px 0"}}>
+                        <span style={{color:col,fontSize:"12px",fontWeight:"600"}}>{item.name}</span>
+                        <span style={{fontSize:"10px",opacity:0.65,color:col}}>{item.category}</span>
+                        <AddToMenuButton name={item.name} category={item.category}
+                          estimatedPrice={7.00}
+                          onAdded={()=>setMenuRefresh(n=>n+1)} />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </SectionCard>
+
+            {/* ⑥ Celebrations — with + buttons on suggestions */}
+            <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":"hardcoded"}
+              titleAction={<button onClick={onOpenCelebrations} style={openModBtn}>Open module →</button>}
+            >
+              {celebResult&&(()=>{
+                return(
+                  <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+                    {celebResult.upcoming.slice(0,3).map((ev,i)=>(
+                      <div key={i} style={{padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px"}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"5px"}}>
+                          <span style={{fontSize:"13px",fontWeight:"600",color:"#333"}}>{ev.name}</span>
+                          <span style={{fontSize:"11px",color:"#888",flexShrink:0,marginLeft:"8px"}}>{ev.days_away===0?"Today":`in ${ev.days_away}d`}</span>
+                        </div>
+                        {ev.menu_suggestions&&ev.menu_suggestions.length>0&&(
+                          <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
+                            {ev.menu_suggestions.map((s,j)=>(
+                              <div key={j} style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"3px 8px",borderRadius:"20px",background:"#e6f4ee"}}>
+                                <span style={{fontSize:"11px",fontWeight:"600",color:G.green}}>{s.name}</span>
+                                <AddToMenuButton name={s.name} category={s.category}
+                                  estimatedPrice={7.00}
+                                  onAdded={()=>setMenuRefresh(n=>n+1)} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </SectionCard>
+
+            {/* ⑦ Regional — with + buttons on suggestions */}
+            <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel={regionResult?.source==="openai"?"OpenAI":"hardcoded"}
+              titleAction={<button onClick={onOpenRegional} style={openModBtn}>Open module →</button>}
+            >
+              {regionResult&&(
+                <div>
+                  {regionResult.menu_suggestions&&regionResult.menu_suggestions.length>0&&(
+                    <div>
+                      <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>Regional menu items — <strong style={{color:G.green}}>{regionResult.region}</strong></div>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"8px"}}>
+                        {regionResult.menu_suggestions!.map((s,i)=>(
+                          <div key={i} style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"4px 10px",borderRadius:"20px",background:"#e6f4ee"}}>
+                            <span style={{fontSize:"12px",fontWeight:"600",color:G.green}}>{s.name}</span>
+                            <AddToMenuButton name={s.name} category={s.category}
+                              estimatedPrice={7.00}
+                              onAdded={()=>setMenuRefresh(n=>n+1)} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div style={{fontSize:"11px",color:"#aaa",fontStyle:"italic"}}>
+                    {regionResult.insights.length} demand insights available — open module for details
+                  </div>
+                </div>
+              )}
+            </SectionCard>
+
+            {/* ⑧ Weather */}
+            <SectionCard
+              step={8} title="Weather" status={weatherStatus==="idle"?"done":weatherStatus}
+              titleAction={<button onClick={onOpenWeather} style={openModBtn}>Open module →</button>}
+            >
+              {weatherStatus==="idle"&&(
+                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
+                  Run the full flow above, or open the Weather module independently.
+                </div>
+              )}
+              {weatherStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{weatherErr}</div>}
+              {weatherResult&&(
+                <div>
+                  <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
+                    <div style={{fontSize:"48px"}}>{condIcon(weatherResult.condition)}</div>
+                    <div>
+                      <div style={{fontSize:"36px",fontWeight:"bold",color:G.green,lineHeight:"1"}}>{weatherResult.avg_temp.toFixed(1)}°C</div>
+                      <div style={{fontSize:"13px",color:"#555",marginTop:"4px",textTransform:"capitalize"}}>{weatherResult.condition}</div>
+                    </div>
+                    <div style={{marginLeft:"auto"}}>
+                      <StatusBadge ok={!weatherResult.is_rainy} labelOk="Not rainy" labelNo="Rainy"/>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </SectionCard>
+
+            {/* ⑨ Weather Meal Suggestions — with + buttons */}
+            <SectionCard step={9} title="Weather Meal Suggestions" status={weatherSugStatus} dataLabel="OpenAI">
+              {weatherSuggestions&&weatherSuggestions.length>0&&(
+                <div>
+                  <div style={{fontSize:"11px",color:"#888",marginBottom:"8px",textTransform:"uppercase",letterSpacing:"0.4px"}}>
+                    Suggested for the forecast — add to your menu with +
+                  </div>
+                  {weatherSuggestions.map((s,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:"8px",
+                      padding:"7px 10px",background:i%2===0?"#f9f9f9":"#fff",borderRadius:"8px",marginBottom:"3px"}}>
+                      <span style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#333"}}>{s.name}</span>
+                      <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic",maxWidth:"180px",
+                        overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.reason}</span>
+                      <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{s.estimated_price_gbp.toFixed(2)}</span>
+                      <AddToMenuButton name={s.name} category={s.category}
+                        estimatedPrice={s.estimated_price_gbp}
+                        onAdded={()=>setMenuRefresh(n=>n+1)} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+          </ModuleGroup>
+
+          {/* ══ GROUP 2: INPUT ══════════════════════════════════════════════ */}
           <ModuleGroup
             title="INPUT"
             borderColor="#2563eb"
@@ -1811,7 +2161,7 @@ export default function FlowScreen({
             </div>
           </ModuleGroup>
 
-          {/* ══ GROUP 2: SUPPLY ═════════════════════════════════════════════ */}
+          {/* ══ GROUP 3: SUPPLY ═════════════════════════════════════════════ */}
           <ModuleGroup
             title="SUPPLY"
             borderColor="#d97706"
@@ -1880,223 +2230,6 @@ export default function FlowScreen({
               )}
             </SectionCard>
           </ModuleGroup>
-
-          {/* ══ GROUP 3: DEMAND ══════════════════════════════════════════════ */}
-          <ModuleGroup
-            title="DEMAND"
-            borderColor="#1a5f3f"
-            itemCount={6}
-            defaultOpen={true}
-          >
-            {/* ③ Trends */}
-            <SectionCard step={3} title="High-Level Trends" status={trendsStatus}
-              dataLabel={trendsResult?.source==="google_trends"?"Google Trends":trendsResult?.source==="hardcoded"?"hardcoded":"Trends"}
-              titleAction={<button onClick={onOpenTrends} style={openModBtn}>Open module →</button>}
-            >
-              {trendsResult&&(
-                <div>
-                  {trendsResult.trends.filter(t=>t.direction==="up").length>0&&(
-                    <div style={{marginBottom:"8px"}}>
-                      <div style={{fontSize:"11px",color:"#888",marginBottom:"5px",textTransform:"uppercase",letterSpacing:"0.4px"}}>Rising trends — influencing menu</div>
-                      <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
-                        {trendsResult.trends.filter(t=>t.direction==="up").map((t,i)=>{
-                          const catColors: Record<string,[string,string]> = {
-                            main:["#e6f4ee",G.green], snack:["#fdf3e6","#a16207"],
-                            beverage:["#e0f2fe","#0369a1"], dessert:["#fce7f3","#9d174d"],
-                            cuisine:["#ede9fe","#6d28d9"], produce:["#f0fdf4","#166534"],
-                          };
-                          const [bg,col] = catColors[t.category]??["#e6f4ee",G.green];
-                          return(
-                            <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600"}}>
-                              📈 {t.label}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                  {trendsResult.trends.filter(t=>t.direction!=="up").length>0&&(
-                    <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
-                      {trendsResult.trends.filter(t=>t.direction!=="up").map((t,i)=>{
-                        const icon = t.direction==="down"?"📉":"➡️";
-                        const bg   = t.direction==="down"?"#fdecea":"#f0f0f0";
-                        const col  = t.direction==="down"?G.red:"#555";
-                        return(
-                          <span key={i} style={{padding:"3px 8px",borderRadius:"20px",background:bg,color:col,fontSize:"11px",fontWeight:"500"}}>
-                            {icon} {t.label}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-            </SectionCard>
-
-            {/* ④ Historic */}
-            <SectionCard step={4} title="Historic Data" status={historicStatus} dataLabel="mock"
-              titleAction={<button onClick={onOpenHistoric} style={openModBtn}>Open module →</button>}
-            >
-              {historicStatus==="idle"&&(
-                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
-                  Click <strong style={{color:G.green}}>Open module →</strong> to view full historic sales data.
-                </div>
-              )}
-              {historicData&&(
-                <div>
-                  <div style={{display:"flex",gap:"14px",flexWrap:"wrap",marginBottom:"10px"}}>
-                    <div style={{padding:"6px 12px",background:"#e6f4ee",borderRadius:"8px",textAlign:"center"}}>
-                      <div style={{fontSize:"10px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>30-day Revenue</div>
-                      <div style={{fontSize:"16px",fontWeight:"700",color:G.green}}>£{historicData.total_revenue_gbp.toLocaleString()}</div>
-                    </div>
-                    <div style={{padding:"6px 12px",background:"#e6f4ee",borderRadius:"8px",textAlign:"center"}}>
-                      <div style={{fontSize:"10px",color:"#888",textTransform:"uppercase",letterSpacing:"0.5px"}}>Avg Daily Covers</div>
-                      <div style={{fontSize:"16px",fontWeight:"700",color:G.green}}>{historicData.avg_daily_covers}</div>
-                    </div>
-                  </div>
-                  <div style={{fontSize:"12px",color:"#888",marginBottom:"6px",fontWeight:"600"}}>Top meals</div>
-                  {historicData.top_meals.slice(0,3).map((m,i)=>(
-                    <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:i<2?"1px solid #f0f0f0":"none",fontSize:"12px"}}>
-                      <span style={{color:"#333"}}>{m.meal_name}</span>
-                      <span style={{color:G.green,fontWeight:"700"}}>£{m.total_revenue_gbp.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </SectionCard>
-
-            {/* ⑤ Seasonal */}
-            <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={onOpenSeasonal} style={openModBtn}>Open module →</button>}
-            >
-              {seasonResult&&(
-                <div>
-                  <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>In season — <strong style={{color:G.green}}>{seasonResult.month}</strong> — use in menu</div>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
-                    {seasonResult.items.map((item,i)=>{
-                      const catColors: Record<string,[string,string]> = {
-                        produce:["#e6f4ee",G.green], protein:["#fdf3e6","#a16207"],
-                        seafood:["#e0f2fe","#0369a1"], game:["#fdf3e6","#92400e"],
-                        dairy:["#fce7f3","#9d174d"], dessert:["#fce7f3","#9d174d"],
-                        beverage:["#e0f2fe","#0369a1"], grain:["#fefce8","#92400e"],
-                      };
-                      const [bg,col] = catColors[item.category]??["#e6f4ee",G.green];
-                      return(
-                        <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600"}}>
-                          {item.name}
-                          <span style={{fontSize:"10px",opacity:0.65,marginLeft:"4px"}}>{item.category}</span>
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </SectionCard>
-
-            {/* ⑥ Celebrations */}
-            <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={onOpenCelebrations} style={openModBtn}>Open module →</button>}
-            >
-              {celebResult&&(()=>{
-                const catColors: Record<string,[string,string]> = {
-                  main:["#e6f4ee",G.green], snack:["#fdf3e6","#a16207"],
-                  beverage:["#e0f2fe","#0369a1"], dessert:["#fce7f3","#9d174d"],
-                  produce:["#f0fdf4","#166534"],
-                };
-                return(
-                  <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
-                    {celebResult.upcoming.slice(0,3).map((ev,i)=>(
-                      <div key={i} style={{padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px"}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"5px"}}>
-                          <span style={{fontSize:"13px",fontWeight:"600",color:"#333"}}>{ev.name}</span>
-                          <span style={{fontSize:"11px",color:"#888",flexShrink:0,marginLeft:"8px"}}>{ev.days_away===0?"Today":`in ${ev.days_away}d`}</span>
-                        </div>
-                        {ev.menu_suggestions&&ev.menu_suggestions.length>0&&(
-                          <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
-                            {ev.menu_suggestions.map((s,j)=>{
-                              const [bg,col] = catColors[s.category]??["#f0f0f0","#555"];
-                              return(
-                                <span key={j} style={{padding:"3px 8px",borderRadius:"20px",background:bg,color:col,fontSize:"11px",fontWeight:"600"}}>
-                                  {s.name}
-                                  <span style={{fontSize:"9px",opacity:0.65,marginLeft:"3px"}}>{s.category}</span>
-                                </span>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-            </SectionCard>
-
-            {/* ⑦ Regional */}
-            <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel={regionResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={onOpenRegional} style={openModBtn}>Open module →</button>}
-            >
-              {regionResult&&(
-                <div>
-                  {regionResult.menu_suggestions&&regionResult.menu_suggestions.length>0&&(()=>{
-                    const catColors: Record<string,[string,string]> = {
-                      main:["#e6f4ee",G.green], snack:["#fdf3e6","#a16207"],
-                      beverage:["#e0f2fe","#0369a1"], dessert:["#fce7f3","#9d174d"],
-                      produce:["#f0fdf4","#166534"],
-                    };
-                    return(
-                      <div>
-                        <div style={{fontSize:"11px",color:"#888",marginBottom:"6px",textTransform:"uppercase",letterSpacing:"0.4px"}}>Regional menu items — <strong style={{color:G.green}}>{regionResult.region}</strong></div>
-                        <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"8px"}}>
-                          {regionResult.menu_suggestions!.map((s,i)=>{
-                            const [bg,col] = catColors[s.category]??["#f0f0f0","#555"];
-                            return(
-                              <span key={i} style={{padding:"4px 10px",borderRadius:"20px",background:bg,color:col,fontSize:"12px",fontWeight:"600"}}>
-                                {s.name}
-                                <span style={{fontSize:"10px",opacity:0.65,marginLeft:"4px"}}>{s.category}</span>
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div style={{fontSize:"11px",color:"#aaa",fontStyle:"italic"}}>
-                    {regionResult.insights.length} demand insights available — open module for details
-                  </div>
-                </div>
-              )}
-            </SectionCard>
-
-            {/* ⑧ Weather */}
-            <SectionCard
-              step={8} title="Weather" status={weatherStatus==="idle"?"done":weatherStatus}
-              titleAction={<button onClick={onOpenWeather} style={openModBtn}>Open module →</button>}
-            >
-              {weatherStatus==="idle"&&(
-                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
-                  Run the full flow above, or open the Weather module independently.
-                </div>
-              )}
-              {weatherStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{weatherErr}</div>}
-              {weatherResult&&(
-                <div>
-                  <div style={{display:"flex",alignItems:"center",gap:"16px",flexWrap:"wrap"}}>
-                    <div style={{fontSize:"48px"}}>{condIcon(weatherResult.condition)}</div>
-                    <div>
-                      <div style={{fontSize:"36px",fontWeight:"bold",color:G.green,lineHeight:"1"}}>{weatherResult.avg_temp.toFixed(1)}°C</div>
-                      <div style={{fontSize:"13px",color:"#555",marginTop:"4px",textTransform:"capitalize"}}>{weatherResult.condition}</div>
-                    </div>
-                    <div style={{marginLeft:"auto"}}>
-                      <StatusBadge ok={!weatherResult.is_rainy} labelOk="Not rainy" labelNo="Rainy"/>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </SectionCard>
-          </ModuleGroup>
-
-
-          {/* ══ PIPELINE OUTPUTS ════════════════════════════════════════════ */}
 
           {/* ══ MENU PROPOSAL SECTION ═══════════════════════════════════════ */}
           <MenuProposalSection

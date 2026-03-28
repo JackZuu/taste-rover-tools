@@ -30,8 +30,6 @@ Analyse the following menu item and return a JSON object with exactly these keys
    Dietary (pick all that apply): vegetarian, vegan, gluten_free, dairy_free, halal, nut_free
    Allergens (pick all that apply): contains_gluten, contains_dairy, contains_eggs,
      contains_nuts, contains_fish, contains_shellfish, contains_soy, contains_sesame
-   Demand signals (pick all that apply): trending_up, seasonal_spring, seasonal_summer,
-     seasonal_autumn, seasonal_winter, celebration_fit, regional_special
    Positioning (pick all that apply): premium, budget_friendly, quick_serve,
      comfort_food, family_friendly, shareable, hero_item
 
@@ -100,3 +98,42 @@ Return a JSON object with two keys:
   "menu_suggestions": array of 4 objects each with "name" (Title Case string) and
     "category" (one of: main, snack, beverage, dessert, produce).
 Return JSON only."""
+
+
+def trending_discovery_prompt(month_name: str, season: str) -> str:
+    """Prompt to discover trending UK street food items for the current period."""
+    return f"""You are a UK street-food market analyst with up-to-date knowledge of food trends.
+
+What are the top 12 trending street food items in the UK right now ({month_name}, {season})?
+Include a mix of mains, snacks, drinks, and desserts that a food truck could realistically serve.
+Focus on items gaining popularity on social media, at food festivals, and in the casual dining scene.
+
+Return a JSON object with key "items" — an array of objects each with:
+  "name" (Title Case string — the dish/drink name),
+  "category" (one of: grill, sides, snacks, desserts, cold_drinks, hot_drinks),
+  "why_trending" (1 concise sentence explaining why this is trending),
+  "estimated_price_gbp" (float — typical UK street food price).
+
+Return JSON only. No explanation."""
+
+
+def weather_meal_suggestions_prompt(avg_temp: float, condition: str, is_rainy: bool) -> str:
+    """Prompt to suggest meals suited to a specific weather forecast."""
+    weather_desc = f"{avg_temp:.1f}°C, {condition}"
+    if is_rainy:
+        weather_desc += ", rainy"
+    return f"""You are a UK street-food menu planner.
+
+The weather forecast is: {weather_desc}.
+
+Suggest 8–10 meals, snacks, and drinks that a food truck should serve in this weather.
+Consider what customers crave in these conditions — warming comfort food for cold/wet,
+refreshing light options for warm/dry.
+
+Return a JSON object with key "suggestions" — an array of objects each with:
+  "name" (Title Case string — the dish/drink name),
+  "category" (one of: grill, sides, snacks, desserts, cold_drinks, hot_drinks),
+  "reason" (1 concise sentence explaining why this suits the weather),
+  "estimated_price_gbp" (float — typical UK street food price).
+
+Return JSON only. No explanation."""

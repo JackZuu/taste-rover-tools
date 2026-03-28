@@ -80,6 +80,8 @@ class DecisionRequest(BaseModel):
     active_trends: list[str] = []
     seasonal_items: list[str] = []
     upcoming_celebration: str = ""
+    celebration_suggestions: list[str] = []
+    regional_suggestions: list[str] = []
 
 class MenuRequest(BaseModel):
     avg_temp: float
@@ -128,6 +130,13 @@ class MenuProposalRequest(BaseModel):
     seasonal_items: list[str] = []
     upcoming_celebration: str = ""
     region: str = "London"
+    celebration_suggestions: list[str] = []
+    regional_suggestions: list[str] = []
+
+class WeatherSuggestionsRequest(BaseModel):
+    avg_temp: float
+    condition: str = "mainly cloud"
+    is_rainy: bool = False
 
 # ─── Existing endpoints ───────────────────────────────────────────────────────
 
@@ -207,7 +216,11 @@ class CustomTrendsRequest(BaseModel):
 @app.get("/api/trends")
 def get_trends_endpoint():
     result = get_trends()
-    return {"trends": [asdict(t) for t in result.trends], "source": result.source}
+    return {
+        "items": [asdict(t) for t in result.items],
+        "trend_names": [t.name for t in result.items],
+        "source": result.source,
+    }
 
 @app.post("/api/trends/custom")
 def get_custom_trends_endpoint(req: CustomTrendsRequest):
@@ -262,8 +275,8 @@ def get_decision_endpoint(req: DecisionRequest):
         weather,
         active_trends=req.active_trends,
         seasonal_items=req.seasonal_items,
-        upcoming_celebration=req.upcoming_celebration,
-        region=req.region,
+        celebration_suggestions=req.celebration_suggestions,
+        regional_suggestions=req.regional_suggestions,
     )
     return {
         "primary_meal": result.primary_meal,
@@ -477,6 +490,58 @@ def update_framework_config(req: FrameworkConfigRequest):
         session.commit()
         return {"ok": True}
 
+# ─── Weather meal suggestions ────────────────────────────────────────────────
+
+_weather_suggestions_cache: dict = {}
+_WEATHER_SUGGESTIONS_TTL = 3600  # 1 hour
+
+@app.post("/api/weather-suggestions")
+def get_weather_suggestions(req: WeatherSuggestionsRequest):
+    """Suggest meals suited to the weather forecast (OpenAI, cached 1hr)."""
+    from datetime import datetime
+    cache_key = f"{round(req.avg_temp)}|{req.condition}|{req.is_rainy}"
+    now = datetime.utcnow()
+    cached = _weather_suggestions_cache.get(cache_key)
+    if cached and (now - cached["at"]).total_seconds() < _WEATHER_SUGGESTIONS_TTL:
+        return cached["result"]
+
+    from openai import OpenAI
+    from app.prompts import weather_meal_suggestions_prompt
+    from app.taxonomy import MENU_CATEGORIES
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return {"suggestions": [], "source": "unavailable"}
+
+    try:
+        client = OpenAI(api_key=api_key)
+        prompt = weather_meal_suggestions_prompt(req.avg_temp, req.condition, req.is_rainy)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            max_tokens=1000,
+            temperature=0.4,
+        )
+        raw = json.loads(response.choices[0].message.content or "{}")
+        valid_cats = set(MENU_CATEGORIES)
+        suggestions = []
+        for s in raw.get("suggestions", []):
+            cat = s.get("category", "snacks")
+            if cat not in valid_cats:
+                cat = "snacks"
+            suggestions.append({
+                "name": s.get("name", ""),
+                "category": cat,
+                "reason": s.get("reason", ""),
+                "estimated_price_gbp": round(float(s.get("estimated_price_gbp", 7.0)), 2),
+            })
+        result = {"suggestions": suggestions, "source": "openai"}
+        _weather_suggestions_cache[cache_key] = {"result": result, "at": now}
+        return result
+    except Exception:
+        return {"suggestions": [], "source": "error"}
+
 # ─── Menu proposal (scored) ───────────────────────────────────────────────────
 
 @app.post("/api/menu-proposal")
@@ -495,6 +560,8 @@ def get_menu_proposal_scored(req: MenuProposalRequest):
         seasonal_items=req.seasonal_items,
         upcoming_celebration=req.upcoming_celebration,
         region=req.region,
+        celebration_suggestions=req.celebration_suggestions,
+        regional_suggestions=req.regional_suggestions,
     )
 
 # ─── Full pipeline ────────────────────────────────────────────────────────────

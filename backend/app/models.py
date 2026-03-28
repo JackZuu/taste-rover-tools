@@ -102,6 +102,38 @@ class TrendsResult:
     source: str = "hardcoded"   # "google_trends" | "hardcoded"
 
 
+# ─── Trend discovery (broad market) ─────────────────────────────────────────
+
+@dataclass
+class TrendDiscoveryItem:
+    name: str
+    category: str           # from MENU_CATEGORIES: grill/sides/snacks/desserts/cold_drinks/hot_drinks
+    why_trending: str
+    estimated_price_gbp: float = 7.00
+
+
+@dataclass
+class TrendDiscoveryResult:
+    items: list[TrendDiscoveryItem] = field(default_factory=list)
+    source: str = "openai"  # "openai" | "fallback"
+
+
+# ─── Weather meal suggestions ───────────────────────────────────────────────
+
+@dataclass
+class WeatherSuggestion:
+    name: str
+    category: str           # from MENU_CATEGORIES
+    reason: str
+    estimated_price_gbp: float = 7.00
+
+
+@dataclass
+class WeatherSuggestionsResult:
+    suggestions: list[WeatherSuggestion] = field(default_factory=list)
+    source: str = "openai"
+
+
 # ─── Historic ─────────────────────────────────────────────────────────────────
 
 @dataclass

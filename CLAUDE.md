@@ -91,24 +91,40 @@ docker run -p 8000:8000 \
 
 ## Trends architecture (two-tier)
 
-**Broad market trends** (used in Meal Flow pipeline step):
+**Trend discovery** (used in Meal Flow pipeline — DEMAND group):
 - `GET /api/trends` → `get_trends()` in `trends.py`
-- Source: pytrends (Google Trends, UK, Food & Drink category)
-- Hardcoded fallback if rate-limited (common on cloud IPs)
-- 1-hour in-memory cache
+- Source: OpenAI gpt-4o-mini (`trending_discovery_prompt`) — discovers what's trending
+- Returns `{items: [{name, category, why_trending, estimated_price_gbp}], trend_names: [str], source}`
+- Items shown with "+" buttons to add to menu
+- 1-hour in-memory cache; hardcoded fallback if OpenAI unavailable
 
 **Menu-item-specific trends** (used in Trends module screen):
 - `POST /api/trends/custom` with `{keywords: [...]}` → `get_custom_trends()` in `trends.py`
-- Source: OpenAI gpt-4o-mini (primary, via `menu_trends_prompt`), pytrends for first 5 keywords (secondary), stub fallback
+- Source: OpenAI gpt-4o-mini (primary, via `menu_trends_prompt`), stub fallback
 - 24-hour in-memory cache keyed by sorted keyword set
 
 ---
 
-## Enrichment caching
+## Enrichment and demand signals
 
-Each menu item can be enriched once via OpenAI (ingredients, nutrition, tags). Enrichment is stored in `menu_item_enrichment` SQLite table with a UNIQUE constraint on `item_id`. The `/enrich` endpoint skips the OpenAI call if a row already exists — so enrichment is never re-run unnecessarily.
+**Static enrichment** (stored in SQLite, persists until re-enriched):
+- Ingredients, nutrition, weather fit tags, dietary tags, allergen tags, positioning tags
+- Enrichment runs once per item via OpenAI; "Re-enrich All" button wipes and re-runs
 
-When `Run SmarTR` is clicked, the flow calls `POST /api/menu-items/enrich-all` as a non-blocking background task, then increments `menuRefresh` to reload the `MenuModule` UI component.
+**Dynamic demand signals** (computed live, not stored):
+- Trending: item name matched against live trend discovery names
+- Seasonal: item ingredients matched against live seasonal items
+- Celebration: item name matched against celebration menu suggestions
+- Regional: item name matched against regional menu suggestions
+- All matching done case-insensitive in `score_item()` at scoring time
+
+---
+
+## Weather meal suggestions
+
+- `POST /api/weather-suggestions` → OpenAI suggests 8-10 meals suited to forecast
+- Cached 1hr keyed by rounded temp + condition + rainy
+- Shown in DEMAND group with "+" buttons to add to menu
 
 ---
 
@@ -159,12 +175,18 @@ Stored in `framework_config` SQLite table (single row). Fields:
 ## Flow pipeline (Meal Flow screen)
 
 `FlowScreen.tsx` — steps run as:
-1. **Parallel (steps 1–7)**: equipment → supply → broad trends → historic → seasonal → celebrations → regional
-2. **Sequential (steps 8–11)**: weather → meal decision (client-side rules) → menu proposal (auto-generates after weather result is set)
+1. **Parallel (steps 1–7)**: equipment → supply → trend discovery → historic → seasonal → celebrations → regional
+2. **Background**: enrich-all (non-blocking, fire-and-forget)
+3. **Sequential**: weather → weather meal suggestions → decision (backend) → menu proposal
 
-After parallel steps complete, `enrich-all` is called non-blocking, then `menuRefresh` increments to reload `MenuModule`.
+### UI group order (top to bottom):
+1. **DEMAND** (green): Trends, Historic, Seasonal, Celebrations, Regional, Weather, Weather Suggestions
+2. **INPUT** (blue): MenuModule + Competitor Menus
+3. **SUPPLY** (amber): Equipment + Supply Chain
+4. **MENU PROPOSAL**: Scored items with expandable enrichment + score breakdown
 
-The menu proposal auto-generates via `useEffect(() => { if (weatherResult) generateProposal(); }, [weatherResult, activeRegion])` — no manual button needed.
+All DEMAND modules show "+" buttons to add suggested items to the menu.
+The menu proposal auto-generates via `useEffect` when `weatherResult` or `activeRegion` changes.
 
 ---
 
@@ -184,10 +206,10 @@ The menu proposal auto-generates via `useEffect(() => { if (weatherResult) gener
 | `equipment` | `EquipmentScreen` | Van selector, mock |
 | `supply` | `SupplyScreen` | BidFood Direct mock inventory |
 
-### Module groups (FlowScreen)
-- **INPUT** (blue `#2563eb`): Van & Equipment, Current Menu Options + Enrichment, Competitor Menus, Nutrition Model
-- **SUPPLY** (amber `#d97706`): Supply Chain
-- **DEMAND** (green `#1a5f3f`): High-Level Trends, Historic Data, Seasonal Produce, Upcoming Events, Regional Demand, Weather
+### Module groups (FlowScreen) — rendered top to bottom
+- **DEMAND** (green `#1a5f3f`): Trending Items, Historic Data, In-Season Foods, Upcoming Events, Regional Demand, Weather, Weather Meal Suggestions — all with "+" add-to-menu buttons
+- **INPUT** (blue `#2563eb`): Current Menu Options + Enrichment, Competitor Menus
+- **SUPPLY** (amber `#d97706`): Equipment, Supply Chain
 
 ### Key components
 - `ModuleGroup`: collapsible section with coloured left border + chevron, item count badge

@@ -2,9 +2,10 @@
 Menu proposal — scored algorithm that recommends items from the stored base menu.
 
 Each menu item is scored using live demand signals weighted by the
-framework config.  Items with the highest scores per category are flagged
-as featured/recommended.  The full menu is always returned; only the
-recommended subset is highlighted.
+framework config.  Demand signals (trending, seasonal, celebration,
+regional) are matched live against item names/ingredients — not baked
+into enrichment tags.  Weather fit and positioning tags still come from
+enrichment (they're inherent item properties).
 
 DATA SOURCE: SQLite (menu_items + enrichment) + live pipeline inputs
 """
@@ -15,7 +16,7 @@ from app.database import SessionLocal, MenuItemDB, MenuItemEnrichmentDB, Framewo
 from app.models import WeatherResult
 
 
-# ─── Scored item ──────────────────────────────────────────────────────────────
+# ─── Config & enrichment helpers ─────────────────────────────────────────────
 
 def _get_config():
     with SessionLocal() as session:
@@ -48,54 +49,95 @@ def _get_enrichment(item_id: int) -> dict | None:
         }
 
 
+# ─── Name matching helper ────────────────────────────────────────────────────
+
+def _name_matches(item_name: str, names_list: list[str]) -> bool:
+    """Case-insensitive check: item name appears in list or vice versa."""
+    item_lower = item_name.lower()
+    for n in names_list:
+        n_lower = n.lower()
+        if item_lower in n_lower or n_lower in item_lower:
+            return True
+    return False
+
+
+def _ingredients_match(item_ingredients: list[str], names_list: list[str]) -> bool:
+    """Check if any item ingredient appears in the names list."""
+    names_lower = {n.lower() for n in names_list}
+    for ing in item_ingredients:
+        ing_lower = ing.lower()
+        if any(ing_lower in n or n in ing_lower for n in names_lower):
+            return True
+    return False
+
+
+# ─── Scored item ─────────────────────────────────────────────────────────────
+
 def score_item(
+    item_name: str,
     tags: list[str],
     price_gbp: float,
     weather: WeatherResult | None,
     active_trends: list[str],
     seasonal_items: list[str],
-    upcoming_celebration: str,
-    region: str,
+    item_ingredients: list[str],
+    celebration_suggestions: list[str],
+    regional_suggestions: list[str],
     config: dict,
-) -> float:
-    """Return a relevance score for a menu item given current demand signals."""
-    score = 0.0
+) -> tuple[float, dict]:
+    """
+    Return (total_score, breakdown_dict) for a menu item.
 
-    # Weather fit
+    Demand signals are matched live by name/ingredients — not from
+    enrichment tags.  Weather fit still uses enrichment tags (inherent).
+    """
+    breakdown = {
+        "weather": 0.0,
+        "trending": 0.0,
+        "seasonal": 0.0,
+        "celebration": 0.0,
+        "regional": 0.0,
+        "price": 0.0,
+    }
+
+    # Weather fit (from enrichment tags — inherent item property)
     if weather:
         is_warm = weather.avg_temp > 15 and not weather.is_rainy
         if is_warm and "hot_weather" in tags:
-            score += 2.0 * config["weather_weight"]
+            breakdown["weather"] = round(2.0 * config["weather_weight"], 2)
         elif not is_warm and "cold_weather" in tags:
-            score += 2.0 * config["weather_weight"]
+            breakdown["weather"] = round(2.0 * config["weather_weight"], 2)
         elif "any_weather" in tags:
-            score += 1.0 * config["weather_weight"]
+            breakdown["weather"] = round(1.0 * config["weather_weight"], 2)
 
-    # Trending
-    if "trending_up" in tags and active_trends:
-        score += 1.5 * config["trends_weight"]
+    # Trending (live match: item name in trending names list)
+    if active_trends and _name_matches(item_name, active_trends):
+        breakdown["trending"] = round(1.5 * config["trends_weight"], 2)
 
-    # Seasonal
-    if seasonal_items:
-        seasonal_signals = ["seasonal_spring", "seasonal_summer", "seasonal_autumn", "seasonal_winter"]
-        if any(t in tags for t in seasonal_signals):
-            score += 1.5 * config["seasonal_weight"]
+    # Seasonal (live match: item ingredients in seasonal items list)
+    if seasonal_items and _ingredients_match(item_ingredients, seasonal_items):
+        breakdown["seasonal"] = round(1.5 * config["seasonal_weight"], 2)
 
-    # Celebration
-    if upcoming_celebration and "celebration_fit" in tags:
-        score += 1.5 * config["events_weight"]
+    # Celebration (live match: item name in celebration suggestion names)
+    if celebration_suggestions and _name_matches(item_name, celebration_suggestions):
+        breakdown["celebration"] = round(1.5 * config["events_weight"], 2)
 
-    # Regional
-    if region and "regional_special" in tags:
-        score += 1.5 * config["regional_weight"]
+    # Regional (live match: item name in regional suggestion names)
+    if regional_suggestions and _name_matches(item_name, regional_suggestions):
+        breakdown["regional"] = round(1.5 * config["regional_weight"], 2)
 
     # Price proximity to target
     target = config["avg_price_target_gbp"]
     price_diff = abs(price_gbp - target)
-    score += max(0.0, 1.0 - price_diff / 5.0)   # within £5 of target gets a small boost
+    breakdown["price"] = round(max(0.0, 1.0 - price_diff / 5.0), 2)
 
-    return round(score, 3)
+    total = sum(breakdown.values())
+    breakdown["total"] = round(total, 3)
 
+    return round(total, 3), breakdown
+
+
+# ─── Proposal generation ────────────────────────────────────────────────────
 
 def generate_proposal(
     weather: WeatherResult | None = None,
@@ -103,25 +145,18 @@ def generate_proposal(
     seasonal_items: list[str] | None = None,
     upcoming_celebration: str = "",
     region: str = "London",
+    celebration_suggestions: list[str] | None = None,
+    regional_suggestions: list[str] | None = None,
 ) -> dict:
     """
-    Score every active menu item and return the full menu with per-item scores
-    and a recommended featured subset per category.
-
-    Returns:
-      {
-        "categories": {
-          "grill": [{"id", "name", "price_gbp", "score", "tags", "nutrition", "featured"}, …],
-          ...
-        },
-        "featured_items": [{"id", "name", "category", "price_gbp", "score", "reason"}, …],
-        "influences": [str, …],
-        "config_snapshot": {...},
-      }
+    Score every active menu item and return the full menu with per-item scores,
+    score breakdowns, and a recommended featured subset per category.
     """
-    active_trends     = active_trends or []
-    seasonal_items    = seasonal_items or []
-    config            = _get_config() or {}
+    active_trends            = active_trends or []
+    seasonal_items           = seasonal_items or []
+    celebration_suggestions  = celebration_suggestions or []
+    regional_suggestions     = regional_suggestions or []
+    config                   = _get_config() or {}
 
     if not config:
         from app.taxonomy import CONFIG_DEFAULTS
@@ -146,19 +181,22 @@ def generate_proposal(
         enrichment = _get_enrichment(item["id"])
         tags = enrichment["tags"] if enrichment else []
         nutrition = enrichment["nutrition"] if enrichment else {}
+        ingredients = enrichment["ingredients"] if enrichment else []
 
         # Skip excluded allergens
         if exclude and any(a in tags for a in exclude):
             continue
 
-        item_score = score_item(
+        item_score, breakdown = score_item(
+            item_name=item["name"],
             tags=tags,
             price_gbp=item["price_gbp"],
             weather=weather,
             active_trends=active_trends,
             seasonal_items=seasonal_items,
-            upcoming_celebration=upcoming_celebration,
-            region=region,
+            item_ingredients=ingredients,
+            celebration_suggestions=celebration_suggestions,
+            regional_suggestions=regional_suggestions,
             config=config,
         )
 
@@ -167,30 +205,34 @@ def generate_proposal(
             categories[cat] = []
 
         categories[cat].append({
-            "id":        item["id"],
-            "name":      item["name"],
-            "price_gbp": item["price_gbp"],
-            "score":     item_score,
-            "tags":      tags,
-            "nutrition": nutrition,
-            "featured":  False,
+            "id":              item["id"],
+            "name":            item["name"],
+            "price_gbp":      item["price_gbp"],
+            "score":           item_score,
+            "score_breakdown": breakdown,
+            "tags":            tags,
+            "nutrition":       nutrition,
+            "ingredients":     ingredients,
+            "featured":        False,
         })
 
     # Mark top-scored item per category as featured (if score > 1)
-    reasons_map = _build_reason_map(weather, active_trends, seasonal_items, upcoming_celebration, region)
     for cat, cat_items in categories.items():
         cat_items.sort(key=lambda x: x["score"], reverse=True)
         for entry in cat_items[:2]:   # top 2 per category
             if entry["score"] > 1.0:
                 entry["featured"] = True
-                reason = _build_reason(entry["tags"], reasons_map)
+                reason = _build_reason(entry, weather, active_trends, seasonal_items,
+                                       upcoming_celebration, region, celebration_suggestions,
+                                       regional_suggestions)
                 featured.append({
-                    "id":        entry["id"],
-                    "name":      entry["name"],
-                    "category":  cat,
-                    "price_gbp": entry["price_gbp"],
-                    "score":     entry["score"],
-                    "reason":    reason,
+                    "id":              entry["id"],
+                    "name":            entry["name"],
+                    "category":        cat,
+                    "price_gbp":       entry["price_gbp"],
+                    "score":           entry["score"],
+                    "score_breakdown": entry["score_breakdown"],
+                    "reason":          reason,
                 })
 
     featured.sort(key=lambda x: x["score"], reverse=True)
@@ -215,25 +257,22 @@ def generate_proposal(
     }
 
 
-def _build_reason_map(weather, trends, seasonal, celebration, region) -> dict:
-    m = {}
-    if weather:
-        m["hot_weather"]      = f"warm forecast ({weather.avg_temp:.0f}°C)"
-        m["cold_weather"]     = f"cold/wet forecast ({weather.avg_temp:.0f}°C)"
-    if trends:
-        m["trending_up"]      = "trending up"
-    if seasonal:
-        m["seasonal_spring"]  = "in season (spring)"
-        m["seasonal_summer"]  = "in season (summer)"
-        m["seasonal_autumn"]  = "in season (autumn)"
-        m["seasonal_winter"]  = "in season (winter)"
-    if celebration:
-        m["celebration_fit"]  = f"fits {celebration}"
-    if region:
-        m["regional_special"] = f"regional favourite ({region})"
-    return m
+def _build_reason(entry: dict, weather, active_trends, seasonal_items,
+                   celebration, region, celebration_suggestions, regional_suggestions) -> str:
+    """Build a human-readable explanation from the score breakdown."""
+    bd = entry.get("score_breakdown", {})
+    parts: list[str] = []
 
+    if bd.get("weather", 0) > 0 and weather:
+        is_warm = weather.avg_temp > 15 and not weather.is_rainy
+        parts.append(f"{'warm' if is_warm else 'cold/wet'} forecast ({weather.avg_temp:.0f}°C)")
+    if bd.get("trending", 0) > 0:
+        parts.append("trending up")
+    if bd.get("seasonal", 0) > 0:
+        parts.append("uses seasonal ingredients")
+    if bd.get("celebration", 0) > 0 and celebration:
+        parts.append(f"fits {celebration}")
+    if bd.get("regional", 0) > 0 and region:
+        parts.append(f"regional favourite ({region})")
 
-def _build_reason(tags: list[str], reason_map: dict) -> str:
-    parts = [reason_map[t] for t in tags if t in reason_map]
     return ", ".join(parts[:3]) if parts else "strong all-round performer"
