@@ -9,7 +9,7 @@ const G = {
   amber:      "#d97706",
 };
 
-const openModBtn: React.CSSProperties = {
+const runModBtn: React.CSSProperties = {
   marginLeft: "auto", padding: "5px 12px",
   border: "1.5px solid #1a5f3f", borderRadius: "20px",
   background: "#e6f4ee", color: "#1a5f3f",
@@ -1487,31 +1487,23 @@ function MenuProposalSection({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function FlowScreen({
-  onOpenWeather,
   onOpenMcDonalds,
   onOpenBurgerKing,
   onOpenGreggs,
-  onOpenNutrition,
-  onOpenTrends,
-  onOpenHistoric,
-  onOpenSeasonal,
-  onOpenCelebrations,
-  onOpenRegional,
-  onOpenEquipment,
-  onOpenSupply,
+  ...rest
 }: {
-  onOpenWeather: () => void;
+  onOpenWeather?: () => void;
   onOpenMcDonalds: () => void;
   onOpenBurgerKing: () => void;
   onOpenGreggs: () => void;
-  onOpenNutrition: () => void;
-  onOpenTrends: () => void;
-  onOpenHistoric: () => void;
-  onOpenSeasonal: () => void;
-  onOpenCelebrations: () => void;
-  onOpenRegional: () => void;
-  onOpenEquipment: () => void;
-  onOpenSupply: () => void;
+  onOpenNutrition?: () => void;
+  onOpenTrends?: () => void;
+  onOpenHistoric?: () => void;
+  onOpenSeasonal?: () => void;
+  onOpenCelebrations?: () => void;
+  onOpenRegional?: () => void;
+  onOpenEquipment?: () => void;
+  onOpenSupply?: () => void;
 }) {
   const [vans, setVans] = useState<Van[]>([]);
   const [selectedVan, setSelectedVan] = useState<string>("van_alpha");
@@ -1607,20 +1599,76 @@ export default function FlowScreen({
     setMenuStatus("idle");       setMenuResult(null);    setMenuErr(null);
   }
 
+  // ── Shared fetch helpers ──────────────────────────────────────────────
+  async function fetchJson(url:string, opts?:RequestInit) {
+    const r = await fetch(url, opts);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }
+  const post = (url:string, body:object) => fetchJson(url,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(body),
+  });
+
+  // ── Individual module runners (for manual re-run) ───────────────────
+  async function runEquipment() {
+    setEquipStatus("loading"); setEquipErr(null);
+    try { const d = await post("/api/equipment/van",{van_id:selectedVan}); setEquipResult(d); setEquipStatus("done"); }
+    catch(e:any) { setEquipErr(e?.message??"Failed"); setEquipStatus("error"); }
+  }
+  async function runSupply() {
+    setSupplyStatus("loading"); setSupplyErr(null);
+    try { const d = await fetchJson("/api/supply/chain"); setSupplyResult(d); setSupplyStatus("done"); }
+    catch(e:any) { setSupplyErr(e?.message??"Failed"); setSupplyStatus("error"); }
+  }
+  async function runTrends() {
+    setTrendsStatus("loading");
+    try { const d = await fetchJson("/api/trends"); setTrendsResult(d); setTrendsStatus("done"); }
+    catch { setTrendsStatus("error"); }
+  }
+  async function runHistoric() {
+    setHistoricStatus("loading");
+    try { const d = await fetchJson("/api/historic"); setHistoricData(d); setHistoricStatus("done"); }
+    catch { setHistoricStatus("error"); }
+  }
+  async function runSeasonal() {
+    setSeasonStatus("loading");
+    try { const d = await fetchJson("/api/seasonal"); setSeasonResult(d); setSeasonStatus("done"); }
+    catch { setSeasonStatus("error"); }
+  }
+  async function runCelebrations() {
+    setCelebStatus("loading");
+    try { const d = await fetchJson("/api/celebrations"); setCelebResult(d); setCelebStatus("done"); }
+    catch { setCelebStatus("error"); }
+  }
+  async function runRegional() {
+    setRegionStatus("loading");
+    try { const d = await post("/api/regional",{region:activeRegion}); setRegionResult(d); setRegionStatus("done"); }
+    catch { setRegionStatus("error"); }
+  }
+  async function runWeather() {
+    setWeatherStatus("loading"); setWeatherErr(null);
+    try {
+      const data = await post("/api/weather",{postcode:activePostcode});
+      if (data.error) throw new Error(data.error);
+      const dayEntry = (data.forecast??[]).find((d:any)=>d.date===selectedDate);
+      if (!dayEntry) throw new Error(`No forecast for ${selectedDate}`);
+      const wr = {avg_temp:dayEntry.avg_temp, condition:dayEntry.mainly, is_rainy:dayEntry.mainly==="mainly rain"};
+      setWeatherResult(wr); setWeatherStatus("done");
+      // Also fetch weather suggestions
+      setWeatherSugStatus("loading");
+      post("/api/weather-suggestions",{avg_temp:wr.avg_temp,condition:wr.condition,is_rainy:wr.is_rainy})
+        .then((d:any)=>{setWeatherSuggestions(d.suggestions??[]); setWeatherSugStatus("done");})
+        .catch(()=>setWeatherSugStatus("error"));
+    } catch(e:any) {
+      setWeatherErr(e?.message??"Failed"); setWeatherStatus("error");
+    }
+  }
+
   async function runFlow() {
     if (!activePostcode) return;
     resetAll();
     setRunning(true);
-
-    async function fetchJson(url:string, opts?:RequestInit) {
-      const r = await fetch(url, opts);
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    }
-    const post = (url:string, body:object) => fetchJson(url,{
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(body),
-    });
 
     // ── Steps 1–7 concurrently + step 8 (competitor, static) ──────────────
     setEquipStatus("loading"); setSupplyStatus("loading");
@@ -1870,8 +1918,13 @@ export default function FlowScreen({
             {/* ③ Trends — discovery items with + buttons */}
             <SectionCard step={3} title="Trending Items" status={trendsStatus}
               dataLabel={trendsResult?.source==="openai"?"OpenAI":"fallback"}
-              titleAction={<button onClick={onOpenTrends} style={openModBtn}>Open module →</button>}
+              titleAction={<button onClick={runTrends} style={runModBtn}>▶ Run</button>}
             >
+              {trendsStatus==="error"&&(
+                <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
+                  Failed to load trends. <button onClick={runTrends} style={{background:"none",border:"none",color:G.red,cursor:"pointer",textDecoration:"underline",fontSize:"12px",fontFamily:"'Georgia',serif"}}>Retry</button>
+                </div>
+              )}
               {trendsResult&&(
                 <div>
                   <div style={{fontSize:"11px",color:"#888",marginBottom:"8px",textTransform:"uppercase",letterSpacing:"0.4px"}}>
@@ -1896,8 +1949,13 @@ export default function FlowScreen({
 
             {/* ④ Historic */}
             <SectionCard step={4} title="Historic Data" status={historicStatus} dataLabel="mock"
-              titleAction={<button onClick={onOpenHistoric} style={openModBtn}>Open module →</button>}
+              titleAction={<button onClick={runHistoric} style={runModBtn}>▶ Run</button>}
             >
+              {historicStatus==="error"&&(
+                <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
+                  Failed to load historic data. <button onClick={runHistoric} style={{background:"none",border:"none",color:G.red,cursor:"pointer",textDecoration:"underline",fontSize:"12px",fontFamily:"'Georgia',serif"}}>Retry</button>
+                </div>
+              )}
               {historicStatus==="idle"&&(
                 <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
                   Click <strong style={{color:G.green}}>Open module →</strong> to view full historic sales data.
@@ -1928,8 +1986,13 @@ export default function FlowScreen({
 
             {/* ⑤ Seasonal — ingredients (no +) then meals (with +) */}
             <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={onOpenSeasonal} style={openModBtn}>Open module →</button>}
+              titleAction={<button onClick={runSeasonal} style={runModBtn}>▶ Run</button>}
             >
+              {seasonStatus==="error"&&(
+                <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
+                  Failed to load seasonal data. <button onClick={runSeasonal} style={{background:"none",border:"none",color:G.red,cursor:"pointer",textDecoration:"underline",fontSize:"12px",fontFamily:"'Georgia',serif"}}>Retry</button>
+                </div>
+              )}
               {seasonResult&&(
                 <div>
                   {/* Ingredients — display only */}
@@ -1974,10 +2037,20 @@ export default function FlowScreen({
             </SectionCard>
 
             {/* ⑥ Celebrations — with + buttons on suggestions */}
-            <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={onOpenCelebrations} style={openModBtn}>Open module →</button>}
+            <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":celebResult?.source??""}
+              titleAction={<button onClick={runCelebrations} style={runModBtn}>▶ Run</button>}
             >
-              {celebResult&&(()=>{
+              {celebStatus==="error"&&(
+                <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
+                  Failed to load events. <button onClick={runCelebrations} style={{background:"none",border:"none",color:G.red,cursor:"pointer",textDecoration:"underline",fontSize:"12px",fontFamily:"'Georgia',serif"}}>Retry</button>
+                </div>
+              )}
+              {celebResult&&celebResult.upcoming.length===0&&celebStatus==="done"&&(
+                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic",padding:"8px 0"}}>
+                  No upcoming events found. <button onClick={runCelebrations} style={{background:"none",border:"none",color:G.green,cursor:"pointer",textDecoration:"underline",fontSize:"12px",fontFamily:"'Georgia',serif"}}>Retry</button>
+                </div>
+              )}
+              {celebResult&&celebResult.upcoming.length>0&&(()=>{
                 return(
                   <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
                     {celebResult.upcoming.slice(0,3).map((ev,i)=>(
@@ -2007,8 +2080,13 @@ export default function FlowScreen({
 
             {/* ⑦ Regional — with + buttons on suggestions */}
             <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel={regionResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={onOpenRegional} style={openModBtn}>Open module →</button>}
+              titleAction={<button onClick={runRegional} style={runModBtn}>▶ Run</button>}
             >
+              {regionStatus==="error"&&(
+                <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
+                  Failed to load regional data. <button onClick={runRegional} style={{background:"none",border:"none",color:G.red,cursor:"pointer",textDecoration:"underline",fontSize:"12px",fontFamily:"'Georgia',serif"}}>Retry</button>
+                </div>
+              )}
               {regionResult&&(
                 <div>
                   {regionResult.menu_suggestions&&regionResult.menu_suggestions.length>0&&(
@@ -2036,7 +2114,7 @@ export default function FlowScreen({
             {/* ⑧ Weather + Meal Suggestions (combined) */}
             <SectionCard
               step={8} title="Weather & Suggestions" status={weatherStatus==="idle"?"done":weatherStatus}
-              titleAction={<button onClick={onOpenWeather} style={openModBtn}>Open module →</button>}
+              titleAction={<button onClick={runWeather} style={runModBtn}>▶ Run</button>}
             >
               {weatherStatus==="idle"&&(
                 <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
@@ -2189,7 +2267,7 @@ export default function FlowScreen({
           >
             {/* ① Equipment */}
             <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="mock"
-              titleAction={<button onClick={onOpenEquipment} style={openModBtn}>Open module →</button>}
+              titleAction={<button onClick={runEquipment} style={runModBtn}>▶ Run</button>}
             >
               {equipStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{equipErr}</div>}
               {equipResult&&(
@@ -2213,7 +2291,7 @@ export default function FlowScreen({
 
             {/* ② Supply Chain & Inventory */}
             <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock"
-              titleAction={<button onClick={onOpenSupply} style={openModBtn}>Open module →</button>}
+              titleAction={<button onClick={runSupply} style={runModBtn}>▶ Run</button>}
             >
               {supplyStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{supplyErr}</div>}
               {supplyResult&&(
