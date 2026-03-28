@@ -12,8 +12,16 @@ from app.models import Supplier, InventoryItem, SupplyChainResult
 
 # ─── Load scraped data ────────────────────────────────────────────────────────
 
-_DATA_PATH = Path(__file__).parent.parent.parent.parent / "bidfood_comps" / "bidfood-products.json"
-_IMAGES_DIR = Path(__file__).parent.parent.parent.parent / "bidfood_comps" / "images"
+# Data file — check local (backend/app/) first, then external bidfood_comps/
+_APP_DIR = Path(__file__).parent
+_LOCAL_DATA = _APP_DIR / "bidfood-products.json"
+_EXTERNAL_DATA = _APP_DIR.parent.parent.parent / "bidfood_comps" / "bidfood-products.json"
+_DATA_PATH = _LOCAL_DATA if _LOCAL_DATA.exists() else _EXTERNAL_DATA
+
+# Images — check local first, then external
+_LOCAL_IMAGES = _APP_DIR / "bidfood_images"
+_EXTERNAL_IMAGES = _APP_DIR.parent.parent.parent / "bidfood_comps" / "images"
+_IMAGES_DIR = _LOCAL_IMAGES if _LOCAL_IMAGES.exists() else _EXTERNAL_IMAGES
 
 _PRODUCTS: list[dict] = []
 _PRODUCTS_BY_CATEGORY: dict[str, list[dict]] = {}
@@ -65,10 +73,11 @@ def _load_catalogue():
                 if taxonomy_cat not in _PRODUCTS_BY_CATEGORY:
                     _PRODUCTS_BY_CATEGORY[taxonomy_cat] = []
                 _PRODUCTS_BY_CATEGORY[taxonomy_cat].append(product)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"BidFood catalogue load error: {e}")
 
 _load_catalogue()
+print(f"BidFood: {len(_PRODUCTS)} products from {_DATA_PATH} (exists: {_DATA_PATH.exists()})")
 
 
 # ─── BidFood Direct — single supplier ────────────────────────────────────────
