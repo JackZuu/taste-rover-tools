@@ -1547,6 +1547,8 @@ export default function FlowScreen({
   const [supplyCatalogue,  setSupplyCatalogue]  = useState<Record<string,{count:number;products:any[]}>|null>(null);
   const [supplyCatOpen,    setSupplyCatOpen]    = useState<string|null>(null);
   const [supplyBrowseOpen, setSupplyBrowseOpen] = useState(false);
+  const [supplyPage,       setSupplyPage]       = useState(0);
+  const [supplySearch,     setSupplySearch]     = useState("");
 
   const [trendsStatus,     setTrendsStatus]     = useState<PS>("idle");
   const [trendsResult,     setTrendsResult]     = useState<{items:TrendDiscoveryItem[];trend_names:string[];source:string}|null>(null);
@@ -2338,62 +2340,122 @@ export default function FlowScreen({
                           borderRadius:"0 0 10px 10px", padding:"12px",
                           background:"#fff",
                         }}>
-                          {/* Category pills */}
-                          {supplyCatalogue ? (
-                            <>
-                              <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"10px"}}>
-                                {Object.entries(supplyCatalogue).map(([cat,data])=>(
-                                  <button key={cat} onClick={()=>setSupplyCatOpen(supplyCatOpen===cat?null:cat)}
-                                    style={{
-                                      padding:"5px 12px",borderRadius:"20px",fontSize:"11px",fontWeight:"600",
-                                      cursor:"pointer",fontFamily:"'Georgia',serif",border:"none",
-                                      background:supplyCatOpen===cat?G.green:"#e6f4ee",
-                                      color:supplyCatOpen===cat?"#fff":G.green,
-                                      transition:"all 0.15s",
-                                    }}>
-                                    {cat} ({data.count})
-                                  </button>
-                                ))}
-                              </div>
+                          {supplyCatalogue ? (()=>{
+                            const PAGE_SIZE = 30;
+                            // Build filtered product list
+                            const searchLower = supplySearch.toLowerCase().trim();
+                            let allProducts: any[] = [];
+                            if (searchLower) {
+                              // Search across all categories
+                              Object.values(supplyCatalogue).forEach(catData => {
+                                catData.products.forEach((p:any) => {
+                                  if (p.name.toLowerCase().includes(searchLower) ||
+                                      (p.brand && p.brand.toLowerCase().includes(searchLower)))
+                                    allProducts.push(p);
+                                });
+                              });
+                            } else if (supplyCatOpen && supplyCatalogue[supplyCatOpen]) {
+                              allProducts = supplyCatalogue[supplyCatOpen].products;
+                            }
+                            const totalPages = Math.ceil(allProducts.length / PAGE_SIZE);
+                            const pageItems = allProducts.slice(supplyPage * PAGE_SIZE, (supplyPage + 1) * PAGE_SIZE);
 
-                              {/* Product grid for selected category */}
-                              {supplyCatOpen && supplyCatalogue[supplyCatOpen] && (
-                                <div style={{maxHeight:"350px",overflowY:"auto"}}>
-                                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"8px"}}>
-                                    {supplyCatalogue[supplyCatOpen].products.slice(0,60).map((p:any,i:number)=>(
-                                      <div key={i} style={{
+                            return (
+                              <>
+                                {/* Search bar */}
+                                <div style={{marginBottom:"10px"}}>
+                                  <input
+                                    type="text" placeholder="Search all products (e.g. potato, chicken, bread)..."
+                                    value={supplySearch}
+                                    onChange={e=>{setSupplySearch(e.target.value); setSupplyPage(0); if(e.target.value) setSupplyCatOpen(null);}}
+                                    style={{
+                                      width:"100%",padding:"8px 12px",borderRadius:"8px",
+                                      border:"1.5px solid #ddd",fontSize:"12px",fontFamily:"'Georgia',serif",
+                                      outline:"none",
+                                    }}
+                                    onFocus={e=>{e.target.style.borderColor=G.green;}}
+                                    onBlur={e=>{e.target.style.borderColor="#ddd";}}
+                                  />
+                                </div>
+
+                                {/* Category pills */}
+                                {!supplySearch && (
+                                  <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"10px"}}>
+                                    {Object.entries(supplyCatalogue).map(([cat,data])=>(
+                                      <button key={cat} onClick={()=>{setSupplyCatOpen(supplyCatOpen===cat?null:cat); setSupplyPage(0);}}
+                                        style={{
+                                          padding:"5px 12px",borderRadius:"20px",fontSize:"11px",fontWeight:"600",
+                                          cursor:"pointer",fontFamily:"'Georgia',serif",border:"none",
+                                          background:supplyCatOpen===cat?G.green:"#e6f4ee",
+                                          color:supplyCatOpen===cat?"#fff":G.green,
+                                          transition:"all 0.15s",
+                                        }}>
+                                        {cat} ({data.count})
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Results info */}
+                                {(searchLower || supplyCatOpen) && (
+                                  <div style={{fontSize:"11px",color:"#888",marginBottom:"8px"}}>
+                                    {searchLower
+                                      ? `${allProducts.length} results for "${supplySearch}"`
+                                      : `${allProducts.length} products in ${supplyCatOpen}`}
+                                    {totalPages > 1 && ` — page ${supplyPage+1} of ${totalPages}`}
+                                  </div>
+                                )}
+
+                                {/* Product grid */}
+                                {pageItems.length > 0 && (
+                                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"8px",marginBottom:"8px"}}>
+                                    {pageItems.map((p:any,i:number)=>(
+                                      <div key={`${p.product_code}-${i}`} style={{
                                         display:"flex",alignItems:"center",gap:"8px",
                                         padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px",
                                         border:"1px solid #eee",
                                       }}>
-                                        {p.image_file && (
-                                          <img src={`/api/supply/images/${p.image_file}`} alt=""
-                                            style={{width:40,height:40,borderRadius:"6px",objectFit:"cover",flexShrink:0}}
-                                            onError={(e)=>{(e.target as HTMLImageElement).style.display="none";}} />
-                                        )}
+                                        <div style={{width:40,height:40,borderRadius:"6px",flexShrink:0,overflow:"hidden",background:"#eee"}}>
+                                          {p.image_file && (
+                                            <img src={`/api/supply/images/${p.image_file}`} alt=""
+                                              style={{width:40,height:40,objectFit:"cover",display:"block"}}
+                                              onError={(e)=>{(e.target as HTMLImageElement).parentElement!.style.background="#f5f5f5"; (e.target as HTMLImageElement).style.display="none";}} />
+                                          )}
+                                        </div>
                                         <div style={{flex:1,minWidth:0}}>
                                           <div style={{fontSize:"12px",fontWeight:"600",color:"#333",lineHeight:"1.3"}}>{p.name}</div>
                                           {p.brand && <div style={{fontSize:"10px",color:"#aaa",marginTop:"1px"}}>{p.brand}</div>}
-                                          {p.storage_type && <div style={{fontSize:"9px",color:"#bbb"}}>{p.storage_type}</div>}
                                         </div>
                                       </div>
                                     ))}
                                   </div>
-                                  {supplyCatalogue[supplyCatOpen].count > 60 && (
-                                    <div style={{fontSize:"11px",color:"#aaa",textAlign:"center",padding:"8px",fontStyle:"italic"}}>
-                                      Showing 60 of {supplyCatalogue[supplyCatOpen].count} products
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                                )}
 
-                              {!supplyCatOpen && (
-                                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic",textAlign:"center",padding:"12px"}}>
-                                  Select a category above to browse products
-                                </div>
-                              )}
-                            </>
-                          ) : (
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                  <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:"8px"}}>
+                                    <button onClick={()=>setSupplyPage(Math.max(0,supplyPage-1))} disabled={supplyPage===0}
+                                      style={{padding:"4px 12px",borderRadius:"6px",border:"1px solid #ddd",background:supplyPage===0?"#f5f5f5":"#e6f4ee",
+                                        color:supplyPage===0?"#ccc":G.green,fontSize:"11px",fontWeight:"600",cursor:supplyPage===0?"default":"pointer",fontFamily:"'Georgia',serif"}}>
+                                      ← Prev
+                                    </button>
+                                    <span style={{fontSize:"11px",color:"#888"}}>{supplyPage+1} / {totalPages}</span>
+                                    <button onClick={()=>setSupplyPage(Math.min(totalPages-1,supplyPage+1))} disabled={supplyPage>=totalPages-1}
+                                      style={{padding:"4px 12px",borderRadius:"6px",border:"1px solid #ddd",background:supplyPage>=totalPages-1?"#f5f5f5":"#e6f4ee",
+                                        color:supplyPage>=totalPages-1?"#ccc":G.green,fontSize:"11px",fontWeight:"600",cursor:supplyPage>=totalPages-1?"default":"pointer",fontFamily:"'Georgia',serif"}}>
+                                      Next →
+                                    </button>
+                                  </div>
+                                )}
+
+                                {!searchLower && !supplyCatOpen && (
+                                  <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic",textAlign:"center",padding:"12px"}}>
+                                    Search above or select a category to browse products
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })() : (
                             <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic",textAlign:"center",padding:"12px"}}>
                               Loading catalogue…
                             </div>
