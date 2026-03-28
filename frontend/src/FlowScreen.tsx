@@ -1701,8 +1701,12 @@ export default function FlowScreen({
     if (eq.status==="fulfilled")  { setEquipResult(eq.value);   setEquipStatus("done"); }
     else                          { setEquipErr(String(eq.reason)); setEquipStatus("error"); }
 
-    if (sup.status==="fulfilled") { setSupplyResult(sup.value); setSupplyStatus("done"); }
-    else                          { setSupplyErr(String(sup.reason)); setSupplyStatus("error"); }
+    if (sup.status==="fulfilled") {
+      setSupplyResult(sup.value); setSupplyStatus("done");
+      // Also load the full catalogue in background
+      fetchJson("/api/supply/catalogue").then((c:any)=>setSupplyCatalogue(c.catalogue??null)).catch(()=>{});
+    }
+    else { setSupplyErr(String(sup.reason)); setSupplyStatus("error"); }
 
     if (tr.status==="fulfilled")  { setTrendsResult(tr.value);  setTrendsStatus("done"); }
     else                           setTrendsStatus("error");
@@ -2290,89 +2294,114 @@ export default function FlowScreen({
               )}
             </SectionCard>
 
-            {/* ② Supply Chain & Inventory */}
-            <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel={supplyStatus==="done"?"BidFood Direct":undefined}
+            {/* ② Supply Chain */}
+            <SectionCard step={2} title="Supply Chain" status={supplyStatus} dataLabel={supplyStatus==="done"?"BidFood Direct":undefined}
               titleAction={<button onClick={runSupply} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {supplyStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{supplyErr}</div>}
               {supplyResult&&(
                 <div>
-                  <div style={{marginBottom:"12px"}}>
-                    <div style={{fontWeight:"600",color:G.green,fontSize:"13px",marginBottom:"6px"}}>Supplier</div>
-                    {supplyResult.suppliers.slice(0,1).map((s,i)=>(
-                      <div key={i} style={{padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px",marginBottom:"5px",display:"flex",gap:"10px",flexWrap:"wrap",alignItems:"flex-start"}}>
-                        <div style={{flex:1,minWidth:"120px"}}>
-                          <div style={{fontSize:"13px",fontWeight:"600",color:"#333"}}>🚚 {s.name}</div>
-                          <div style={{fontSize:"11px",color:"#888"}}>{s.categories.slice(0,4).join(", ")}{s.categories.length>4?" …":""}</div>
-                        </div>
-                        <div style={{display:"flex",gap:"12px",fontSize:"11px",color:"#666",flexShrink:0}}>
-                          <span>📍 {s.distance_miles} mi</span>
-                          <span>⏱ {s.lead_time_hours}h</span>
-                          <span style={{color:s.reliability_pct>=90?G.green:s.reliability_pct>=75?G.amber:G.red,fontWeight:"600"}}>⭐ {s.reliability_pct}%</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Browsable catalogue */}
-                  <div>
-                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"8px"}}>
-                      <div style={{fontWeight:"600",color:G.green,fontSize:"13px",flex:1}}>
-                        Product Catalogue
-                        {supplyCatalogue && <span style={{fontWeight:"400",color:"#888",fontSize:"11px",marginLeft:"6px"}}>
-                          ({Object.values(supplyCatalogue).reduce((s,c)=>s+c.count,0).toLocaleString()} products)
-                        </span>}
-                      </div>
+                  {/* Clickable supplier card — click to expand catalogue */}
+                  {supplyResult.suppliers.slice(0,1).map((s,i)=>(
+                    <div key={i}>
                       <button onClick={()=>setSupplyBrowseOpen(!supplyBrowseOpen)}
-                        style={{background:"none",border:`1px solid ${G.green}`,borderRadius:"6px",padding:"3px 10px",
-                          fontSize:"11px",fontWeight:"600",color:G.green,cursor:"pointer",fontFamily:"'Georgia',serif"}}>
-                        {supplyBrowseOpen?"Hide":"Browse"}
-                      </button>
-                    </div>
-
-                    {/* Category summary pills */}
-                    {supplyCatalogue && (
-                      <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:supplyBrowseOpen?"10px":"0"}}>
-                        {Object.entries(supplyCatalogue).map(([cat,data])=>(
-                          <button key={cat} onClick={()=>{setSupplyCatOpen(supplyCatOpen===cat?null:cat); setSupplyBrowseOpen(true);}}
-                            style={{
-                              padding:"4px 10px",borderRadius:"20px",fontSize:"11px",fontWeight:"600",
-                              cursor:"pointer",fontFamily:"'Georgia',serif",border:"none",
-                              background:supplyCatOpen===cat?G.green:"#e6f4ee",
-                              color:supplyCatOpen===cat?"#fff":G.green,
-                            }}>
-                            {cat} ({data.count})
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Product list for selected category */}
-                    {supplyBrowseOpen && supplyCatalogue && supplyCatOpen && supplyCatalogue[supplyCatOpen] && (
-                      <div style={{maxHeight:"300px",overflowY:"auto",border:"1px solid #e8e8e8",borderRadius:"8px",padding:"6px"}}>
-                        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:"6px"}}>
-                          {supplyCatalogue[supplyCatOpen].products.slice(0,50).map((p:any,i:number)=>(
-                            <div key={i} style={{display:"flex",alignItems:"center",gap:"6px",padding:"5px 8px",background:"#f9f9f9",borderRadius:"6px"}}>
-                              {p.image_file && (
-                                <img src={`/api/supply/images/${p.image_file}`} alt=""
-                                  style={{width:32,height:32,borderRadius:"4px",objectFit:"cover",flexShrink:0}}
-                                  onError={(e)=>{(e.target as HTMLImageElement).style.display="none";}} />
-                              )}
-                              <div style={{flex:1,minWidth:0}}>
-                                <div style={{fontSize:"11px",fontWeight:"600",color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
-                                {p.brand && <div style={{fontSize:"9px",color:"#aaa"}}>{p.brand}</div>}
-                              </div>
-                              <Dot status="in_stock"/>
-                            </div>
-                          ))}
-                        </div>
-                        {supplyCatalogue[supplyCatOpen].count > 50 && (
-                          <div style={{fontSize:"10px",color:"#aaa",textAlign:"center",padding:"6px",fontStyle:"italic"}}>
-                            Showing 50 of {supplyCatalogue[supplyCatOpen].count} — use search for more
+                        style={{
+                          display:"flex", alignItems:"center", gap:"12px",
+                          width:"100%", padding:"12px 14px",
+                          background:supplyBrowseOpen?"#e6f4ee":"#f9f9f9",
+                          border:`1.5px solid ${supplyBrowseOpen?G.green:"#ddd"}`,
+                          borderRadius:supplyBrowseOpen?"10px 10px 0 0":"10px", cursor:"pointer",
+                          fontFamily:"'Georgia',serif", textAlign:"left",
+                          transition:"all 0.15s",
+                        }}>
+                        <span style={{fontSize:"28px"}}>🚚</span>
+                        <div style={{flex:1}}>
+                          <div style={{fontSize:"14px",fontWeight:"700",color:G.green}}>{s.name}</div>
+                          <div style={{fontSize:"11px",color:"#888",marginTop:"2px"}}>
+                            {supplyCatalogue
+                              ? `${Object.values(supplyCatalogue).reduce((sum:number,c:any)=>sum+c.count,0).toLocaleString()} products available`
+                              : `${s.categories.length} categories`}
+                            {" — "}click to browse catalogue {supplyBrowseOpen?"▲":"▼"}
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                        </div>
+                        <div style={{display:"flex",flexDirection:"column",gap:"3px",fontSize:"11px",color:"#666",flexShrink:0,textAlign:"right"}}>
+                          <span>📍 {s.distance_miles} mi</span>
+                          <span>⏱ {s.lead_time_hours}h lead</span>
+                          <span style={{color:s.reliability_pct>=90?G.green:s.reliability_pct>=75?G.amber:G.red,fontWeight:"600"}}>⭐ {s.reliability_pct}% reliable</span>
+                        </div>
+                      </button>
+
+                      {/* Expanded catalogue browser */}
+                      {supplyBrowseOpen && (
+                        <div style={{
+                          border:`1.5px solid ${G.green}`, borderTop:"none",
+                          borderRadius:"0 0 10px 10px", padding:"12px",
+                          background:"#fff",
+                        }}>
+                          {/* Category pills */}
+                          {supplyCatalogue ? (
+                            <>
+                              <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"10px"}}>
+                                {Object.entries(supplyCatalogue).map(([cat,data])=>(
+                                  <button key={cat} onClick={()=>setSupplyCatOpen(supplyCatOpen===cat?null:cat)}
+                                    style={{
+                                      padding:"5px 12px",borderRadius:"20px",fontSize:"11px",fontWeight:"600",
+                                      cursor:"pointer",fontFamily:"'Georgia',serif",border:"none",
+                                      background:supplyCatOpen===cat?G.green:"#e6f4ee",
+                                      color:supplyCatOpen===cat?"#fff":G.green,
+                                      transition:"all 0.15s",
+                                    }}>
+                                    {cat} ({data.count})
+                                  </button>
+                                ))}
+                              </div>
+
+                              {/* Product grid for selected category */}
+                              {supplyCatOpen && supplyCatalogue[supplyCatOpen] && (
+                                <div style={{maxHeight:"350px",overflowY:"auto"}}>
+                                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"8px"}}>
+                                    {supplyCatalogue[supplyCatOpen].products.slice(0,60).map((p:any,i:number)=>(
+                                      <div key={i} style={{
+                                        display:"flex",alignItems:"center",gap:"8px",
+                                        padding:"8px 10px",background:"#f9f9f9",borderRadius:"8px",
+                                        border:"1px solid #eee",
+                                      }}>
+                                        {p.image_file && (
+                                          <img src={`/api/supply/images/${p.image_file}`} alt=""
+                                            style={{width:40,height:40,borderRadius:"6px",objectFit:"cover",flexShrink:0}}
+                                            onError={(e)=>{(e.target as HTMLImageElement).style.display="none";}} />
+                                        )}
+                                        <div style={{flex:1,minWidth:0}}>
+                                          <div style={{fontSize:"12px",fontWeight:"600",color:"#333",lineHeight:"1.3"}}>{p.name}</div>
+                                          {p.brand && <div style={{fontSize:"10px",color:"#aaa",marginTop:"1px"}}>{p.brand}</div>}
+                                          {p.storage_type && <div style={{fontSize:"9px",color:"#bbb"}}>{p.storage_type}</div>}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  {supplyCatalogue[supplyCatOpen].count > 60 && (
+                                    <div style={{fontSize:"11px",color:"#aaa",textAlign:"center",padding:"8px",fontStyle:"italic"}}>
+                                      Showing 60 of {supplyCatalogue[supplyCatOpen].count} products
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {!supplyCatOpen && (
+                                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic",textAlign:"center",padding:"12px"}}>
+                                  Select a category above to browse products
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic",textAlign:"center",padding:"12px"}}>
+                              Loading catalogue…
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </SectionCard>
