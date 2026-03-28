@@ -1340,37 +1340,6 @@ function MenuProposalSection({
 
       {proposal && (
         <>
-          {/* Featured items */}
-          {proposal.featured_items && proposal.featured_items.length > 0 && (
-            <div style={{ marginBottom: "18px" }}>
-              <div style={{ fontSize: "13px", fontWeight: "700", color: G.green, marginBottom: "10px" }}>
-                ⭐ Featured Items
-              </div>
-              {proposal.featured_items.map((item: any, i: number) => (
-                <div key={i} style={{
-                  padding: "10px 12px", background: "#f0f9f4",
-                  borderRadius: "10px", marginBottom: "8px",
-                  border: `1.5px solid ${G.green}`,
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                    <span style={{ fontSize: "14px" }}>⭐</span>
-                    <span style={{ flex: 1, fontSize: "14px", fontWeight: "700", color: "#222" }}>{item.name}</span>
-                    <span style={{ fontSize: "11px", color: "#888", textTransform: "capitalize" }}>{item.category}</span>
-                    <span style={{ fontSize: "13px", fontWeight: "700", color: G.green }}>£{item.price.toFixed(2)}</span>
-                  </div>
-                  <div style={{ height: "6px", background: "#e0e0e0", borderRadius: "3px", marginBottom: "6px", overflow: "hidden" }}>
-                    <div style={{ height: "100%", borderRadius: "3px", background: G.green,
-                      width: `${Math.min(100, Math.round((item.score / 8) * 100))}%`, transition: "width 0.5s ease",
-                    }} />
-                  </div>
-                  {item.reason && (
-                    <div style={{ fontSize: "11px", color: "#555", fontStyle: "italic" }}>{item.reason}</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* All items by category — clickable cards with expandable detail */}
           {proposal.categories && Object.keys(proposal.categories).length > 0 && (
             <div>
@@ -1575,6 +1544,9 @@ export default function FlowScreen({
   const [supplyStatus,     setSupplyStatus]     = useState<PS>("idle");
   const [supplyResult,     setSupplyResult]     = useState<{suppliers:Supplier[];inventory:InvItem[]}|null>(null);
   const [supplyErr,        setSupplyErr]        = useState<string|null>(null);
+  const [supplyCatalogue,  setSupplyCatalogue]  = useState<Record<string,{count:number;products:any[]}>|null>(null);
+  const [supplyCatOpen,    setSupplyCatOpen]    = useState<string|null>(null);
+  const [supplyBrowseOpen, setSupplyBrowseOpen] = useState(false);
 
   const [trendsStatus,     setTrendsStatus]     = useState<PS>("idle");
   const [trendsResult,     setTrendsResult]     = useState<{items:TrendDiscoveryItem[];trend_names:string[];source:string}|null>(null);
@@ -1648,8 +1620,15 @@ export default function FlowScreen({
   }
   async function runSupply() {
     setSupplyStatus("loading"); setSupplyErr(null);
-    try { const d = await fetchJson("/api/supply/chain"); setSupplyResult(d); setSupplyStatus("done"); }
-    catch(e:any) { setSupplyErr(e?.message??"Failed"); setSupplyStatus("error"); }
+    try {
+      const [chain, cat] = await Promise.all([
+        fetchJson("/api/supply/chain"),
+        fetchJson("/api/supply/catalogue"),
+      ]);
+      setSupplyResult(chain);
+      setSupplyCatalogue(cat.catalogue ?? null);
+      setSupplyStatus("done");
+    } catch(e:any) { setSupplyErr(e?.message??"Failed"); setSupplyStatus("error"); }
   }
   async function runTrends() {
     setTrendsStatus("loading");
@@ -1947,7 +1926,7 @@ export default function FlowScreen({
           >
             {/* ③ Trends — discovery items with + buttons */}
             <SectionCard step={3} title="Trending Items" status={trendsStatus}
-              dataLabel={trendsResult?.source==="openai"?"OpenAI":"fallback"}
+              dataLabel={trendsStatus==="done"?(trendsResult?.source==="openai"?"OpenAI":"fallback"):undefined}
               titleAction={<button onClick={runTrends} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {trendsStatus==="error"&&(
@@ -1977,7 +1956,7 @@ export default function FlowScreen({
             </SectionCard>
 
             {/* ④ Historic */}
-            <SectionCard step={4} title="Historic Data" status={historicStatus} dataLabel="mock"
+            <SectionCard step={4} title="Historic Data" status={historicStatus} dataLabel={historicStatus==="done"?"mock":undefined}
               titleAction={<button onClick={runHistoric} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {historicStatus==="error"&&(
@@ -2009,7 +1988,7 @@ export default function FlowScreen({
             </SectionCard>
 
             {/* ⑤ Seasonal — ingredients (no +) then meals (with +) */}
-            <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
+            <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonStatus==="done"?(seasonResult?.source==="openai"?"OpenAI":"hardcoded"):undefined}
               titleAction={<button onClick={runSeasonal} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {seasonStatus==="error"&&(
@@ -2060,7 +2039,7 @@ export default function FlowScreen({
             </SectionCard>
 
             {/* ⑥ Celebrations — with + buttons on suggestions */}
-            <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":celebResult?.source??""}
+            <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebStatus==="done"?(celebResult?.source==="openai"?"OpenAI":celebResult?.source):undefined}
               titleAction={<button onClick={runCelebrations} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {celebStatus==="error"&&(
@@ -2102,7 +2081,7 @@ export default function FlowScreen({
             </SectionCard>
 
             {/* ⑦ Regional — with + buttons on suggestions */}
-            <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel={regionResult?.source==="openai"?"OpenAI":"hardcoded"}
+            <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel={regionStatus==="done"?(regionResult?.source==="openai"?"OpenAI":"hardcoded"):undefined}
               titleAction={<button onClick={runRegional} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {regionStatus==="error"&&(
@@ -2288,7 +2267,7 @@ export default function FlowScreen({
             defaultOpen={true}
           >
             {/* ① Equipment */}
-            <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="mock"
+            <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel={equipStatus==="done"?"mock":undefined}
               titleAction={<button onClick={runEquipment} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {equipStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{equipErr}</div>}
@@ -2312,7 +2291,7 @@ export default function FlowScreen({
             </SectionCard>
 
             {/* ② Supply Chain & Inventory */}
-            <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock"
+            <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel={supplyStatus==="done"?"BidFood Direct":undefined}
               titleAction={<button onClick={runSupply} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {supplyStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{supplyErr}</div>}
@@ -2334,16 +2313,65 @@ export default function FlowScreen({
                       </div>
                     ))}
                   </div>
+                  {/* Browsable catalogue */}
                   <div>
-                    <div style={{fontWeight:"600",color:G.green,fontSize:"13px",marginBottom:"6px"}}>Ingredient Inventory</div>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:"5px"}}>
-                      {supplyResult.inventory.map((item,i)=>(
-                        <div key={i} style={{padding:"5px 8px",background:"#f9f9f9",borderRadius:"6px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"8px"}}>
-                          <span style={{fontSize:"12px",color:"#333"}}>{item.name}</span>
-                          <Dot status={item.status}/>
-                        </div>
-                      ))}
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"8px"}}>
+                      <div style={{fontWeight:"600",color:G.green,fontSize:"13px",flex:1}}>
+                        Product Catalogue
+                        {supplyCatalogue && <span style={{fontWeight:"400",color:"#888",fontSize:"11px",marginLeft:"6px"}}>
+                          ({Object.values(supplyCatalogue).reduce((s,c)=>s+c.count,0).toLocaleString()} products)
+                        </span>}
+                      </div>
+                      <button onClick={()=>setSupplyBrowseOpen(!supplyBrowseOpen)}
+                        style={{background:"none",border:`1px solid ${G.green}`,borderRadius:"6px",padding:"3px 10px",
+                          fontSize:"11px",fontWeight:"600",color:G.green,cursor:"pointer",fontFamily:"'Georgia',serif"}}>
+                        {supplyBrowseOpen?"Hide":"Browse"}
+                      </button>
                     </div>
+
+                    {/* Category summary pills */}
+                    {supplyCatalogue && (
+                      <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:supplyBrowseOpen?"10px":"0"}}>
+                        {Object.entries(supplyCatalogue).map(([cat,data])=>(
+                          <button key={cat} onClick={()=>{setSupplyCatOpen(supplyCatOpen===cat?null:cat); setSupplyBrowseOpen(true);}}
+                            style={{
+                              padding:"4px 10px",borderRadius:"20px",fontSize:"11px",fontWeight:"600",
+                              cursor:"pointer",fontFamily:"'Georgia',serif",border:"none",
+                              background:supplyCatOpen===cat?G.green:"#e6f4ee",
+                              color:supplyCatOpen===cat?"#fff":G.green,
+                            }}>
+                            {cat} ({data.count})
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Product list for selected category */}
+                    {supplyBrowseOpen && supplyCatalogue && supplyCatOpen && supplyCatalogue[supplyCatOpen] && (
+                      <div style={{maxHeight:"300px",overflowY:"auto",border:"1px solid #e8e8e8",borderRadius:"8px",padding:"6px"}}>
+                        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:"6px"}}>
+                          {supplyCatalogue[supplyCatOpen].products.slice(0,50).map((p:any,i:number)=>(
+                            <div key={i} style={{display:"flex",alignItems:"center",gap:"6px",padding:"5px 8px",background:"#f9f9f9",borderRadius:"6px"}}>
+                              {p.image_file && (
+                                <img src={`/api/supply/images/${p.image_file}`} alt=""
+                                  style={{width:32,height:32,borderRadius:"4px",objectFit:"cover",flexShrink:0}}
+                                  onError={(e)=>{(e.target as HTMLImageElement).style.display="none";}} />
+                              )}
+                              <div style={{flex:1,minWidth:0}}>
+                                <div style={{fontSize:"11px",fontWeight:"600",color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
+                                {p.brand && <div style={{fontSize:"9px",color:"#aaa"}}>{p.brand}</div>}
+                              </div>
+                              <Dot status="in_stock"/>
+                            </div>
+                          ))}
+                        </div>
+                        {supplyCatalogue[supplyCatOpen].count > 50 && (
+                          <div style={{fontSize:"10px",color:"#aaa",textAlign:"center",padding:"6px",fontStyle:"italic"}}>
+                            Showing 50 of {supplyCatalogue[supplyCatOpen].count} — use search for more
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

@@ -148,18 +148,36 @@ def get_images_dir() -> Path:
 def match_ingredient(ingredient_name: str) -> list[dict]:
     """
     Find BidFood products that match an ingredient name.
-    Uses case-insensitive substring matching on product names.
+    Uses word-boundary matching to avoid false positives
+    (e.g. "Tea" shouldn't match "Tealights", "Bread" shouldn't match "Shortbread").
     Returns matching products (up to 10).
     """
-    ing_lower = ingredient_name.lower()
-    # Split multi-word ingredient into individual terms
-    terms = [t for t in ing_lower.split() if len(t) > 2]
-    matches = []
+    import re
+    ing_lower = ingredient_name.lower().strip()
+    terms = [t for t in ing_lower.split() if len(t) > 1]
+    if not terms:
+        return []
+
+    # Build word-boundary regex for each term
+    # Use full word boundary (\b...\b) to avoid partial matches
+    patterns = []
+    for t in terms:
+        patterns.append(re.compile(r'\b' + re.escape(t) + r'\b', re.IGNORECASE))
+
+    # Exclude non-food categories from matching
+    exclude_cats = {"packaging"}
+
+    matches: list[tuple[int, dict]] = []
     for p in _PRODUCTS:
-        name_lower = p["name"].lower()
-        # Match if all significant terms appear in product name
-        if all(t in name_lower for t in terms):
-            matches.append(p)
-            if len(matches) >= 10:
-                break
-    return matches
+        if p["category"] in exclude_cats:
+            continue
+        name = p["name"]
+        # All terms must match as word boundaries
+        if all(pat.search(name) for pat in patterns):
+            # Score: prefer shorter product names (more specific matches)
+            score = len(name)
+            matches.append((score, p))
+
+    # Sort by name length (shorter = more relevant)
+    matches.sort(key=lambda x: x[0])
+    return [m[1] for m in matches[:10]]

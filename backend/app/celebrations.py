@@ -47,7 +47,7 @@ def _get_ai_celebrations(today: date, window_days: int = 90) -> tuple[list[Celeb
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
-            max_tokens=800,
+            max_tokens=1500,
             temperature=0.2,
         )
         raw = response.choices[0].message.content or "{}"
@@ -91,14 +91,61 @@ def _get_ai_celebrations(today: date, window_days: int = 90) -> tuple[list[Celeb
         return [], "error"
 
 
+# ─── Known UK events fallback ─────────────────────────────────────────────────
+_KNOWN_EVENTS = [
+    {"name": "Good Friday",      "month": 4, "day": 3,  "food": "Hot cross buns and fish dishes",
+     "suggestions": [{"name": "Hot Cross Bun", "category": "snack"}, {"name": "Fish & Chips", "category": "main"}]},
+    {"name": "Easter Sunday",    "month": 4, "day": 5,  "food": "Easter treats, lamb, chocolate",
+     "suggestions": [{"name": "Lamb Wrap", "category": "main"}, {"name": "Chocolate Egg Brownie", "category": "dessert"}]},
+    {"name": "May Day",          "month": 5, "day": 5,  "food": "Spring festival food, outdoor eating",
+     "suggestions": [{"name": "BBQ Burger", "category": "main"}, {"name": "Lemonade", "category": "beverage"}]},
+    {"name": "Spring Bank Holiday", "month": 5, "day": 26, "food": "Picnic food, summer kickoff",
+     "suggestions": [{"name": "Halloumi Wrap", "category": "main"}, {"name": "Iced Coffee", "category": "beverage"}]},
+    {"name": "Father's Day",     "month": 6, "day": 21, "food": "BBQ, steak, indulgent treats",
+     "suggestions": [{"name": "Steak Sandwich", "category": "main"}, {"name": "Churros", "category": "dessert"}]},
+    {"name": "Summer Solstice",  "month": 6, "day": 21, "food": "Fresh seasonal food, longest day celebrations",
+     "suggestions": [{"name": "Strawberries & Cream", "category": "dessert"}, {"name": "Mango Slush", "category": "beverage"}]},
+    {"name": "Bonfire Night",    "month": 11, "day": 5, "food": "Warming food, toffee apples, jacket potatoes",
+     "suggestions": [{"name": "Jacket Potato", "category": "main"}, {"name": "Toffee Apple", "category": "dessert"}, {"name": "Hot Chocolate", "category": "beverage"}]},
+    {"name": "Christmas",        "month": 12, "day": 25, "food": "Festive food, mulled wine, mince pies",
+     "suggestions": [{"name": "Turkey Wrap", "category": "main"}, {"name": "Mince Pie", "category": "dessert"}, {"name": "Mulled Wine", "category": "beverage"}]},
+]
+
+def _get_fallback_celebrations(today: date, window_days: int) -> list[CelebrationEvent]:
+    """Return known UK events within the window as a fallback."""
+    cutoff = today + timedelta(days=window_days)
+    year = today.year
+    events = []
+    for ev in _KNOWN_EVENTS:
+        for y in (year, year + 1):
+            try:
+                ev_date = date(y, ev["month"], ev["day"])
+            except ValueError:
+                continue
+            days_away = (ev_date - today).days
+            if 0 <= days_away <= window_days:
+                suggestions = [FoodSuggestion(name=s["name"], category=s["category"]) for s in ev["suggestions"]]
+                events.append(CelebrationEvent(
+                    name=ev["name"], date=ev_date.isoformat(), days_away=days_away,
+                    food_opportunity=ev["food"], menu_suggestions=suggestions,
+                ))
+    events.sort(key=lambda e: e.days_away)
+    return events[:6]
+
+
 def get_celebrations(window_days: int = 90) -> CelebrationsResult:
     """
     Return upcoming UK celebrations within the next window_days days.
-    DATA SOURCE: OpenAI gpt-4o-mini
+    Tries OpenAI first, falls back to known UK events.
+    DATA SOURCE: OpenAI gpt-4o-mini | hardcoded fallback
     """
     today = date.today()
     events, source = _get_ai_celebrations(today, window_days)
-    return CelebrationsResult(upcoming=events, source=source)
+    if events:
+        return CelebrationsResult(upcoming=events, source=source)
+    # Fallback to known events
+    fallback = _get_fallback_celebrations(today, window_days)
+    return CelebrationsResult(upcoming=fallback, source="fallback")
 
 
 def get_celebrations_for_month(month: int) -> CelebrationsResult:
