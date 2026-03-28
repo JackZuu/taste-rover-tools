@@ -9,6 +9,7 @@ const G = {
   amber:      "#d97706",
 };
 
+const runModBtnTitle = "Run this section individually, or use ▶ Run SmarTR for the full flow";
 const runModBtn: React.CSSProperties = {
   marginLeft: "auto", padding: "5px 12px",
   border: "1.5px solid #1a5f3f", borderRadius: "20px",
@@ -214,8 +215,8 @@ function autoSelectVan(vans: Van[], postcode: string, region: string): string {
 
 // ─── AddToMenuButton — reusable "+" button for adding suggestions to menu ────
 
-function AddToMenuButton({name,category,estimatedPrice,onAdded}:{
-  name:string; category:string; estimatedPrice:number; onAdded:()=>void;
+function AddToMenuButton({name,category,onAdded}:{
+  name:string; category:string; onAdded:()=>void;
 }) {
   const [adding,setAdding] = useState(false);
   const [added,setAdded] = useState(false);
@@ -233,7 +234,7 @@ function AddToMenuButton({name,category,estimatedPrice,onAdded}:{
 
       const r = await fetch("/api/menu-items", {
         method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({name, category:finalCat, price_gbp:estimatedPrice}),
+        body: JSON.stringify({name, category:finalCat, price_gbp:0}),
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const newItem = await r.json();
@@ -1419,8 +1420,37 @@ function MenuProposalSection({
                               {/* Ingredients */}
                               {item.ingredients && item.ingredients.length > 0 && (
                                 <div style={{ marginBottom: "10px" }}>
-                                  <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", marginBottom: "4px" }}>Ingredients</div>
-                                  <div style={{ fontSize: "12px", color: "#444" }}>{item.ingredients.join(", ")}</div>
+                                  <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", marginBottom: "4px" }}>
+                                    Ingredients
+                                    {item.sourcing && <span style={{marginLeft:"8px",fontSize:"10px",fontWeight:"600",color:item.sourcing.pct>=80?G.green:item.sourcing.pct>=50?G.amber:G.red}}>
+                                      {item.sourcing.pct}% sourceable from BidFood
+                                    </span>}
+                                  </div>
+                                  <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
+                                    {item.ingredients.map((ing:string, ii:number)=>{
+                                      const sourced = item.sourcing?.sourced?.find((s:any)=>s.ingredient===ing);
+                                      return (
+                                        <span key={ii} style={{
+                                          display:"inline-flex",alignItems:"center",gap:"4px",
+                                          padding:"3px 8px",borderRadius:"12px",fontSize:"11px",fontWeight:"500",
+                                          background:sourced?"#e6f4ee":"#fdecea",
+                                          color:sourced?G.green:G.red,
+                                          border:`1px solid ${sourced?"#b2d8c5":"#f5c6c2"}`,
+                                        }}>
+                                          {sourced && sourced.image_file && (
+                                            <img src={`/api/supply/images/${sourced.image_file}`} alt=""
+                                              style={{width:16,height:16,borderRadius:"3px",objectFit:"cover"}} />
+                                          )}
+                                          {sourced?"✓":"✗"} {ing}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                  {item.sourcing?.unsourced?.length>0 && (
+                                    <div style={{fontSize:"10px",color:"#aaa",marginTop:"4px",fontStyle:"italic"}}>
+                                      Not found in BidFood: {item.sourcing.unsourced.join(", ")}
+                                    </div>
+                                  )}
                                 </div>
                               )}
 
@@ -1918,7 +1948,7 @@ export default function FlowScreen({
             {/* ③ Trends — discovery items with + buttons */}
             <SectionCard step={3} title="Trending Items" status={trendsStatus}
               dataLabel={trendsResult?.source==="openai"?"OpenAI":"fallback"}
-              titleAction={<button onClick={runTrends} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runTrends} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {trendsStatus==="error"&&(
                 <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
@@ -1937,9 +1967,8 @@ export default function FlowScreen({
                       <span style={{fontSize:"10px",color:"#888",background:"#f0f0f0",padding:"2px 6px",borderRadius:"4px"}}>{item.category}</span>
                       <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic",maxWidth:"180px",
                         overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.why_trending}</span>
-                      <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{item.estimated_price_gbp.toFixed(2)}</span>
                       <AddToMenuButton name={item.name} category={item.category}
-                        estimatedPrice={item.estimated_price_gbp}
+
                         onAdded={()=>setMenuRefresh(n=>n+1)} />
                     </div>
                   ))}
@@ -1949,16 +1978,11 @@ export default function FlowScreen({
 
             {/* ④ Historic */}
             <SectionCard step={4} title="Historic Data" status={historicStatus} dataLabel="mock"
-              titleAction={<button onClick={runHistoric} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runHistoric} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {historicStatus==="error"&&(
                 <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
                   Failed to load historic data. <button onClick={runHistoric} style={{background:"none",border:"none",color:G.red,cursor:"pointer",textDecoration:"underline",fontSize:"12px",fontFamily:"'Georgia',serif"}}>Retry</button>
-                </div>
-              )}
-              {historicStatus==="idle"&&(
-                <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
-                  Click <strong style={{color:G.green}}>Open module →</strong> to view full historic sales data.
                 </div>
               )}
               {historicData&&(
@@ -1986,7 +2010,7 @@ export default function FlowScreen({
 
             {/* ⑤ Seasonal — ingredients (no +) then meals (with +) */}
             <SectionCard step={5} title="In-Season Foods" status={seasonStatus} dataLabel={seasonResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={runSeasonal} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runSeasonal} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {seasonStatus==="error"&&(
                 <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
@@ -2024,9 +2048,8 @@ export default function FlowScreen({
                           padding:"7px 10px",background:i%2===0?"#f9f9f9":"#fff",borderRadius:"8px",marginBottom:"3px"}}>
                           <span style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#333"}}>{meal.name}</span>
                           <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic"}}>uses {meal.linked_ingredient}</span>
-                          <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{meal.estimated_price_gbp.toFixed(2)}</span>
                           <AddToMenuButton name={meal.name} category={meal.category}
-                            estimatedPrice={meal.estimated_price_gbp}
+
                             onAdded={()=>setMenuRefresh(n=>n+1)} />
                         </div>
                       ))}
@@ -2038,7 +2061,7 @@ export default function FlowScreen({
 
             {/* ⑥ Celebrations — with + buttons on suggestions */}
             <SectionCard step={6} title="Upcoming Events" status={celebStatus} dataLabel={celebResult?.source==="openai"?"OpenAI":celebResult?.source??""}
-              titleAction={<button onClick={runCelebrations} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runCelebrations} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {celebStatus==="error"&&(
                 <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
@@ -2065,7 +2088,7 @@ export default function FlowScreen({
                               <div key={j} style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"3px 8px",borderRadius:"20px",background:"#e6f4ee"}}>
                                 <span style={{fontSize:"11px",fontWeight:"600",color:G.green}}>{s.name}</span>
                                 <AddToMenuButton name={s.name} category={s.category}
-                                  estimatedPrice={7.00}
+
                                   onAdded={()=>setMenuRefresh(n=>n+1)} />
                               </div>
                             ))}
@@ -2080,7 +2103,7 @@ export default function FlowScreen({
 
             {/* ⑦ Regional — with + buttons on suggestions */}
             <SectionCard step={7} title="Demand by Region" status={regionStatus} dataLabel={regionResult?.source==="openai"?"OpenAI":"hardcoded"}
-              titleAction={<button onClick={runRegional} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runRegional} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {regionStatus==="error"&&(
                 <div style={{color:G.red,fontSize:"12px",padding:"8px 0"}}>
@@ -2097,7 +2120,7 @@ export default function FlowScreen({
                           <div key={i} style={{display:"inline-flex",alignItems:"center",gap:"4px",padding:"4px 10px",borderRadius:"20px",background:"#e6f4ee"}}>
                             <span style={{fontSize:"12px",fontWeight:"600",color:G.green}}>{s.name}</span>
                             <AddToMenuButton name={s.name} category={s.category}
-                              estimatedPrice={7.00}
+
                               onAdded={()=>setMenuRefresh(n=>n+1)} />
                           </div>
                         ))}
@@ -2114,7 +2137,7 @@ export default function FlowScreen({
             {/* ⑧ Weather + Meal Suggestions (combined) */}
             <SectionCard
               step={8} title="Weather & Suggestions" status={weatherStatus==="idle"?"done":weatherStatus}
-              titleAction={<button onClick={runWeather} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runWeather} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {weatherStatus==="idle"&&(
                 <div style={{fontSize:"12px",color:"#aaa",fontStyle:"italic"}}>
@@ -2147,9 +2170,8 @@ export default function FlowScreen({
                           <span style={{flex:1,fontSize:"13px",fontWeight:"600",color:"#333"}}>{s.name}</span>
                           <span style={{fontSize:"10px",color:"#aaa",fontStyle:"italic",maxWidth:"180px",
                             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.reason}</span>
-                          <span style={{fontSize:"11px",color:G.green,fontWeight:"600",flexShrink:0}}>~£{s.estimated_price_gbp.toFixed(2)}</span>
                           <AddToMenuButton name={s.name} category={s.category}
-                            estimatedPrice={s.estimated_price_gbp}
+
                             onAdded={()=>setMenuRefresh(n=>n+1)} />
                         </div>
                       ))}
@@ -2267,7 +2289,7 @@ export default function FlowScreen({
           >
             {/* ① Equipment */}
             <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel="mock"
-              titleAction={<button onClick={runEquipment} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runEquipment} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {equipStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{equipErr}</div>}
               {equipResult&&(
@@ -2291,7 +2313,7 @@ export default function FlowScreen({
 
             {/* ② Supply Chain & Inventory */}
             <SectionCard step={2} title="Supply Chain & Inventory" status={supplyStatus} dataLabel="mock"
-              titleAction={<button onClick={runSupply} style={runModBtn}>▶ Run</button>}
+              titleAction={<button onClick={runSupply} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {supplyStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{supplyErr}</div>}
               {supplyResult&&(

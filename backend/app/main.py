@@ -16,7 +16,14 @@ from app.burgerking import get_burgerking_menu
 from app.greggs import get_greggs_menu
 from app.equipment import list_vans, get_van_equipment, get_equipment
 from app.supply import get_supply_chain, get_ingredient_supply
-from app.supply_bidfood import get_supply_chain as get_supply_chain_bidfood
+from app.supply_bidfood import (
+    get_supply_chain as get_supply_chain_bidfood,
+    get_full_catalogue as get_bidfood_catalogue,
+    search_products as search_bidfood_products,
+    get_product_count as get_bidfood_count,
+    get_images_dir as get_bidfood_images_dir,
+    match_ingredient as match_bidfood_ingredient,
+)
 from app.trends import get_trends, get_custom_trends
 from app.historic import get_historic
 from app.seasonal import get_seasonal
@@ -207,6 +214,23 @@ def get_supply_legacy(req: MealRequest):
         "ingredients": [asdict(i) for i in result.ingredients],
         "all_available": result.all_available,
     }
+
+@app.get("/api/supply/catalogue")
+def get_supply_catalogue():
+    """Full BidFood catalogue grouped by taxonomy category."""
+    return {"catalogue": get_bidfood_catalogue(), "total": get_bidfood_count()}
+
+@app.get("/api/supply/search")
+def search_supply(q: str = Query(default="", min_length=1)):
+    """Search BidFood products by name."""
+    results = search_bidfood_products(q, limit=30)
+    return {"query": q, "results": results, "count": len(results)}
+
+@app.get("/api/supply/match/{ingredient}")
+def match_supply_ingredient(ingredient: str):
+    """Find BidFood products matching an ingredient name."""
+    matches = match_bidfood_ingredient(ingredient)
+    return {"ingredient": ingredient, "matches": matches, "count": len(matches)}
 
 # ─── New modules ──────────────────────────────────────────────────────────────
 
@@ -576,6 +600,11 @@ def run_flow_endpoint(req: FlowRequest):
     return run_flow(req.postcode, req.date, req.van_id, req.region)
 
 # ─── Frontend (SPA) ───────────────────────────────────────────────────────────
+
+# Serve BidFood product images
+_bidfood_images = get_bidfood_images_dir()
+if _bidfood_images.exists():
+    app.mount("/api/supply/images", StaticFiles(directory=str(_bidfood_images)), name="bidfood-images")
 
 static_dir = Path(__file__).parent.parent / "static"
 if static_dir.exists():

@@ -1,110 +1,165 @@
 """
-Supply chain module — BidFood Direct wholesale supplier + ingredient inventory.
+Supply chain module — BidFood Direct wholesale supplier + real scraped inventory.
 
-BidFood Direct is the single supplier.  Inventory items use the taxonomy
-ingredient categories defined in app/taxonomy.py.  This is mock data;
-a future version will scrape the live BidFood catalogue.
+Loads the scraped BidFood Direct catalogue from bidfood-products.json and
+provides searchable inventory with category mapping to our taxonomy.
 
-DATA SOURCE: mock data (BidFood Direct catalogue — to be scraped)
+DATA SOURCE: Scraped BidFood Direct catalogue (bidfood-products.json)
 """
+import json
+from pathlib import Path
 from app.models import Supplier, InventoryItem, SupplyChainResult
+
+# ─── Load scraped data ────────────────────────────────────────────────────────
+
+_DATA_PATH = Path(__file__).parent.parent.parent.parent / "bidfood_comps" / "bidfood-products.json"
+_IMAGES_DIR = Path(__file__).parent.parent.parent.parent / "bidfood_comps" / "images"
+
+_PRODUCTS: list[dict] = []
+_PRODUCTS_BY_CATEGORY: dict[str, list[dict]] = {}
+_PRODUCT_INDEX: dict[str, dict] = {}  # productCode → product
+
+# Map BidFood categories to our taxonomy ingredient categories
+_CATEGORY_MAP: dict[str, str] = {
+    "Meat & Poultry":                "meat",
+    "Fish & Seafood":                "seafood",
+    "Dairy":                         "dairy",
+    "Bakery":                        "bread",
+    "Desserts":                      "frozen",
+    "Everyday Essentials":           "produce",
+    "Meal Solutions":                "pantry",
+    "Drinks, Snacks & Confectionery":"beverages",
+    "Catering Supplies":             "packaging",
+    "Produce & Accompaniments":      "produce",
+    "Alcohol":                       "beverages",
+    "Delicatessen":                  "pantry",
+}
+
+def _load_catalogue():
+    """Load the scraped BidFood catalogue once at startup."""
+    global _PRODUCTS, _PRODUCTS_BY_CATEGORY, _PRODUCT_INDEX
+    if _PRODUCTS:
+        return
+    if not _DATA_PATH.exists():
+        return
+
+    try:
+        raw = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
+        for cat_obj in raw.get("categories", []):
+            bidfood_cat = cat_obj.get("name", "")
+            taxonomy_cat = _CATEGORY_MAP.get(bidfood_cat, "pantry")
+            for p in cat_obj.get("products", []):
+                product = {
+                    "name":         p.get("name", ""),
+                    "brand":        p.get("brand", ""),
+                    "category":     taxonomy_cat,
+                    "bidfood_category": bidfood_cat,
+                    "storage_type": p.get("storageType", ""),
+                    "product_code": p.get("productCode", ""),
+                    "image_file":   p.get("imageFile", ""),
+                    "detail_url":   p.get("detailUrl", ""),
+                    "status":       "in_stock",  # all scraped items assumed available
+                }
+                _PRODUCTS.append(product)
+                _PRODUCT_INDEX[product["product_code"]] = product
+                if taxonomy_cat not in _PRODUCTS_BY_CATEGORY:
+                    _PRODUCTS_BY_CATEGORY[taxonomy_cat] = []
+                _PRODUCTS_BY_CATEGORY[taxonomy_cat].append(product)
+    except Exception:
+        pass
+
+_load_catalogue()
+
 
 # ─── BidFood Direct — single supplier ────────────────────────────────────────
 
-_BIDFOOD_SUPPLIER = {
-    "name":             "Bidfood Direct",
-    "distance_miles":   8.5,
-    "lead_time_hours":  24,
-    "categories":       ["produce", "meat", "poultry", "seafood", "dairy",
-                         "bread", "pantry", "frozen", "beverages", "packaging"],
-    "reliability_pct":  92,
-}
+_BIDFOOD_SUPPLIER = Supplier(
+    name="Bidfood Direct",
+    distance_miles=8.5,
+    lead_time_hours=24,
+    categories=list(_PRODUCTS_BY_CATEGORY.keys()) if _PRODUCTS_BY_CATEGORY else [
+        "produce", "meat", "seafood", "dairy", "bread", "pantry", "frozen", "beverages", "packaging"
+    ],
+    reliability_pct=92,
+)
 
-# ─── BidFood inventory — mock catalogue ──────────────────────────────────────
-# categories from taxonomy.INGREDIENT_CATEGORIES
-# status: "in_stock" | "low" | "out"
 
-_INVENTORY: list[dict] = [
-    # Produce
-    {"name": "Beef Mince",              "category": "meat",     "status": "in_stock"},
-    {"name": "Beef Patties",            "category": "meat",     "status": "in_stock"},
-    {"name": "Chicken Breast",          "category": "poultry",  "status": "in_stock"},
-    {"name": "Chicken Thigh",           "category": "poultry",  "status": "in_stock"},
-    {"name": "Bacon Rashers",           "category": "meat",     "status": "low"},
-    {"name": "Lamb Mince",              "category": "meat",     "status": "in_stock"},
-    {"name": "Pork Sausages",           "category": "meat",     "status": "in_stock"},
-    {"name": "Tuna (Canned)",           "category": "seafood",  "status": "in_stock"},
-    # Dairy
-    {"name": "Cheddar Cheese",          "category": "dairy",    "status": "in_stock"},
-    {"name": "Mozzarella",              "category": "dairy",    "status": "in_stock"},
-    {"name": "Double Cream",            "category": "dairy",    "status": "low"},
-    {"name": "Whole Milk",              "category": "dairy",    "status": "in_stock"},
-    {"name": "Butter",                  "category": "dairy",    "status": "in_stock"},
-    {"name": "Eggs",                    "category": "dairy",    "status": "in_stock"},
-    # Produce
-    {"name": "Iceberg Lettuce",         "category": "produce",  "status": "in_stock"},
-    {"name": "Tomatoes",                "category": "produce",  "status": "in_stock"},
-    {"name": "Red Onion",               "category": "produce",  "status": "in_stock"},
-    {"name": "White Onion",             "category": "produce",  "status": "in_stock"},
-    {"name": "Garlic",                  "category": "produce",  "status": "in_stock"},
-    {"name": "Potatoes",                "category": "produce",  "status": "in_stock"},
-    {"name": "Sweet Potatoes",          "category": "produce",  "status": "in_stock"},
-    {"name": "Broccoli",                "category": "produce",  "status": "in_stock"},
-    {"name": "Carrots",                 "category": "produce",  "status": "in_stock"},
-    {"name": "Courgette",               "category": "produce",  "status": "in_stock"},
-    {"name": "Portobello Mushrooms",    "category": "produce",  "status": "in_stock"},
-    {"name": "Mixed Peppers",           "category": "produce",  "status": "in_stock"},
-    {"name": "Cucumber",                "category": "produce",  "status": "in_stock"},
-    {"name": "Strawberries",            "category": "produce",  "status": "low"},
-    {"name": "Mango",                   "category": "produce",  "status": "in_stock"},
-    {"name": "Melon",                   "category": "produce",  "status": "in_stock"},
-    {"name": "Lemon",                   "category": "produce",  "status": "in_stock"},
-    # Bread / pastry
-    {"name": "Burger Buns",             "category": "bread",    "status": "in_stock"},
-    {"name": "Wraps (Flour)",           "category": "bread",    "status": "in_stock"},
-    {"name": "Sliced White Bread",      "category": "bread",    "status": "in_stock"},
-    {"name": "Pizza Dough Bases",       "category": "bread",    "status": "in_stock"},
-    # Pantry
-    {"name": "Olive Oil",               "category": "pantry",   "status": "in_stock"},
-    {"name": "Vegetable Stock",         "category": "pantry",   "status": "in_stock"},
-    {"name": "Passata",                 "category": "pantry",   "status": "in_stock"},
-    {"name": "Pesto",                   "category": "pantry",   "status": "in_stock"},
-    {"name": "Tomato Sauce",            "category": "pantry",   "status": "in_stock"},
-    {"name": "Macaroni Pasta",          "category": "pantry",   "status": "in_stock"},
-    {"name": "Spaghetti",               "category": "pantry",   "status": "in_stock"},
-    {"name": "Penne Pasta",             "category": "pantry",   "status": "in_stock"},
-    {"name": "Rice (Long Grain)",       "category": "pantry",   "status": "in_stock"},
-    {"name": "Caster Sugar",            "category": "pantry",   "status": "out"},
-    {"name": "Plain Flour",             "category": "pantry",   "status": "in_stock"},
-    {"name": "Salt",                    "category": "pantry",   "status": "in_stock"},
-    {"name": "Black Pepper",            "category": "pantry",   "status": "in_stock"},
-    {"name": "Mixed Herbs",             "category": "pantry",   "status": "in_stock"},
-    {"name": "Paprika",                 "category": "pantry",   "status": "in_stock"},
-    {"name": "Mayonnaise",              "category": "pantry",   "status": "in_stock"},
-    {"name": "Ketchup",                 "category": "pantry",   "status": "in_stock"},
-    # Frozen
-    {"name": "Frozen Chips",            "category": "frozen",   "status": "in_stock"},
-    {"name": "Frozen Sweet Potato Fries","category": "frozen",  "status": "in_stock"},
-    {"name": "Ice Cream Mix (Vanilla)", "category": "frozen",   "status": "out"},
-    {"name": "Ice Cream Mix (Chocolate)","category": "frozen",  "status": "low"},
-    # Beverages
-    {"name": "Coca Cola (330ml)",       "category": "beverages","status": "in_stock"},
-    {"name": "Coca Cola Zero (330ml)",  "category": "beverages","status": "in_stock"},
-    {"name": "Lemonade (330ml)",        "category": "beverages","status": "in_stock"},
-    {"name": "Apple Juice (1L)",        "category": "beverages","status": "in_stock"},
-    {"name": "Coffee Beans",            "category": "beverages","status": "in_stock"},
-    {"name": "Mint Tea Bags",           "category": "beverages","status": "in_stock"},
-    {"name": "Black Tea Bags",          "category": "beverages","status": "in_stock"},
-    {"name": "Green Tea Bags",          "category": "beverages","status": "in_stock"},
-    {"name": "Whole Milk (for coffee)", "category": "beverages","status": "in_stock"},
-]
-
+# ─── Public API ──────────────────────────────────────────────────────────────
 
 def get_supply_chain() -> SupplyChainResult:
+    """Return supplier info + inventory summary (top items per category)."""
+    inventory: list[InventoryItem] = []
+    for cat, products in _PRODUCTS_BY_CATEGORY.items():
+        # Show up to 8 items per category as inventory sample
+        for p in products[:8]:
+            inventory.append(InventoryItem(
+                name=p["name"],
+                category=cat,
+                status="in_stock",
+            ))
+    return SupplyChainResult(
+        suppliers=[_BIDFOOD_SUPPLIER],
+        inventory=inventory,
+    )
+
+
+def get_full_catalogue() -> dict:
+    """Return the full catalogue grouped by taxonomy category, with product counts."""
+    result = {}
+    for cat, products in _PRODUCTS_BY_CATEGORY.items():
+        result[cat] = {
+            "count": len(products),
+            "products": [
+                {
+                    "name": p["name"],
+                    "brand": p["brand"],
+                    "product_code": p["product_code"],
+                    "image_file": p["image_file"],
+                    "storage_type": p["storage_type"],
+                }
+                for p in products
+            ],
+        }
+    return result
+
+
+def search_products(query: str, limit: int = 20) -> list[dict]:
+    """Search products by name (case-insensitive substring match)."""
+    query_lower = query.lower()
+    results = []
+    for p in _PRODUCTS:
+        if query_lower in p["name"].lower():
+            results.append(p)
+            if len(results) >= limit:
+                break
+    return results
+
+
+def get_product_count() -> int:
+    """Return total number of products loaded."""
+    return len(_PRODUCTS)
+
+
+def get_images_dir() -> Path:
+    """Return path to the images directory for static serving."""
+    return _IMAGES_DIR
+
+
+def match_ingredient(ingredient_name: str) -> list[dict]:
     """
-    Return BidFood Direct supplier and ingredient inventory.
-    DATA SOURCE: mock data (BidFood Direct catalogue — to be scraped)
+    Find BidFood products that match an ingredient name.
+    Uses case-insensitive substring matching on product names.
+    Returns matching products (up to 10).
     """
-    supplier = Supplier(**_BIDFOOD_SUPPLIER)
-    inventory = [InventoryItem(**i) for i in _INVENTORY]
-    return SupplyChainResult(suppliers=[supplier], inventory=inventory)
+    ing_lower = ingredient_name.lower()
+    # Split multi-word ingredient into individual terms
+    terms = [t for t in ing_lower.split() if len(t) > 2]
+    matches = []
+    for p in _PRODUCTS:
+        name_lower = p["name"].lower()
+        # Match if all significant terms appear in product name
+        if all(t in name_lower for t in terms):
+            matches.append(p)
+            if len(matches) >= 10:
+                break
+    return matches

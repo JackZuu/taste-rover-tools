@@ -49,6 +49,32 @@ def _get_enrichment(item_id: int) -> dict | None:
         }
 
 
+# ─── Ingredient sourcing helper ───────────────────────────────────────────────
+
+def _check_sourcing(ingredients: list[str]) -> dict:
+    """Check which ingredients can be sourced from BidFood."""
+    from app.supply_bidfood import match_ingredient
+    sourced = []
+    unsourced = []
+    for ing in ingredients:
+        matches = match_ingredient(ing)
+        if matches:
+            best = matches[0]
+            sourced.append({
+                "ingredient": ing,
+                "product": best["name"],
+                "product_code": best["product_code"],
+                "image_file": best["image_file"],
+            })
+        else:
+            unsourced.append(ing)
+    return {
+        "sourced": sourced,
+        "unsourced": unsourced,
+        "pct": round(len(sourced) / max(len(ingredients), 1) * 100),
+    }
+
+
 # ─── Name matching helper ────────────────────────────────────────────────────
 
 def _name_matches(item_name: str, names_list: list[str]) -> bool:
@@ -204,6 +230,9 @@ def generate_proposal(
         if cat not in categories:
             categories[cat] = []
 
+        # Check ingredient sourcing from BidFood
+        sourcing = _check_sourcing(ingredients)
+
         categories[cat].append({
             "id":              item["id"],
             "name":            item["name"],
@@ -213,6 +242,7 @@ def generate_proposal(
             "tags":            tags,
             "nutrition":       nutrition,
             "ingredients":     ingredients,
+            "sourcing":        sourcing,
             "featured":        False,
         })
 
