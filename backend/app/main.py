@@ -22,7 +22,7 @@ from app.historic import get_historic
 from app.seasonal import get_seasonal
 from app.celebrations import get_celebrations, get_celebrations_for_month
 from app.regional import get_regional_demand
-from app.decision import get_decision_and_options, make_decision
+from app.decision import get_decision_and_options
 from app.menu_generator import generate_menu
 from app.flow import run_flow
 from app.models import WeatherResult
@@ -76,6 +76,10 @@ class DecisionRequest(BaseModel):
     is_rainy: bool
     condition: str = "mainly cloud"
     date: str = ""
+    region: str = ""
+    active_trends: list[str] = []
+    seasonal_items: list[str] = []
+    upcoming_celebration: str = ""
 
 class MenuRequest(BaseModel):
     avg_temp: float
@@ -254,7 +258,13 @@ def get_decision_endpoint(req: DecisionRequest):
         condition=req.condition,
         is_rainy=req.is_rainy,
     )
-    result = get_decision_and_options(weather)
+    result = get_decision_and_options(
+        weather,
+        active_trends=req.active_trends,
+        seasonal_items=req.seasonal_items,
+        upcoming_celebration=req.upcoming_celebration,
+        region=req.region,
+    )
     return {
         "primary_meal": result.primary_meal,
         "primary_reason": result.primary_reason,

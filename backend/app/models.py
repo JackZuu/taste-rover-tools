@@ -191,9 +191,11 @@ class RegionalResult:
 @dataclass
 class MenuOption:
     name: str
-    category: str       # "burger", "wrap", "dessert", "soup", etc.
+    category: str       # "grill", "sides", "snacks", "desserts", etc.
     weather_fit: str    # "warm", "cold", "any"
-    emoji: str
+    emoji: str = ""
+    score: float = 0.0
+    tags: list = field(default_factory=list)
 
 
 @dataclass

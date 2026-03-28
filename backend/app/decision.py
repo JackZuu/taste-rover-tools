@@ -1,83 +1,206 @@
 """
 Decision module — primary meal recommendation + weather-informed menu options.
 
-DATA SOURCE: hardcoded rules + hardcoded option catalogue
+Reads enriched menu items from the database and scores them using the
+framework config weights and live pipeline signals (weather, trends,
+seasonal, celebrations, region).  No hardcoded menus.
+
+DATA SOURCE: SQLite (menu_items + enrichment) + framework config + pipeline signals
 """
-from app.models import WeatherResult, DecisionResult, MenuOption, DecisionAndOptionsResult
+from app.database import SessionLocal, MenuItemDB
+from app.menu_proposal import score_item, _get_config, _get_enrichment
+from app.models import WeatherResult, DecisionResult, DecisionAndOptionsResult, MenuOption
 
-# ─── Hardcoded option catalogue keyed by weather profile ──────────────────────
 
-_OPTIONS_WARM_DRY: list[dict] = [
-    {"name": "Smash Burger",          "category": "burger",  "weather_fit": "warm", "emoji": "🍔"},
-    {"name": "Grilled Chicken Wrap",  "category": "wrap",    "weather_fit": "warm", "emoji": "🌯"},
-    {"name": "Halloumi Skewers",      "category": "skewer",  "weather_fit": "warm", "emoji": "🍢"},
-    {"name": "BBQ Pulled Pork Bun",   "category": "burger",  "weather_fit": "warm", "emoji": "🥩"},
-    {"name": "Strawberry Ice Cream",  "category": "dessert", "weather_fit": "warm", "emoji": "🍓"},
-    {"name": "Mango Sorbet",          "category": "dessert", "weather_fit": "warm", "emoji": "🥭"},
-    {"name": "Loaded Fries",          "category": "side",    "weather_fit": "any",  "emoji": "🍟"},
-    {"name": "Fresh Green Salad",     "category": "salad",   "weather_fit": "warm", "emoji": "🥗"},
-    {"name": "Watermelon Slush",      "category": "drink",   "weather_fit": "warm", "emoji": "🍉"},
-    {"name": "Margherita Pizza Slice","category": "pizza",   "weather_fit": "any",  "emoji": "🍕"},
-]
+# ─── Helpers ─────────────────────────────────────────────────────────────────
 
-_OPTIONS_COLD_OR_RAINY: list[dict] = [
-    {"name": "Tomato Soup & Bread",   "category": "soup",    "weather_fit": "cold", "emoji": "🍅"},
-    {"name": "Chicken Tikka Wrap",    "category": "wrap",    "weather_fit": "any",  "emoji": "🌯"},
-    {"name": "Mac & Cheese Bowl",     "category": "bowl",    "weather_fit": "cold", "emoji": "🧀"},
-    {"name": "Chilli Con Carne",      "category": "bowl",    "weather_fit": "cold", "emoji": "🌶️"},
-    {"name": "Hot Dog with Onions",   "category": "hot dog", "weather_fit": "cold", "emoji": "🌭"},
-    {"name": "Pepperoni Pizza Slice", "category": "pizza",   "weather_fit": "any",  "emoji": "🍕"},
-    {"name": "Loaded Fries",          "category": "side",    "weather_fit": "any",  "emoji": "🍟"},
-    {"name": "Spiced Lentil Soup",    "category": "soup",    "weather_fit": "cold", "emoji": "🫘"},
-    {"name": "Warm Brownie & Cream",  "category": "dessert", "weather_fit": "cold", "emoji": "🍫"},
-    {"name": "Hot Chocolate",         "category": "drink",   "weather_fit": "cold", "emoji": "☕"},
-]
+def _load_scored_items(
+    weather: WeatherResult | None,
+    active_trends: list[str],
+    seasonal_items: list[str],
+    upcoming_celebration: str,
+    region: str,
+) -> list[dict]:
+    """Load all active items, enrich, score, and return sorted descending."""
+    config = _get_config()
+    if not config:
+        from app.taxonomy import CONFIG_DEFAULTS
+        config = dict(CONFIG_DEFAULTS)
+
+    exclude = set(config.get("exclude_allergens", []))
+
+    with SessionLocal() as session:
+        rows = session.query(MenuItemDB).filter_by(active=True).all()
+        items = [
+            {"id": r.id, "name": r.name, "category": r.category, "price_gbp": r.price_gbp}
+            for r in rows
+        ]
+
+    scored: list[dict] = []
+    for item in items:
+        enrichment = _get_enrichment(item["id"])
+        tags = enrichment["tags"] if enrichment else []
+        nutrition = enrichment["nutrition"] if enrichment else {}
+
+        # Skip excluded allergens
+        if exclude and any(a in tags for a in exclude):
+            continue
+
+        item_score = score_item(
+            tags=tags,
+            price_gbp=item["price_gbp"],
+            weather=weather,
+            active_trends=active_trends,
+            seasonal_items=seasonal_items,
+            upcoming_celebration=upcoming_celebration,
+            region=region,
+            config=config,
+        )
+
+        scored.append({
+            **item,
+            "score": item_score,
+            "tags": tags,
+            "nutrition": nutrition,
+        })
+
+    scored.sort(key=lambda x: x["score"], reverse=True)
+    return scored
+
+
+def _weather_label(weather: WeatherResult) -> str:
+    """Human-readable weather summary for the reason string."""
+    parts = []
+    parts.append(f"{weather.avg_temp:.1f}°C")
+    parts.append(weather.condition)
+    return " and ".join(parts)
+
+
+def _build_reason(item: dict, weather: WeatherResult | None, active_trends: list[str],
+                  seasonal_items: list[str], upcoming_celebration: str, region: str) -> str:
+    """Build a human-readable explanation for why this item was chosen."""
+    tags = item.get("tags", [])
+    reasons: list[str] = []
+
+    if weather:
+        is_warm = weather.avg_temp > 15 and not weather.is_rainy
+        if is_warm and "hot_weather" in tags:
+            reasons.append(f"great for warm weather ({weather.avg_temp:.0f}°C, {weather.condition})")
+        elif not is_warm and "cold_weather" in tags:
+            reasons.append(f"perfect for cold/wet weather ({weather.avg_temp:.0f}°C, {weather.condition})")
+        elif "any_weather" in tags:
+            reasons.append("works in any weather")
+
+    if "trending_up" in tags and active_trends:
+        reasons.append("trending up right now")
+    if any(t in tags for t in ["seasonal_spring", "seasonal_summer", "seasonal_autumn", "seasonal_winter"]):
+        if seasonal_items:
+            reasons.append("uses seasonal ingredients")
+    if "celebration_fit" in tags and upcoming_celebration:
+        reasons.append(f"fits {upcoming_celebration}")
+    if "regional_special" in tags and region:
+        reasons.append(f"regional favourite ({region})")
+    if "comfort_food" in tags:
+        reasons.append("comfort food")
+    if "hero_item" in tags:
+        reasons.append("hero item")
+
+    if not reasons:
+        reasons.append("strong all-round performer")
+
+    return ", ".join(reasons[:3]).capitalize()
 
 
 # ─── Public functions ─────────────────────────────────────────────────────────
 
-def make_decision(weather: WeatherResult) -> DecisionResult:
+def make_decision(
+    weather: WeatherResult,
+    active_trends: list[str] | None = None,
+    seasonal_items: list[str] | None = None,
+    upcoming_celebration: str = "",
+    region: str = "",
+) -> DecisionResult:
     """
-    Primary recommendation rule:
-      - temp > 15°C AND not rainy  →  strawberry ice cream
-      - temp <= 15°C OR rainy      →  tomato soup
+    Pick the single best menu item as the primary recommendation,
+    scored using enrichment tags and framework config weights.
     """
-    if weather.avg_temp > 15 and not weather.is_rainy:
-        meal = "strawberry ice cream"
-        reason = (
-            f"{weather.avg_temp:.1f}°C and {weather.condition} — "
-            "warm and dry, perfect for something cold and refreshing!"
+    active_trends = active_trends or []
+    seasonal_items = seasonal_items or []
+
+    scored = _load_scored_items(weather, active_trends, seasonal_items, upcoming_celebration, region)
+
+    if not scored:
+        return DecisionResult(
+            meal="(no enriched items — run enrichment first)",
+            reason="No scored items available. Enrich your menu to enable smart recommendations.",
         )
-    else:
-        parts: list[str] = []
-        if weather.avg_temp <= 15:
-            parts.append(f"{weather.avg_temp:.1f}°C")
-        if weather.is_rainy:
-            parts.append(weather.condition)
-        meal = "tomato soup"
-        reason = (
-            f"{' and '.join(parts)} — "
-            "chilly or wet weather calls for something warming!"
-        )
-    return DecisionResult(meal=meal, reason=reason)
+
+    best = scored[0]
+    reason = _build_reason(best, weather, active_trends, seasonal_items, upcoming_celebration, region)
+
+    return DecisionResult(meal=best["name"], reason=reason)
 
 
-def generate_menu_options(weather: WeatherResult) -> list[MenuOption]:
+def generate_menu_options(
+    weather: WeatherResult,
+    active_trends: list[str] | None = None,
+    seasonal_items: list[str] | None = None,
+    upcoming_celebration: str = "",
+    region: str = "",
+) -> list[MenuOption]:
     """
-    Return a weather-informed set of menu option concepts.
-    Warm/dry → cold-weather-friendly options filtered out.
-    Cold/wet → warm-weather-only options filtered out.
-    DATA SOURCE: hardcoded
+    Return the top-scoring menu items as weather-informed options.
+    Picks up to 10 items, preferring variety across categories.
     """
-    is_warm = weather.avg_temp > 15 and not weather.is_rainy
-    catalogue = _OPTIONS_WARM_DRY if is_warm else _OPTIONS_COLD_OR_RAINY
-    return [MenuOption(**o) for o in catalogue]
+    active_trends = active_trends or []
+    seasonal_items = seasonal_items or []
+
+    scored = _load_scored_items(weather, active_trends, seasonal_items, upcoming_celebration, region)
+
+    # Pick top items with category diversity (max 2 per category, up to 10 total)
+    options: list[MenuOption] = []
+    cat_counts: dict[str, int] = {}
+
+    for item in scored:
+        cat = item["category"]
+        if cat_counts.get(cat, 0) >= 2:
+            continue
+
+        # Determine weather_fit from tags
+        tags = item.get("tags", [])
+        if "hot_weather" in tags:
+            weather_fit = "warm"
+        elif "cold_weather" in tags:
+            weather_fit = "cold"
+        else:
+            weather_fit = "any"
+
+        options.append(MenuOption(
+            name=item["name"],
+            category=cat,
+            weather_fit=weather_fit,
+            emoji="",  # frontend handles emoji mapping
+            score=item["score"],
+            tags=tags,
+        ))
+        cat_counts[cat] = cat_counts.get(cat, 0) + 1
+
+        if len(options) >= 10:
+            break
+
+    return options
 
 
-def get_decision_and_options(weather: WeatherResult) -> DecisionAndOptionsResult:
-    """Combined: primary recommendation + full options list."""
-    decision = make_decision(weather)
-    options = generate_menu_options(weather)
+def get_decision_and_options(
+    weather: WeatherResult,
+    active_trends: list[str] | None = None,
+    seasonal_items: list[str] | None = None,
+    upcoming_celebration: str = "",
+    region: str = "",
+) -> DecisionAndOptionsResult:
+    """Combined: primary recommendation + full options list, all data-driven."""
+    decision = make_decision(weather, active_trends, seasonal_items, upcoming_celebration, region)
+    options = generate_menu_options(weather, active_trends, seasonal_items, upcoming_celebration, region)
     return DecisionAndOptionsResult(
         primary_meal=decision.meal,
         primary_reason=decision.reason,
@@ -86,6 +209,9 @@ def get_decision_and_options(weather: WeatherResult) -> DecisionAndOptionsResult
 
 
 if __name__ == "__main__":
+    from app.database import init_db
+    init_db()
+
     sunny_warm = WeatherResult(date="2025-06-01", avg_temp=20.0, condition="mainly sun", is_rainy=False)
     rainy_cold = WeatherResult(date="2025-06-01", avg_temp=10.0, condition="mainly rain", is_rainy=True)
 
@@ -95,4 +221,4 @@ if __name__ == "__main__":
         print(f"Reason:  {r.primary_reason}")
         print("Options:")
         for opt in r.menu_options:
-            print(f"  {opt.emoji} {opt.name} [{opt.category}]")
+            print(f"  {opt.name} [{opt.category}] score={opt.score:.2f} weather={opt.weather_fit}")

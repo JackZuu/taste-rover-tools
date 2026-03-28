@@ -167,7 +167,7 @@ type SeasonalItem   = {name:string; category:string};
 type FoodSuggestion = {name:string; category:string};
 type Celebration    = {name:string; date:string; days_away:number; food_opportunity:string; menu_suggestions?:FoodSuggestion[]};
 type RegionalInsight= {insight:string; category:string};
-type MenuOption     = {name:string; category:string; weather_fit:string; emoji:string};
+type MenuOption     = {name:string; category:string; weather_fit:string; emoji:string; score?:number; tags?:string[]};
 type NutritionItem  = {ingredient:string; assumed_amount:string; calories_kcal:number; notes:string};
 type StepStatus     = "idle"|"loading"|"done"|"error";
 
@@ -208,42 +208,7 @@ function autoSelectVan(vans: Van[], postcode: string, region: string): string {
   return vans[0].id;
 }
 
-// ─── Decision logic ───────────────────────────────────────────────────────────
-
-function decideAndOptions(avgTemp:number, isRainy:boolean, condition:string): {
-  primary_meal:string; primary_reason:string; menu_options:MenuOption[];
-}{
-  const warm = avgTemp>15 && !isRainy;
-  const primary_meal = warm ? "strawberry ice cream" : "tomato soup";
-  const primary_reason = warm
-    ? `${avgTemp.toFixed(1)}°C and ${condition} — warm and dry, perfect for something cold!`
-    : `${avgTemp.toFixed(1)}°C${isRainy?" and "+condition:""} — chilly or wet, time for something warming!`;
-  const warm_opts:MenuOption[] = [
-    {name:"Smash Burger",         category:"burger",  weather_fit:"warm", emoji:"🍔"},
-    {name:"Grilled Chicken Wrap", category:"wrap",    weather_fit:"warm", emoji:"🌯"},
-    {name:"Halloumi Skewers",     category:"skewer",  weather_fit:"warm", emoji:"🍢"},
-    {name:"BBQ Pulled Pork Bun",  category:"burger",  weather_fit:"warm", emoji:"🥩"},
-    {name:"Strawberry Ice Cream", category:"dessert", weather_fit:"warm", emoji:"🍓"},
-    {name:"Mango Sorbet",         category:"dessert", weather_fit:"warm", emoji:"🥭"},
-    {name:"Loaded Fries",         category:"side",    weather_fit:"any",  emoji:"🍟"},
-    {name:"Fresh Green Salad",    category:"salad",   weather_fit:"warm", emoji:"🥗"},
-    {name:"Watermelon Slush",     category:"drink",   weather_fit:"warm", emoji:"🍉"},
-    {name:"Margherita Pizza",     category:"pizza",   weather_fit:"any",  emoji:"🍕"},
-  ];
-  const cold_opts:MenuOption[] = [
-    {name:"Tomato Soup & Bread",  category:"soup",    weather_fit:"cold", emoji:"🍅"},
-    {name:"Chicken Tikka Wrap",   category:"wrap",    weather_fit:"any",  emoji:"🌯"},
-    {name:"Mac & Cheese Bowl",    category:"bowl",    weather_fit:"cold", emoji:"🧀"},
-    {name:"Chilli Con Carne",     category:"bowl",    weather_fit:"cold", emoji:"🌶️"},
-    {name:"Hot Dog with Onions",  category:"hot dog", weather_fit:"cold", emoji:"🌭"},
-    {name:"Pepperoni Pizza",      category:"pizza",   weather_fit:"any",  emoji:"🍕"},
-    {name:"Loaded Fries",         category:"side",    weather_fit:"any",  emoji:"🍟"},
-    {name:"Spiced Lentil Soup",   category:"soup",    weather_fit:"cold", emoji:"🫘"},
-    {name:"Warm Brownie & Cream", category:"dessert", weather_fit:"cold", emoji:"🍫"},
-    {name:"Hot Chocolate",        category:"drink",   weather_fit:"cold", emoji:"☕"},
-  ];
-  return {primary_meal, primary_reason, menu_options: warm ? warm_opts : cold_opts};
-}
+// ─── Decision logic — handled by POST /api/decision (uses DB items + framework config) ──
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -1564,27 +1529,41 @@ export default function FlowScreen({
       setWeatherStatus("error"); setRunning(false); return;
     }
 
-    // ── Step 10: Decision (client-side) ───────────────────────────────────
+    // ── Gather pipeline signals for decision + menu ──────────────────────
+    const activeTrends = tr.status==="fulfilled"
+      ? tr.value.trends.filter((t:any)=>t.direction==="up").map((t:any)=>t.label)
+      : [];
+    const seasonalNames = sea.status==="fulfilled"
+      ? sea.value.items.map((i:any)=>i.name)
+      : [];
+    const nextCeleb = cel.status==="fulfilled"
+      ? (cel.value.upcoming?.[0]?.name ?? "")
+      : "";
+
+    // ── Step 10: Decision (backend — scored from DB + framework config) ──
     setDecisionStatus("loading");
-    const dec = decideAndOptions(wr.avg_temp, wr.is_rainy, wr.condition);
-    setDecisionResult(dec); setDecisionStatus("done");
+    let dec: {primary_meal:string; primary_reason:string; menu_options:MenuOption[]} | null = null;
+    try {
+      dec = await post("/api/decision", {
+        avg_temp:wr.avg_temp, is_rainy:wr.is_rainy, condition:wr.condition,
+        region:activeRegion, active_trends:activeTrends,
+        seasonal_items:seasonalNames, upcoming_celebration:nextCeleb,
+      });
+      // Add emojis from the frontend map (cosmetic)
+      if (dec?.menu_options) {
+        dec.menu_options = dec.menu_options.map(o => ({...o, emoji: o.emoji || getItemEmoji(o.name)}));
+      }
+      setDecisionResult(dec); setDecisionStatus("done");
+    } catch(e:any) {
+      setDecisionStatus("error");
+    }
 
     // ── Step 11: Menu proposal ─────────────────────────────────────────────
     setMenuStatus("loading");
     try {
-      // Read from settled results directly to avoid stale-closure issues
-      const activeTrends = tr.status==="fulfilled"
-        ? tr.value.trends.filter((t:any)=>t.direction==="up").map((t:any)=>t.label)
-        : [];
-      const seasonalNames = sea.status==="fulfilled"
-        ? sea.value.items.map((i:any)=>i.name)
-        : [];
-      const nextCeleb = cel.status==="fulfilled"
-        ? (cel.value.upcoming?.[0]?.name ?? "")
-        : "";
       const data = await post("/api/menu",{
         avg_temp:wr.avg_temp, is_rainy:wr.is_rainy, condition:wr.condition,
-        primary_meal:dec.primary_meal, region:activeRegion,
+        primary_meal:dec?.primary_meal ?? "", region:activeRegion,
         active_trends:activeTrends, seasonal_items:seasonalNames,
         upcoming_celebration:nextCeleb,
       });
