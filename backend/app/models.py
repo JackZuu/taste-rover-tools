@@ -35,6 +35,16 @@ class SupplyResult:
 class EquipmentItem:
     name: str
     available: bool
+    model: Optional[str] = None
+    electrical: Optional[str] = None
+    peak_kw: Optional[float] = None
+    avg_kw: Optional[str] = None
+    weight_kg: Optional[float] = None
+    dimensions_cm: Optional[str] = None
+    clearance: Optional[str] = None
+    price_new: Optional[float] = None
+    price_used: Optional[float] = None
+    notes: Optional[str] = None
 
 
 @dataclass

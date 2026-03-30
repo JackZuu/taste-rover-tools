@@ -836,7 +836,12 @@ export function RegionalScreen({ onBack }: { onBack: () => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 type Van = { id: string; name: string; base_location: string; postcode: string };
-type EqItem = { name: string; available: boolean };
+type EqItem = {
+  name: string; available: boolean;
+  model?: string; electrical?: string; peak_kw?: number; avg_kw?: string;
+  weight_kg?: number; dimensions_cm?: string; clearance?: string;
+  price_new?: number; price_used?: number; notes?: string;
+};
 type VanEqData = { van: Van; equipment: EqItem[]; available_count: number; total_count: number };
 
 export function EquipmentScreen({ onBack }: { onBack: () => void }) {
@@ -909,19 +914,51 @@ export function EquipmentScreen({ onBack }: { onBack: () => void }) {
                 {data.available_count}/{data.total_count} available
               </span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: "6px" }}>
-              {data.equipment.map((e, i) => (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: "6px",
-                  padding: "6px 10px", borderRadius: "8px",
-                  background: e.available ? "#e6f4ee" : "#fdecea",
-                  fontSize: "12px", fontWeight: "500",
-                  color: e.available ? G.green : G.red,
-                }}>
-                  <span>{e.available ? "✓" : "✗"}</span> {e.name}
-                </div>
-              ))}
-            </div>
+            {data.equipment.some(e => e.model) ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {data.equipment.map((e, i) => (
+                  <div key={i} style={{
+                    padding: "10px 14px", borderRadius: "10px",
+                    background: e.available ? "#e6f4ee" : "#fdecea",
+                    border: `1px solid ${e.available ? "#b2d8c5" : "#f5c6c2"}`,
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: e.model ? "6px" : 0 }}>
+                      <span style={{ fontWeight: "700", color: e.available ? G.green : G.red, fontSize: "13px" }}>
+                        {e.available ? "✓" : "✗"} {e.name}
+                      </span>
+                      {e.electrical && <span style={{ fontSize: "11px", color: "#888", marginLeft: "auto" }}>{e.electrical}</span>}
+                    </div>
+                    {e.model && (
+                      <div style={{ fontSize: "11px", color: "#555", marginBottom: "4px", fontStyle: "italic" }}>{e.model}</div>
+                    )}
+                    {e.model && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", fontSize: "11px", color: "#666" }}>
+                        {e.peak_kw != null && <span>Peak: {e.peak_kw} kW</span>}
+                        {e.avg_kw != null && <span>Avg: {e.avg_kw} kW</span>}
+                        {e.weight_kg != null && <span>{e.weight_kg} kg</span>}
+                        {e.dimensions_cm && <span>{e.dimensions_cm} cm</span>}
+                        {e.clearance && e.clearance !== "Minimal" && <span>Clearance: {e.clearance}</span>}
+                      </div>
+                    )}
+                    {e.notes && <div style={{ fontSize: "11px", color: "#999", marginTop: "4px" }}>{e.notes}</div>}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: "6px" }}>
+                {data.equipment.map((e, i) => (
+                  <div key={i} style={{
+                    display: "flex", alignItems: "center", gap: "6px",
+                    padding: "6px 10px", borderRadius: "8px",
+                    background: e.available ? "#e6f4ee" : "#fdecea",
+                    fontSize: "12px", fontWeight: "500",
+                    color: e.available ? G.green : G.red,
+                  }}>
+                    <span>{e.available ? "✓" : "✗"}</span> {e.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         )}
       </div>

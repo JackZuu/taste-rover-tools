@@ -160,7 +160,7 @@ function getItemEmoji(name: string): string {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Van            = {id:string; name:string; base_location:string; postcode:string};
-type EqItem         = {name:string; available:boolean};
+type EqItem         = {name:string; available:boolean; model?:string; electrical?:string; peak_kw?:number; avg_kw?:string; weight_kg?:number; dimensions_cm?:string; clearance?:string; price_new?:number; price_used?:number; notes?:string};
 type Supplier       = {name:string; distance_miles:number; lead_time_hours:number; categories:string[]; reliability_pct:number};
 type InvItem        = {name:string; category:string; status:"in_stock"|"low"|"out"};
 type TrendItem      = {label:string; direction:"up"|"down"|"stable"; category:string; momentum_pct?:number; avg_interest?:number};
@@ -2273,7 +2273,7 @@ export default function FlowScreen({
             defaultOpen={true}
           >
             {/* ① Equipment */}
-            <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel={equipStatus==="done"?"mock":undefined}
+            <SectionCard step={1} title="Equipment Availability" status={equipStatus} dataLabel={equipStatus==="done"?(equipResult?.equipment.some(e=>e.model)?"real specs":"mock"):undefined}
               titleAction={<button onClick={runEquipment} style={runModBtn} title={runModBtnTitle}>▶ Run</button>}
             >
               {equipStatus==="error"&&<div style={{color:G.red,fontSize:"13px"}}>{equipErr}</div>}
@@ -2285,13 +2285,36 @@ export default function FlowScreen({
                     <StatusBadge ok={equipResult.available_count===equipResult.total_count} labelOk="All ready" labelNo="Items missing"/>
                     <div style={{fontSize:"12px",color:"#888",marginLeft:"auto"}}>{equipResult.available_count}/{equipResult.total_count} available</div>
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:"6px"}}>
-                    {equipResult.equipment.map((e,i)=>(
-                      <div key={i} style={{display:"flex",alignItems:"center",gap:"6px",padding:"5px 8px",background:e.available?"#e6f4ee":"#fdecea",borderRadius:"6px",fontSize:"12px",fontWeight:"500",color:e.available?G.green:G.red}}>
-                        <span>{e.available?"✓":"✗"}</span> {e.name}
-                      </div>
-                    ))}
-                  </div>
+                  {equipResult.equipment.some(e=>e.model)?(
+                    <div style={{display:"flex",flexDirection:"column",gap:"6px"}}>
+                      {equipResult.equipment.map((e,i)=>(
+                        <div key={i} style={{padding:"8px 10px",borderRadius:"8px",background:e.available?"#e6f4ee":"#fdecea",border:`1px solid ${e.available?"#b2d8c5":"#f5c6c2"}`}}>
+                          <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
+                            <span style={{fontWeight:"600",color:e.available?G.green:G.red,fontSize:"12px"}}>{e.available?"✓":"✗"} {e.name}</span>
+                            {e.electrical&&<span style={{fontSize:"10px",color:"#888",marginLeft:"auto"}}>{e.electrical}</span>}
+                          </div>
+                          {e.model&&<div style={{fontSize:"10px",color:"#555",fontStyle:"italic",marginTop:"2px"}}>{e.model}</div>}
+                          {e.model&&(
+                            <div style={{display:"flex",flexWrap:"wrap",gap:"4px 10px",fontSize:"10px",color:"#666",marginTop:"2px"}}>
+                              {e.peak_kw!=null&&<span>Peak: {e.peak_kw} kW</span>}
+                              {e.avg_kw!=null&&<span>Avg: {e.avg_kw} kW</span>}
+                              {e.weight_kg!=null&&<span>{e.weight_kg} kg</span>}
+                              {e.dimensions_cm&&<span>{e.dimensions_cm} cm</span>}
+                            </div>
+                          )}
+                          {e.notes&&<div style={{fontSize:"10px",color:"#999",marginTop:"2px"}}>{e.notes}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  ):(
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:"6px"}}>
+                      {equipResult.equipment.map((e,i)=>(
+                        <div key={i} style={{display:"flex",alignItems:"center",gap:"6px",padding:"5px 8px",background:e.available?"#e6f4ee":"#fdecea",borderRadius:"6px",fontSize:"12px",fontWeight:"500",color:e.available?G.green:G.red}}>
+                          <span>{e.available?"✓":"✗"}</span> {e.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </SectionCard>
