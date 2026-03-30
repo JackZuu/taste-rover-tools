@@ -156,6 +156,31 @@ _VAN_EQUIPMENT: dict[str, list[dict]] = {
 }
 
 
+# ─── Equipment name → taxonomy type mapping ──────────────────────────────────
+# Maps display names (from van equipment) to canonical EQUIPMENT_TYPES keys
+_NAME_TO_TYPE: dict[str, str] = {
+    "broiler":                  "broiler",
+    "convection oven #1":       "convection_oven",
+    "convection oven #2":       "convection_oven",
+    "finishing conveyor":       "finishing_conveyor",
+    "heated window shelf":      "heated_shelf",
+    "coffee machine":           "coffee_machine",
+    "milk foamer":              "milk_foamer",
+    "container refrigeration":  "refrigeration",
+    "tray conveyor":            "tray_conveyor",
+    "tray loading station":     "tray_loading_station",
+    "tray scanner":             "tray_scanner",
+    "grill":                    "grill",
+    "fryer":                    "fryer",
+    "microwave":                "microwave",
+    "blender":                  "blender",
+    "kettle":                   "kettle",
+    "freezer":                  "freezer",
+    "fridge":                   "fridge",
+    "panini press":             "panini_press",
+}
+
+
 # ─── Public API ───────────────────────────────────────────────────────────────
 
 def list_vans() -> list[Van]:
@@ -182,6 +207,18 @@ def get_van_equipment(van_id: str) -> VanEquipmentResult:
     ) for e in raw]
     available = sum(1 for i in items if i.available)
     return VanEquipmentResult(van=van, equipment=items, available_count=available, total_count=len(items))
+
+
+def get_available_equipment_types(van_id: str) -> set[str]:
+    """Return the set of canonical equipment type strings available on a van."""
+    raw = _VAN_EQUIPMENT.get(van_id, _VAN_EQUIPMENT["van_alpha"])
+    types: set[str] = set()
+    for e in raw:
+        if e["available"]:
+            t = _NAME_TO_TYPE.get(e["name"].lower())
+            if t:
+                types.add(t)
+    return types
 
 
 # Legacy helper kept for backward compatibility with flow.py (meal-based)

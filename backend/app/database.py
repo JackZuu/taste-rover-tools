@@ -59,12 +59,13 @@ class MenuItemDB(Base):
 class MenuItemEnrichmentDB(Base):
     __tablename__ = "menu_item_enrichment"
 
-    id          = Column(Integer, primary_key=True, autoincrement=True)
-    item_id     = Column(Integer, nullable=False, unique=True)   # FK → menu_items.id
-    ingredients = Column(Text, nullable=False)   # JSON list of strings
-    nutrition   = Column(Text, nullable=False)   # JSON {cal, protein_g, carbs_g, fat_g, fibre_g}
-    tags        = Column(Text, nullable=False)   # JSON list of tag strings
-    enriched_at = Column(DateTime, default=datetime.utcnow)
+    id               = Column(Integer, primary_key=True, autoincrement=True)
+    item_id          = Column(Integer, nullable=False, unique=True)   # FK → menu_items.id
+    ingredients      = Column(Text, nullable=False)   # JSON list of strings
+    nutrition        = Column(Text, nullable=False)   # JSON {cal, protein_g, carbs_g, fat_g, fibre_g}
+    tags             = Column(Text, nullable=False)   # JSON list of tag strings
+    equipment_needed = Column(Text, default="[]")     # JSON list of equipment type strings
+    enriched_at      = Column(DateTime, default=datetime.utcnow)
 
 
 class FrameworkConfigDB(Base):
@@ -148,6 +149,17 @@ _BASE_MENU: list[dict] = [
 def init_db() -> None:
     """Create tables and seed base menu + default config if not present."""
     Base.metadata.create_all(engine)
+    # Migrate: add equipment_needed column if missing (existing DBs)
+    with engine.connect() as conn:
+        try:
+            conn.execute(__import__("sqlalchemy").text(
+                "SELECT equipment_needed FROM menu_item_enrichment LIMIT 1"
+            ))
+        except Exception:
+            conn.execute(__import__("sqlalchemy").text(
+                "ALTER TABLE menu_item_enrichment ADD COLUMN equipment_needed TEXT DEFAULT '[]'"
+            ))
+            conn.commit()
     with SessionLocal() as session:
         _seed_menu(session)
         _seed_config(session)

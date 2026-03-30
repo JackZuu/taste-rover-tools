@@ -49,6 +49,13 @@ Analyse the following menu item and return a JSON object with exactly these keys
    Positioning (pick all that apply): premium, budget_friendly, quick_serve,
      comfort_food, family_friendly, shareable, hero_item
 
+4. "equipment_needed" — array of strings chosen ONLY from this list of food truck
+   equipment. Pick every piece of equipment required to prepare and serve this item:
+   broiler, convection_oven, finishing_conveyor, heated_shelf, coffee_machine,
+   milk_foamer, refrigeration, tray_conveyor, tray_loading_station, tray_scanner,
+   grill, fryer, microwave, blender, kettle, freezer, fridge, panini_press
+   Pick only the equipment genuinely needed (typically 1–4 items).
+
 Menu item: "{item_name}"
 Category: {category}
 Price: £{price_gbp:.2f}

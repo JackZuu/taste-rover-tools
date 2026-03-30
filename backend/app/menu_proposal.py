@@ -43,9 +43,10 @@ def _get_enrichment(item_id: int) -> dict | None:
         if not row:
             return None
         return {
-            "ingredients": json.loads(row.ingredients),
-            "nutrition":   json.loads(row.nutrition),
-            "tags":        json.loads(row.tags),
+            "ingredients":      json.loads(row.ingredients),
+            "nutrition":        json.loads(row.nutrition),
+            "tags":             json.loads(row.tags),
+            "equipment_needed": json.loads(row.equipment_needed or "[]"),
         }
 
 
@@ -173,6 +174,7 @@ def generate_proposal(
     region: str = "London",
     celebration_suggestions: list[str] | None = None,
     regional_suggestions: list[str] | None = None,
+    van_id: str = "van_alpha",
 ) -> dict:
     """
     Score every active menu item and return the full menu with per-item scores,
@@ -183,6 +185,10 @@ def generate_proposal(
     celebration_suggestions  = celebration_suggestions or []
     regional_suggestions     = regional_suggestions or []
     config                   = _get_config() or {}
+
+    # Load available equipment types for the selected van
+    from app.equipment import get_available_equipment_types
+    available_equip = get_available_equipment_types(van_id)
 
     if not config:
         from app.taxonomy import CONFIG_DEFAULTS
@@ -208,6 +214,7 @@ def generate_proposal(
         tags = enrichment["tags"] if enrichment else []
         nutrition = enrichment["nutrition"] if enrichment else {}
         ingredients = enrichment["ingredients"] if enrichment else []
+        equipment_needed = enrichment["equipment_needed"] if enrichment else []
 
         # Skip excluded allergens
         if exclude and any(a in tags for a in exclude):
@@ -233,6 +240,10 @@ def generate_proposal(
         # Check ingredient sourcing from BidFood
         sourcing = _check_sourcing(ingredients)
 
+        # Check equipment availability
+        equip_available = [e for e in equipment_needed if e in available_equip]
+        equip_missing   = [e for e in equipment_needed if e not in available_equip]
+
         categories[cat].append({
             "id":              item["id"],
             "name":            item["name"],
@@ -243,6 +254,10 @@ def generate_proposal(
             "nutrition":       nutrition,
             "ingredients":     ingredients,
             "sourcing":        sourcing,
+            "equipment_needed":    equipment_needed,
+            "equipment_available": equip_available,
+            "equipment_missing":   equip_missing,
+            "equipment_ready":     len(equip_missing) == 0,
             "featured":        False,
         })
 

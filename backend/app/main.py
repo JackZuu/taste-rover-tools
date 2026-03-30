@@ -139,6 +139,7 @@ class MenuProposalRequest(BaseModel):
     region: str = "London"
     celebration_suggestions: list[str] = []
     regional_suggestions: list[str] = []
+    van_id: str = "van_alpha"
 
 class WeatherSuggestionsRequest(BaseModel):
     avg_temp: float
@@ -378,12 +379,13 @@ def get_enrichment(item_id: int):
         if not row:
             return {"enriched": False}
         return {
-            "enriched":    True,
-            "item_id":     item_id,
-            "ingredients": json.loads(row.ingredients),
-            "nutrition":   json.loads(row.nutrition),
-            "tags":        json.loads(row.tags),
-            "enriched_at": row.enriched_at.isoformat() if row.enriched_at else "",
+            "enriched":         True,
+            "item_id":          item_id,
+            "ingredients":      json.loads(row.ingredients),
+            "nutrition":        json.loads(row.nutrition),
+            "tags":             json.loads(row.tags),
+            "equipment_needed": json.loads(row.equipment_needed or "[]"),
+            "enriched_at":      row.enriched_at.isoformat() if row.enriched_at else "",
         }
 
 @app.post("/api/menu-items/{item_id}/enrich")
@@ -397,12 +399,13 @@ def enrich_menu_item(item_id: int):
         existing = session.query(MenuItemEnrichmentDB).filter_by(item_id=item_id).first()
         if existing:
             return {
-                "enriched":    True,
-                "skipped":     True,
-                "item_id":     item_id,
-                "ingredients": json.loads(existing.ingredients),
-                "nutrition":   json.loads(existing.nutrition),
-                "tags":        json.loads(existing.tags),
+                "enriched":         True,
+                "skipped":          True,
+                "item_id":          item_id,
+                "ingredients":      json.loads(existing.ingredients),
+                "nutrition":        json.loads(existing.nutrition),
+                "tags":             json.loads(existing.tags),
+                "equipment_needed": json.loads(existing.equipment_needed or "[]"),
             }
 
     # Call OpenAI outside session
@@ -428,6 +431,10 @@ def enrich_menu_item(item_id: int):
     tags_raw    = raw.get("tags", [])
     # Validate tags against taxonomy
     tags = [t for t in tags_raw if t in ALL_TAGS]
+    # Validate equipment_needed against taxonomy
+    from app.taxonomy import EQUIPMENT_TYPES
+    equip_raw = raw.get("equipment_needed", [])
+    equipment_needed = [e for e in equip_raw if e in EQUIPMENT_TYPES]
 
     with SessionLocal() as session:
         row = MenuItemEnrichmentDB(
@@ -435,18 +442,20 @@ def enrich_menu_item(item_id: int):
             ingredients=json.dumps(ingredients),
             nutrition=json.dumps(nutrition),
             tags=json.dumps(tags),
+            equipment_needed=json.dumps(equipment_needed),
             enriched_at=datetime.utcnow(),
         )
         session.add(row)
         session.commit()
 
     return {
-        "enriched":    True,
-        "skipped":     False,
-        "item_id":     item_id,
-        "ingredients": ingredients,
-        "nutrition":   nutrition,
-        "tags":        tags,
+        "enriched":         True,
+        "skipped":          False,
+        "item_id":          item_id,
+        "ingredients":      ingredients,
+        "nutrition":        nutrition,
+        "tags":             tags,
+        "equipment_needed": equipment_needed,
     }
 
 @app.post("/api/menu-items/enrich-all")
@@ -591,6 +600,7 @@ def get_menu_proposal_scored(req: MenuProposalRequest):
         region=req.region,
         celebration_suggestions=req.celebration_suggestions,
         regional_suggestions=req.regional_suggestions,
+        van_id=req.van_id,
     )
 
 # ─── Full pipeline ────────────────────────────────────────────────────────────

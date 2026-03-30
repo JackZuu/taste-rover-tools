@@ -1227,7 +1227,7 @@ function FrameworkConfigPanel() {
 // ─── MenuProposalSection ──────────────────────────────────────────────────────
 
 function MenuProposalSection({
-  weatherResult, trendsResult, seasonResult, celebResult, regionResult, activeRegion,
+  weatherResult, trendsResult, seasonResult, celebResult, regionResult, activeRegion, vanId,
 }: {
   weatherResult: { avg_temp: number; condition: string; is_rainy: boolean } | null;
   trendsResult: { items: TrendDiscoveryItem[]; trend_names: string[]; source: string } | null;
@@ -1235,6 +1235,7 @@ function MenuProposalSection({
   celebResult: { upcoming: Celebration[]; source: string } | null;
   regionResult: { region: string; insights: RegionalInsight[]; menu_suggestions?: FoodSuggestion[]; source: string } | null;
   activeRegion: string;
+  vanId: string;
 }) {
   const [proposal, setProposal] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
@@ -1265,6 +1266,7 @@ function MenuProposalSection({
         upcoming_celebration: nextCeleb,
         celebration_suggestions: celebSuggestions,
         regional_suggestions: regionalSuggestions,
+        van_id: vanId,
       };
       if (weatherResult) {
         body.avg_temp = weatherResult.avg_temp;
@@ -1371,6 +1373,13 @@ function MenuProposalSection({
                             <span style={{ fontSize: "20px" }}>{emoji}</span>
                             {isFeatured && <span style={{ fontSize: "10px" }}>⭐</span>}
                             <span style={{ flex: 1, fontSize: "12px", fontWeight: "700", color: "#222" }}>{item.name}</span>
+                            {item.equipment_needed?.length > 0 && (
+                              <span style={{fontSize:"9px",fontWeight:"600",padding:"2px 6px",borderRadius:"8px",
+                                background:item.equipment_ready?"#e6f4ee":"#fdecea",
+                                color:item.equipment_ready?G.green:G.red,
+                                border:`1px solid ${item.equipment_ready?"#b2d8c5":"#f5c6c2"}`,
+                              }}>{item.equipment_ready?"Equip ✓":`Equip ✗${item.equipment_missing?.length??""}`}</span>
+                            )}
                             <span style={{ fontSize: "12px", fontWeight: "700", color: G.green }}>£{(item.price ?? 0).toFixed(2)}</span>
                             <div style={{ width: "60px", height: "4px", background: "#e0e0e0", borderRadius: "2px", overflow: "hidden", flexShrink: 0 }}>
                               <div style={{ height: "100%", background: isFeatured ? G.green : "#b2d8c5", width: `${scoreW}%` }} />
@@ -1420,6 +1429,33 @@ function MenuProposalSection({
                                       Not found in BidFood: {item.sourcing.unsourced.join(", ")}
                                     </div>
                                   )}
+                                </div>
+                              )}
+
+                              {/* Equipment needed */}
+                              {item.equipment_needed && item.equipment_needed.length > 0 && (
+                                <div style={{ marginBottom: "10px" }}>
+                                  <div style={{ fontSize: "10px", fontWeight: "700", color: "#888", textTransform: "uppercase", marginBottom: "4px" }}>
+                                    Equipment Needed
+                                    <span style={{marginLeft:"8px",fontSize:"10px",fontWeight:"600",color:item.equipment_ready?G.green:G.red}}>
+                                      {item.equipment_ready ? "✓ All available" : `✗ ${item.equipment_missing?.length ?? 0} missing`}
+                                    </span>
+                                  </div>
+                                  <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>
+                                    {item.equipment_needed.map((eq:string, ei:number)=>{
+                                      const ok = item.equipment_available?.includes(eq);
+                                      return (
+                                        <span key={ei} style={{
+                                          padding:"3px 8px",borderRadius:"12px",fontSize:"11px",fontWeight:"500",
+                                          background:ok?"#e6f4ee":"#fdecea",
+                                          color:ok?G.green:G.red,
+                                          border:`1px solid ${ok?"#b2d8c5":"#f5c6c2"}`,
+                                        }}>
+                                          {ok?"✓":"✗"} {eq.replace(/_/g," ")}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               )}
 
@@ -1799,6 +1835,7 @@ export default function FlowScreen({
         seasonal_items:seasonalNames, upcoming_celebration:nextCeleb,
         celebration_suggestions:celebSuggestionNames,
         regional_suggestions:regionalSuggestionNames,
+        van_id:selectedVan,
       });
       setMenuResult(data); setMenuStatus("done");
     } catch(e:any) {
@@ -2500,6 +2537,7 @@ export default function FlowScreen({
             celebResult={celebResult}
             regionResult={regionResult}
             activeRegion={activeRegion}
+            vanId={selectedVan}
           />
 
         </div>

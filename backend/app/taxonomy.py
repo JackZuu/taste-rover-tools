@@ -68,6 +68,28 @@ POSITIONING_TAGS = [
     "hero_item",         # lead / featured item for the day
 ]
 
+# ─── Equipment types (canonical names for enrichment matching) ────────────────
+EQUIPMENT_TYPES = [
+    "broiler",
+    "convection_oven",
+    "finishing_conveyor",
+    "heated_shelf",
+    "coffee_machine",
+    "milk_foamer",
+    "refrigeration",
+    "tray_conveyor",
+    "tray_loading_station",
+    "tray_scanner",
+    "grill",
+    "fryer",
+    "microwave",
+    "blender",
+    "kettle",
+    "freezer",
+    "fridge",
+    "panini_press",
+]
+
 # All valid tags (union — used for validation)
 ALL_TAGS = WEATHER_TAGS + DIETARY_TAGS + ALLERGEN_TAGS + DEMAND_TAGS + POSITIONING_TAGS
 
