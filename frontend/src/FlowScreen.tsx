@@ -157,6 +157,27 @@ function getItemEmoji(name: string): string {
   return "🍽️";
 }
 
+// ─── Equipment name → canonical type mapping ────────────────────────────────
+const EQUIP_NAME_TO_TYPE: Record<string,string> = {
+  "broiler":"broiler","convection oven #1":"convection_oven","convection oven #2":"convection_oven",
+  "finishing conveyor":"finishing_conveyor","heated window shelf":"heated_shelf",
+  "coffee machine":"coffee_machine","milk foamer":"milk_foamer",
+  "container refrigeration":"refrigeration","tray conveyor":"tray_conveyor",
+  "tray loading station":"tray_loading_station","tray scanner":"tray_scanner",
+  "grill":"grill","fryer":"fryer","microwave":"microwave","blender":"blender",
+  "kettle":"kettle","freezer":"freezer","fridge":"fridge","panini press":"panini_press",
+};
+function getAvailableEquipTypes(equipment: EqItem[]): string[] {
+  const types = new Set<string>();
+  for (const e of equipment) {
+    if (e.available) {
+      const t = EQUIP_NAME_TO_TYPE[e.name.toLowerCase()];
+      if (t) types.add(t);
+    }
+  }
+  return [...types];
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Van            = {id:string; name:string; base_location:string; postcode:string};
@@ -193,22 +214,9 @@ const UK_REGIONS = [
 
 // ─── Van auto-selection ───────────────────────────────────────────────────────
 
-function autoSelectVan(vans: Van[], postcode: string, region: string): string {
-  if (!vans.length) return "van_alpha";
-  if (region) {
-    const words = region.toLowerCase().split(/[\s,&]+/).filter(w=>w.length>2);
-    for (const v of vans) {
-      const base = v.base_location.toLowerCase();
-      if (words.some(w => base.includes(w))) return v.id;
-    }
-  }
-  if (postcode) {
-    const prefix = postcode.trim().toUpperCase().match(/^[A-Z]{1,2}/)?.[0] ?? "";
-    for (const v of vans) {
-      if (v.postcode.startsWith(prefix)) return v.id;
-    }
-  }
-  return vans[0].id;
+function autoSelectVan(_vans: Van[], _postcode: string, _region: string): string {
+  // Van Alpha is the only van with real equipment specs — always use it
+  return "van_alpha";
 }
 
 // ─── Decision logic — handled by POST /api/decision (uses DB items + framework config) ──
@@ -555,6 +563,7 @@ interface MenuItem {
     ingredients: string[];
     nutrition: { cal?: number; calories?: number; protein_g?: number; protein?: number; carbs_g?: number; carbs?: number; fat_g?: number; fat?: number; fibre_g?: number };
     tags: string[];
+    equipment_needed?: string[];
   };
 }
 
@@ -682,7 +691,7 @@ const CAT_DEFAULT_EMOJI: Record<string, string> = {
   desserts: "🍰", cold_drinks: "🧃", hot_drinks: "☕",
 };
 
-function MenuModule({ refreshTrigger = 0 }: { refreshTrigger?: number }) {
+function MenuModule({ refreshTrigger = 0, availableEquipment = [] }: { refreshTrigger?: number; availableEquipment?: string[] }) {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -2215,7 +2224,7 @@ export default function FlowScreen({
             defaultOpen={true}
           >
             {/* Menu Options (combined menu management + enrichment) */}
-            <MenuModule refreshTrigger={menuRefresh} />
+            <MenuModule refreshTrigger={menuRefresh} availableEquipment={equipResult ? getAvailableEquipTypes(equipResult.equipment) : []} />
 
             {/* Competitor Menus */}
             <div style={{
