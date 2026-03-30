@@ -167,12 +167,15 @@ const EQUIP_NAME_TO_TYPE: Record<string,string> = {
   "grill":"grill","fryer":"fryer","microwave":"microwave","blender":"blender",
   "kettle":"kettle","freezer":"freezer","fridge":"fridge","panini press":"panini_press",
 };
+const EQUIP_ALIASES: Record<string,string[]> = {
+  "broiler":["grill"], "convection_oven":["microwave"],
+};
 function getAvailableEquipTypes(equipment: EqItem[]): string[] {
   const types = new Set<string>();
   for (const e of equipment) {
     if (e.available) {
       const t = EQUIP_NAME_TO_TYPE[e.name.toLowerCase()];
-      if (t) types.add(t);
+      if (t) { types.add(t); (EQUIP_ALIASES[t]??[]).forEach(a=>types.add(a)); }
     }
   }
   return [...types];
@@ -942,7 +945,7 @@ function MenuModule({ refreshTrigger = 0, availableEquipment = [] }: { refreshTr
                         {item.enrichment.nutrition.cal ?? item.enrichment.nutrition.calories ?? "—"} kcal · {item.enrichment.nutrition.protein_g ?? item.enrichment.nutrition.protein ?? "—"}g protein · {item.enrichment.nutrition.carbs_g ?? item.enrichment.nutrition.carbs ?? "—"}g carbs · {item.enrichment.nutrition.fat_g ?? item.enrichment.nutrition.fat ?? "—"}g fat
                       </div>
                       {item.enrichment.tags.length > 0 && (
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginBottom: "8px" }}>
                           <span style={{ fontSize: "11px", fontWeight: "700", color: "#333", marginRight: "2px" }}>Tags:</span>
                           {item.enrichment.tags.map((tag, ti) => (
                             <span key={ti} style={{
@@ -952,6 +955,24 @@ function MenuModule({ refreshTrigger = 0, availableEquipment = [] }: { refreshTr
                               {tag.replace(/_/g, " ")}
                             </span>
                           ))}
+                        </div>
+                      )}
+                      {item.enrichment.equipment_needed && item.enrichment.equipment_needed.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                          <span style={{ fontSize: "11px", fontWeight: "700", color: "#333", marginRight: "2px" }}>Equipment:</span>
+                          {item.enrichment.equipment_needed.map((eq, ei) => {
+                            const ok = availableEquipment.includes(eq);
+                            return (
+                              <span key={ei} style={{
+                                padding: "2px 8px", borderRadius: "10px", fontSize: "10px", fontWeight: "600",
+                                background: ok ? "#e6f4ee" : "#fdecea",
+                                color: ok ? G.green : G.red,
+                                border: `1px solid ${ok ? "#b2d8c5" : "#f5c6c2"}`,
+                              }}>
+                                {ok ? "✓" : "✗"} {eq.replace(/_/g, " ")}
+                              </span>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

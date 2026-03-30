@@ -158,6 +158,12 @@ _VAN_EQUIPMENT: dict[str, list[dict]] = {
 
 # ─── Equipment name → taxonomy type mapping ──────────────────────────────────
 # Maps display names (from van equipment) to canonical EQUIPMENT_TYPES keys
+# Equipment that can substitute for another (key satisfies value)
+_EQUIP_ALIASES: dict[str, list[str]] = {
+    "broiler": ["grill"],       # Nieco JF62 conveyor broiler serves as grill
+    "convection_oven": ["microwave"],  # convection oven can reheat like a microwave
+}
+
 _NAME_TO_TYPE: dict[str, str] = {
     "broiler":                  "broiler",
     "convection oven #1":       "convection_oven",
@@ -210,7 +216,8 @@ def get_van_equipment(van_id: str) -> VanEquipmentResult:
 
 
 def get_available_equipment_types(van_id: str) -> set[str]:
-    """Return the set of canonical equipment type strings available on a van."""
+    """Return the set of canonical equipment type strings available on a van.
+    Includes aliases (e.g. broiler also satisfies grill)."""
     raw = _VAN_EQUIPMENT.get(van_id, _VAN_EQUIPMENT["van_alpha"])
     types: set[str] = set()
     for e in raw:
@@ -218,6 +225,9 @@ def get_available_equipment_types(van_id: str) -> set[str]:
             t = _NAME_TO_TYPE.get(e["name"].lower())
             if t:
                 types.add(t)
+                # Add any equipment types this item can substitute for
+                for alias in _EQUIP_ALIASES.get(t, []):
+                    types.add(alias)
     return types
 
 
